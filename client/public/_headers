@@ -1,0 +1,15 @@
+# Cloudflare Pages — static asset caching & basic security
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/index.html
+  Cache-Control: public, must-revalidate, max-age=0
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/hero-jewelry.jpg
+  Cache-Control: public, max-age=86400

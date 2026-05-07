@@ -1,0 +1,14 @@
+# Cloudflare (Wrangler / optional Pages Git integration)
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+#
+# For Cloudflare Pages dashboard, set:
+#   Build command:    npm run build
+#   Build output:     dist
+#   Root directory:   client  (if repo root is the monorepo)
+# Or deploy from the client/ folder:  npx wrangler pages deploy dist --project-name=bare-brilliant
+#
+# Build-time env: VITE_API_BASE = https://your-api.example.com  (no trailing slash)
+
+name = "bare-brilliant"
+compatibility_date = "2024-12-01"
+pages_build_output_dir = "./dist"
