@@ -4,6 +4,11 @@
 # The site URL is https://<owner>.github.io/<repo>/ (project site).
 # If your repo is <owner>.github.io (user/org site), set VITE_BASE=/ in the
 # workflow env below instead of /${{ github.event.repository.name }}/
+#
+# Required repo variable (Settings → Secrets and variables → Actions → Variables):
+#   VITE_API_BASE   Public https URL of the backend API, no trailing slash.
+#                   e.g. https://api.barebrilliant.com
+#                   (Vite bakes this into the bundle at build time.)
 
 name: Deploy frontend to GitHub Pages
 
@@ -38,6 +43,7 @@ jobs:
         run: npm ci && npm run build
         env:
           VITE_BASE: /${{ github.event.repository.name }}/
+          VITE_API_BASE: ${{ vars.VITE_API_BASE }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
