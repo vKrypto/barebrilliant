@@ -1,0 +1,68 @@
+# docker compose up --build
+#
+# Brings up:
+#   - server: Express API on http://localhost:${SERVER_PORT:-5001}
+#   - client: nginx serving the built Vite app on http://localhost:${CLIENT_PORT:-8080}
+#
+# Configure via a .env file at the repo root (see .env.example).
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: bare-brilliant-api:latest
+    container_name: bare-brilliant-api
+    restart: unless-stopped
+    ports:
+      - "${SERVER_PORT:-5001}:5001"
+    environment:
+      PORT: "5001"
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      LEADS_FILE: /app/data/leads.jsonl
+      # Pick ONE of the two below to enable Firestore persistence:
+      #   1. Mount a service account JSON and point this at it (path inside the container)
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-}
+      #   2. Or paste the JSON contents into this single env var (one line)
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${FIREBASE_SERVICE_ACCOUNT_JSON:-}
+    volumes:
+      # Persist leads.jsonl across container restarts
+      - ./server/data:/app/data
+      # Optional: uncomment if you use the path-based Firebase auth above
+      # - ./server/serviceAccount.json:/app/serviceAccount.json:ro
+    networks:
+      - bare-brilliant
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:5001/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        # Baked into the JS bundle at build time. For local compose, the browser
+        # talks directly to the host-mapped server port.
+        VITE_API_BASE: ${VITE_API_BASE:-http://localhost:5001}
+        VITE_BASE: ${VITE_BASE:-/}
+    image: bare-brilliant-web:latest
+    container_name: bare-brilliant-web
+    restart: unless-stopped
+    ports:
+      - "${CLIENT_PORT:-8080}:80"
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - bare-brilliant
+
+networks:
+  bare-brilliant:
+    driver: bridge
