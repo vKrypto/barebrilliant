@@ -40,7 +40,7 @@
 }
 .bb-bag__thumb {
   display: block;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   border: 1px solid var(--bb-line);
   border-radius: 4px;
   overflow: hidden;

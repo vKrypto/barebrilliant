@@ -18,7 +18,7 @@
 
 /* gallery */
 .bb-pdp__stage {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   background: var(--bb-surface);
   border: 1px solid var(--bb-line);
   border-radius: var(--bb-radius);
@@ -37,7 +37,7 @@
 }
 .bb-pdp__thumb {
   width: 68px;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   padding: 0;
   border: 1px solid var(--bb-line);
   border-radius: 4px;

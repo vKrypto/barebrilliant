@@ -105,7 +105,7 @@ export default function ProductPage() {
               src={gallery[imgIx]?.url || PLACEHOLDER_IMAGE}
               alt={gallery[imgIx]?.alt || product.name}
               width="1600"
-              height="2000"
+              height="1600"
               onError={(e) => {
                 if (e.currentTarget.src !== PLACEHOLDER_IMAGE) e.currentTarget.src = PLACEHOLDER_IMAGE;
               }}
@@ -122,7 +122,7 @@ export default function ProductPage() {
                   aria-label={`View image ${i + 1}`}
                   onClick={() => setImgIx(i)}
                 >
-                  <img src={m.url} alt="" width="160" height="200" loading="lazy" />
+                  <img src={m.url} alt="" width="160" height="160" loading="lazy" />
                 </button>
               ))}
             </div>

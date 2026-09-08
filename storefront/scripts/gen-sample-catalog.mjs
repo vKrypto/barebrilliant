@@ -126,25 +126,27 @@ async function webp(svg, file) {
   await sharp(svg).webp({ quality: 72 }).toFile(resolve(OUT, file));
 }
 
+// Product photography is mostly square (1:1); object-fit: cover in the UI
+// absorbs the occasional off-square crop.
 await webp(
-  tile({ w: 1200, h: 1500, name: "Bare Brilliant", descriptor: "Natural diamond engagement rings", tint: 20 }),
+  tile({ w: 1200, h: 1200, name: "Bare Brilliant", descriptor: "Natural diamond engagement rings", tint: 20 }),
   "product_placeholder.webp"
 );
 
 const cards = [];
 for (const [id, name, descriptor, shape, style, price_from, carat, resizable, about, why, bandFit, tint] of PRODUCTS) {
   const h = hash6(id);
-  const thumb = `products_media/0_${h}_1200x1500.webp`;
+  const thumb = `products_media/0_${h}_1200x1200.webp`;
   const gallery = [0, 1, 2].map((ix) => ({
-    src: `products_media/${ix}_${h}_1600x2000.webp`,
+    src: `products_media/${ix}_${h}_1600x1600.webp`,
     type: "image",
     alt: `${name} — ${shape.toLowerCase()} natural diamond engagement ring, view ${ix + 1}`,
   }));
 
-  // media
-  await webp(tile({ w: 1200, h: 1500, name, descriptor, tint }), thumb);
+  // media — square
+  await webp(tile({ w: 1200, h: 1200, name, descriptor, tint }), thumb);
   for (let ix = 0; ix < 3; ix++) {
-    await webp(tile({ w: 1600, h: 2000, name, descriptor: `${descriptor} · ${["front", "profile", "on hand"][ix]}`, tint }), gallery[ix].src);
+    await webp(tile({ w: 1600, h: 1600, name, descriptor: `${descriptor} · ${["front", "profile", "on hand"][ix]}`, tint }), gallery[ix].src);
   }
 
   const breakup = {

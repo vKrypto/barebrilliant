@@ -8,7 +8,7 @@ export const STORAGE_BASE = RAW_BASE.replace(/\/+$/, "");
 
 export const PLACEHOLDER_IMAGE = `${STORAGE_BASE}/product_placeholder.webp`;
 
-// mediaUrl("products_media/0_a1b2c3_1200x1500.webp") -> absolute URL.
+// mediaUrl("products_media/0_a1b2c3_1200x1200.webp") -> absolute URL.
 // Passing an already-absolute URL or an empty value returns a safe result.
 export function mediaUrl(path) {
   if (!path) return PLACEHOLDER_IMAGE;

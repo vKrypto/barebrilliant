@@ -56,7 +56,7 @@ export default function ShortlistPage() {
                 src={it.thumb ? mediaUrl(it.thumb) : PLACEHOLDER_IMAGE}
                 alt={it.name}
                 width="1200"
-                height="1500"
+                height="1200"
                 loading="lazy"
                 onError={(e) => {
                   if (e.currentTarget.src !== PLACEHOLDER_IMAGE) e.currentTarget.src = PLACEHOLDER_IMAGE;

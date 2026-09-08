@@ -36,7 +36,7 @@ export default function CartPage() {
                   src={it.thumb ? mediaUrl(it.thumb) : PLACEHOLDER_IMAGE}
                   alt={it.name}
                   width="120"
-                  height="150"
+                  height="120"
                   onError={(e) => {
                     if (e.currentTarget.src !== PLACEHOLDER_IMAGE) e.currentTarget.src = PLACEHOLDER_IMAGE;
                   }}

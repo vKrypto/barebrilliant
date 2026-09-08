@@ -111,7 +111,7 @@
 .bb-pcard__media {
   position: relative;
   display: block;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   background: var(--bb-surface);
   border: 1px solid var(--bb-line);
   border-radius: var(--bb-radius);

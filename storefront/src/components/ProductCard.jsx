@@ -39,7 +39,7 @@ export default function ProductCard({ product, source = "engagement-listing" }) 
           alt={product.media?.alt || `${product.name} — ${product.shape} natural diamond engagement ring`}
           loading="lazy"
           width="1200"
-          height="1500"
+          height="1200"
           onError={(e) => {
             if (e.currentTarget.src !== PLACEHOLDER_IMAGE) e.currentTarget.src = PLACEHOLDER_IMAGE;
           }}

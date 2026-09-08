@@ -146,7 +146,7 @@ export default function CheckoutPage() {
                   src={it.thumb ? mediaUrl(it.thumb) : PLACEHOLDER_IMAGE}
                   alt=""
                   width="52"
-                  height="65"
+                  height="52"
                   onError={(e) => {
                     if (e.currentTarget.src !== PLACEHOLDER_IMAGE) e.currentTarget.src = PLACEHOLDER_IMAGE;
                   }}
