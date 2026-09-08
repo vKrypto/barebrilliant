@@ -110,6 +110,16 @@ export default function ProductPage() {
               media={gallery[imgIx]}
               sizes={gallery[imgIx]?.sizes || "(max-width:900px) 100vw, 560px"}
               eager
+              autoPlay={gallery[imgIx]?.type === "video"}
+              onClick={
+                gallery[imgIx]?.type === "video"
+                  ? (e) => {
+                      const v = e.currentTarget;
+                      if (v.paused) v.play().catch(() => {});
+                      else v.pause();
+                    }
+                  : undefined
+              }
             />
           </div>
           {gallery.length > 1 && (

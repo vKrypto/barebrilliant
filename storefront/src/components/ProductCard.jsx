@@ -15,7 +15,7 @@ export default function ProductCard({ product, source = "engagement-listing" }) 
 
   const primary = product.media?.primary || null;
   const secondary = product.media?.secondary || null;
-  const shown = hovered && secondary ? secondary : primary;
+  const secondaryIsVideo = secondary?.type === "video";
 
   function onShortlist(e) {
     e.preventDefault();
@@ -41,11 +41,17 @@ export default function ProductCard({ product, source = "engagement-listing" }) 
         onMouseLeave={() => setHovered(false)}
         onClick={() => trackProductClick({ product_id: product.id, category: "engagement-rings", source })}
       >
-        <Media
-          media={shown}
-          sizes={shown?.sizes || "(max-width:460px) 100vw, (max-width:860px) 50vw, 352px"}
-          preview
-        />
+        <Media media={primary} preview />
+        {hovered && secondary && (
+          // second slot prefers a video (publisher: video[0] || image[1]); on
+          // hover it mounts and — if a video — muted-autoplays over the primary.
+          <Media
+            media={secondary}
+            className="bb-pcard__hover"
+            preview={!secondaryIsVideo}
+            autoPlay={secondaryIsVideo}
+          />
+        )}
         <button
           type="button"
           className="bb-pcard__heart"

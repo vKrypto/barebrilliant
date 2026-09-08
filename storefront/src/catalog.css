@@ -124,8 +124,20 @@
   object-fit: cover;
   display: block;
 }
+/* second-slot media (image[1] or a video) layered over the primary on hover */
+.bb-pcard__hover {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  animation: bb-pcard-fade 0.25s ease both;
+}
+@keyframes bb-pcard-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 .bb-pcard__heart {
   position: absolute;
+  z-index: 2;
   top: 0.6rem;
   right: 0.6rem;
   width: 36px;

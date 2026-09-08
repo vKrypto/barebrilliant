@@ -27,7 +27,7 @@ export function posterOrThumb(media) {
   return mediaUrl(firstRung || media.src || "");
 }
 
-export default function Media({ media, sizes, className, preview = false, eager = false, ...rest }) {
+export default function Media({ media, sizes, className, preview = false, autoPlay = false, eager = false, ...rest }) {
   if (!media) {
     return (
       <img className={className} src={PLACEHOLDER_IMAGE} alt="" width="1080" height="1080"
@@ -45,8 +45,9 @@ export default function Media({ media, sizes, className, preview = false, eager 
         muted
         playsInline
         loop
-        controls={!preview}
-        preload={preview ? "none" : "metadata"}
+        autoPlay={autoPlay || undefined}
+        controls={!preview && !autoPlay}
+        preload={autoPlay ? "auto" : preview ? "none" : "metadata"}
         {...rest}
       >
         {media.sources.map((s, i) => (

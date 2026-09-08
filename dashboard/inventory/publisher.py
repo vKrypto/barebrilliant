@@ -194,6 +194,50 @@ def refresh_all(*, log=print) -> dict:
     return {"published": len(cards), "removed_files": removed, "dest": storagebackends.describe()}
 
 
+def rebuild_media(*, slugs=None, include_unpublished=False, log=print) -> dict:
+    """Force-regenerate every derived rendition from the raw originals.
+
+    Wipes ``products_media/<id>/`` for each target product and re-encodes every
+    IMG_SRCSET / VIDEO_SRCSET rung + video renditions + poster from
+    ``products_raw_media/`` (the ``ProductImage.image`` / ``ProductVideo.video``
+    uploads), then rewrites the product JSON + catalog so the fresh
+    src/srcset/dimensions propagate. Use after changing IMG_SRCSET,
+    IMAGE_QUALITY, IMAGE_FORMAT, VIDEO_SRCSET, VIDEO_FORMATS or the CRF settings.
+    """
+    known = set(Product.objects.values_list("slug", flat=True))
+    if slugs:
+        unknown = sorted(set(slugs) - known)
+        if unknown:
+            raise ValueError(f"unknown product id(s): {', '.join(unknown)}")
+
+    targets = Product.objects.prefetch_related("images", "videos", "tags")
+    if slugs:
+        targets = targets.filter(slug__in=slugs)
+    elif not include_unpublished:
+        targets = targets.filter(is_published=True)
+    targets = list(_ordered(targets))
+
+    wiped = images = videos = 0
+    for p in targets:
+        wiped += storagebackends.rmtree(f"{MEDIA_DIR}/{p.slug}")
+        imgs, vids = _render_media(p)  # rungs gone -> full re-encode from raw
+        images += len(imgs)
+        videos += len(vids)
+        log(f"  · {p.slug}: {len(imgs)} image set(s), {len(vids)} video(s)")
+
+    # propagate the fresh media objects into the published JSON + catalog
+    refreshed = refresh_all(log=lambda *_a, **_k: None)
+
+    return {
+        "products": len(targets),
+        "image_sets": images,
+        "videos": videos,
+        "wiped_files": wiped,
+        "published": refreshed["published"],
+        "dest": storagebackends.describe(),
+    }
+
+
 def publish_changes(*, log=print) -> dict:
     """Push only dirty products + pending removals; always rewrite catalog.json."""
     published = list(_ordered(Product.objects.filter(is_published=True)).prefetch_related("images", "videos", "tags"))
@@ -230,12 +274,14 @@ def publish_changes(*, log=print) -> dict:
 
 # ------------------------------------------------------------- run bookkeeping --
 
-def run_job(kind: str, *, log=print) -> PublishRun:
-    """Wrap refresh_all / publish_changes in a PublishRun row."""
+_JOBS = {"refresh": refresh_all, "publish": publish_changes, "rebuild": rebuild_media}
+
+
+def run_job(kind: str, *, log=print, **kwargs) -> PublishRun:
+    """Wrap a publisher job in a PublishRun row."""
     run = PublishRun.objects.create(kind=kind)
     try:
-        fn = refresh_all if kind == "refresh" else publish_changes
-        result = fn(log=log)
+        result = _JOBS[kind](log=log, **kwargs)
         run.status = "ok"
         run.summary = json.dumps(result)
     except Exception as exc:  # noqa: BLE001 — surface any failure in the row

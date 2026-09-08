@@ -101,5 +101,13 @@ treat it as fixtures, not dashboard output.
 ```bash
 .venv/bin/python manage.py refresh_inventory     # = "Refresh complete inventory"
 .venv/bin/python manage.py publish_changes       # = "Publish inventory changes"
+
+# Force-regenerate EVERY rendition from the raw originals in products_raw_media/
+# (refresh keeps existing rungs). Run after changing IMG_SRCSET / IMAGE_QUALITY /
+# IMAGE_FORMAT / VIDEO_SRCSET / VIDEO_FORMATS / VIDEO_*_CRF.
+.venv/bin/python manage.py rebuild_media                    # all published products
+.venv/bin/python manage.py rebuild_media --all              # + unpublished ones
+.venv/bin/python manage.py rebuild_media the-aria the-lumen # just these ids
+
 .venv/bin/python manage.py test inventory
 ```

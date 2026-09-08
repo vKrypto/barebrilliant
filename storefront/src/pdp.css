@@ -31,6 +31,9 @@
   object-fit: cover;
   display: block;
 }
+.bb-pdp__stage video {
+  cursor: pointer; /* click to pause / play (no native controls) */
+}
 .bb-pdp__thumbs {
   display: flex;
   gap: 0.6rem;

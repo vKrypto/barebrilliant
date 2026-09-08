@@ -94,6 +94,39 @@ class PublisherTests(TestCase):
         p.refresh_from_db()
         self.assertTrue(p.is_dirty)  # post_save signal on the new rows
 
+    # -- rebuild_media -------------------------------------------------
+
+    def test_rebuild_media_reencodes_from_originals(self):
+        self._product("re", images=1)
+        publisher.refresh_all(log=lambda *_: None)
+        d = Path(settings.EXPORT_LOCAL_ROOT) / "products_media" / "re"
+        before = {f.name: f.read_bytes() for f in d.iterdir()}
+        self.assertTrue(before)
+
+        with override_settings(IMAGE_QUALITY=35):
+            result = publisher.rebuild_media(log=lambda *_: None)
+
+        after = {f.name: f.read_bytes() for f in d.iterdir()}
+        self.assertEqual(set(before), set(after))          # same rung file names
+        self.assertNotEqual(before, after)                 # but re-encoded (quality changed)
+        self.assertEqual(result["products"], 1)
+        self.assertGreaterEqual(result["image_sets"], 1)
+
+    def test_rebuild_media_scoped_and_unknown(self):
+        self._product("keep", images=1)
+        self._product("touch", images=1)
+        publisher.refresh_all(log=lambda *_: None)
+        keep_dir = Path(settings.EXPORT_LOCAL_ROOT) / "products_media" / "keep"
+        keep_before = {f.name: f.stat().st_mtime_ns for f in keep_dir.iterdir()}
+
+        publisher.rebuild_media(slugs=["touch"], log=lambda *_: None)
+
+        keep_after = {f.name: f.stat().st_mtime_ns for f in keep_dir.iterdir()}
+        self.assertEqual(keep_before, keep_after)          # untargeted product untouched
+
+        with self.assertRaises(ValueError):
+            publisher.rebuild_media(slugs=["nope"], log=lambda *_: None)
+
     # -- basic shape ------------------------------------------------------
 
     def test_refresh_writes_only_published(self):

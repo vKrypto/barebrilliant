@@ -156,7 +156,11 @@ class DeletedProduct(models.Model):
 
 
 class PublishRun(models.Model):
-    KIND_CHOICES = [("refresh", "Refresh complete inventory"), ("publish", "Publish inventory changes")]
+    KIND_CHOICES = [
+        ("refresh", "Refresh complete inventory"),
+        ("publish", "Publish inventory changes"),
+        ("rebuild", "Rebuild media from originals"),
+    ]
     STATUS_CHOICES = [("running", "running"), ("ok", "ok"), ("error", "error")]
 
     kind = models.CharField(max_length=12, choices=KIND_CHOICES)

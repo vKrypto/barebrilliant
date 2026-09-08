@@ -1,8 +1,12 @@
 name: barebrilliant
 
 # Two nginx services:
-#   storage    — serves storefront/public/storage/ (catalog + product JSON + media)
-#                with permissive CORS, so the storefront can fetch it cross-origin
+#   storage    — serves the dashboard's published tree, dashboard/media/ (catalog +
+#                product JSON + generated media), with permissive CORS so the
+#                storefront can fetch it cross-origin. Populate / refresh it with
+#                `cd dashboard && .venv/bin/python manage.py refresh_inventory`
+#                (EXPORT_BACKEND=local, the default). Uploaded originals under
+#                products_raw_media/ are blocked by docker/nginx-storage.conf.
 #   storefront — multi-stage: `yarn build` the Vite app, then nginx serves dist/
 #
 # All config is env-driven — `docker compose` auto-loads ./.env (see .env.example).
@@ -16,7 +20,7 @@ services:
     ports:
       - "${STORAGE_PORT:-8000}:80"
     volumes:
-      - ./storefront/public/storage:/usr/share/nginx/html:ro
+      - ./dashboard/media:/usr/share/nginx/html:ro
       - ./docker/nginx-storage.conf:/etc/nginx/conf.d/default.conf:ro
     restart: unless-stopped
     healthcheck:
