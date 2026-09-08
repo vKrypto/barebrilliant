@@ -1,0 +1,107 @@
+{
+  "id": "the-aria",
+  "slug": "the-aria",
+  "name": "The Aria",
+  "subtitle": "Oval Natural Diamond Engagement Ring",
+  "price_from": 92000,
+  "currency": "INR",
+  "made_to_order_note": "Made to order. Final value depends on the natural diamond and specifications you choose.",
+  "trust_line": [
+    "Natural Diamond",
+    "HUID Gold",
+    "Made to Order",
+    "Insured PAN-India Delivery"
+  ],
+  "shape": "Oval",
+  "style": "Solitaire",
+  "metals": [
+    "18K White Gold",
+    "18K Yellow Gold",
+    "18K Rose Gold",
+    "Platinum 950"
+  ],
+  "metal_default": "18K White Gold",
+  "gallery": [
+    {
+      "src": "products_media/0_bcb824_1600x1600.webp",
+      "type": "image",
+      "alt": "The Aria — oval natural diamond engagement ring, view 1"
+    },
+    {
+      "src": "products_media/1_bcb824_1600x1600.webp",
+      "type": "image",
+      "alt": "The Aria — oval natural diamond engagement ring, view 2"
+    },
+    {
+      "src": "products_media/2_bcb824_1600x1600.webp",
+      "type": "image",
+      "alt": "The Aria — oval natural diamond engagement ring, view 3"
+    }
+  ],
+  "about": "An oval centre stone sits above a clean, restrained band with cathedral shoulders rising into the basket. From above, the ring remains almost entirely about the diamond. From the side, the architecture becomes visible.",
+  "why_this_works": "The cathedral shoulders rise gradually toward the centre setting, which makes the diamond feel integrated into the ring rather than placed on top of it. The band narrows slightly as it approaches the centre, increasing the diamond's visual dominance without making the ring feel delicate.",
+  "wedding_band_fit": "A straight band sits closely with a small, intentional gap at the centre; a shaped contour band closes it completely.",
+  "price_breakup": [
+    {
+      "label": "Centre Natural Diamond",
+      "amount": 51520
+    },
+    {
+      "label": "Accent Diamonds",
+      "amount": 6440
+    },
+    {
+      "label": "Gold / Platinum",
+      "amount": 20240
+    },
+    {
+      "label": "Making / Crafting",
+      "amount": 9200
+    },
+    {
+      "label": "GST",
+      "amount": 4600
+    }
+  ],
+  "total": 92000,
+  "specifications": {
+    "band_width_mm": "2.0",
+    "setting_height_mm": "5.7",
+    "centre_shape": "Oval",
+    "side_diamond_weight_ct": "0.17",
+    "accent_diamond_count": 10,
+    "accent_colour_clarity": "F–G / VS",
+    "metal_purity": "18K / 950",
+    "approx_metal_weight_g": "3.0",
+    "resizable": "Limited",
+    "wedding_band_fit": "A straight band sits closely with a small, intentional gap at the centre; a shaped contour band closes it completely."
+  },
+  "variation_note": "Carat weight, accent-stone count, metal weight and dimensions may vary with ring size, centre stone and custom configuration.",
+  "what_can_change": [
+    "Shape",
+    "Centre-stone carat",
+    "Colour",
+    "Clarity",
+    "Band width",
+    "Setting height",
+    "Prong style",
+    "Hidden halo",
+    "Side diamonds",
+    "Engraving",
+    "Gold colour",
+    "Supported karatage"
+  ],
+  "what_comes_with": [
+    "GIA report for the applicable centre solitaire",
+    "HUID gold",
+    "Final price & specification record",
+    "Insured PAN-India shipping",
+    "Bare Brilliant packaging",
+    "Service & aftercare information"
+  ],
+  "related": [
+    "the-lumen",
+    "the-vera",
+    "the-isla"
+  ]
+}

@@ -1,0 +1,236 @@
+{
+  "generated_at": "2026-09-08T10:18:27.865Z",
+  "currency": "INR",
+  "facets": {
+    "shape": [
+      "Round",
+      "Oval",
+      "Emerald",
+      "Pear",
+      "Marquise",
+      "Cushion",
+      "Radiant"
+    ],
+    "style": [
+      "Solitaire",
+      "Hidden Halo",
+      "Halo",
+      "Three Stone",
+      "Side Stone",
+      "Bezel",
+      "Contemporary"
+    ],
+    "budget": [
+      {
+        "label": "Under ₹1L",
+        "min": 0,
+        "max": 99999
+      },
+      {
+        "label": "₹1L – ₹1.5L",
+        "min": 100000,
+        "max": 150000
+      },
+      {
+        "label": "₹1.5L – ₹2L",
+        "min": 150001,
+        "max": 200000
+      },
+      {
+        "label": "₹2L & above",
+        "min": 200001,
+        "max": 99999999
+      }
+    ],
+    "centre_carat": [
+      {
+        "label": "Under 0.70 ct",
+        "min": 0,
+        "max": 0.69
+      },
+      {
+        "label": "0.70 – 0.89 ct",
+        "min": 0.7,
+        "max": 0.89
+      },
+      {
+        "label": "0.90 – 1.09 ct",
+        "min": 0.9,
+        "max": 1.09
+      },
+      {
+        "label": "1.10 ct & above",
+        "min": 1.1,
+        "max": 99
+      }
+    ]
+  },
+  "sorts": [
+    "recommended",
+    "newest",
+    "price-asc",
+    "price-desc"
+  ],
+  "products": [
+    {
+      "id": "the-aria",
+      "slug": "the-aria",
+      "name": "The Aria",
+      "descriptor": "Cathedral oval solitaire",
+      "shape": "Oval",
+      "style": "Solitaire",
+      "price_from": 92000,
+      "centre_carat_shown": 0.7,
+      "metal_default": "18K White Gold",
+      "badges": [
+        "Natural Diamond"
+      ],
+      "media": {
+        "thumb": "products_media/0_bcb824_1200x1200.webp",
+        "alt": "The Aria — oval natural diamond engagement ring, view 1"
+      },
+      "created_at": "2026-07-31",
+      "sort_weight": 100
+    },
+    {
+      "id": "the-lumen",
+      "slug": "the-lumen",
+      "name": "The Lumen",
+      "descriptor": "Hidden-halo round",
+      "shape": "Round",
+      "style": "Hidden Halo",
+      "price_from": 128000,
+      "centre_carat_shown": 0.9,
+      "metal_default": "18K White Gold",
+      "badges": [
+        "Natural Diamond"
+      ],
+      "media": {
+        "thumb": "products_media/0_a02775_1200x1200.webp",
+        "alt": "The Lumen — round natural diamond engagement ring, view 1"
+      },
+      "created_at": "2026-08-01",
+      "sort_weight": 93
+    },
+    {
+      "id": "the-vera",
+      "slug": "the-vera",
+      "name": "The Vera",
+      "descriptor": "Emerald three-stone",
+      "shape": "Emerald",
+      "style": "Three Stone",
+      "price_from": 176000,
+      "centre_carat_shown": 1,
+      "metal_default": "18K White Gold",
+      "badges": [
+        "Natural Diamond"
+      ],
+      "media": {
+        "thumb": "products_media/0_e1e6d0_1200x1200.webp",
+        "alt": "The Vera — emerald natural diamond engagement ring, view 1"
+      },
+      "created_at": "2026-08-02",
+      "sort_weight": 86
+    },
+    {
+      "id": "the-isla",
+      "slug": "the-isla",
+      "name": "The Isla",
+      "descriptor": "Bezel-set pear",
+      "shape": "Pear",
+      "style": "Bezel",
+      "price_from": 84000,
+      "centre_carat_shown": 0.6,
+      "metal_default": "18K White Gold",
+      "badges": [
+        "Natural Diamond"
+      ],
+      "media": {
+        "thumb": "products_media/0_3d343c_1200x1200.webp",
+        "alt": "The Isla — pear natural diamond engagement ring, view 1"
+      },
+      "created_at": "2026-08-03",
+      "sort_weight": 79
+    },
+    {
+      "id": "the-nova",
+      "slug": "the-nova",
+      "name": "The Nova",
+      "descriptor": "Classic round halo",
+      "shape": "Round",
+      "style": "Halo",
+      "price_from": 149000,
+      "centre_carat_shown": 1,
+      "metal_default": "18K White Gold",
+      "badges": [
+        "Natural Diamond"
+      ],
+      "media": {
+        "thumb": "products_media/0_eb13cb_1200x1200.webp",
+        "alt": "The Nova — round natural diamond engagement ring, view 1"
+      },
+      "created_at": "2026-08-04",
+      "sort_weight": 72
+    },
+    {
+      "id": "the-sona",
+      "slug": "the-sona",
+      "name": "The Sona",
+      "descriptor": "Cushion solitaire",
+      "shape": "Cushion",
+      "style": "Solitaire",
+      "price_from": 112000,
+      "centre_carat_shown": 0.8,
+      "metal_default": "18K White Gold",
+      "badges": [
+        "Natural Diamond"
+      ],
+      "media": {
+        "thumb": "products_media/0_1cc79a_1200x1200.webp",
+        "alt": "The Sona — cushion natural diamond engagement ring, view 1"
+      },
+      "created_at": "2026-08-05",
+      "sort_weight": 65
+    },
+    {
+      "id": "the-wren",
+      "slug": "the-wren",
+      "name": "The Wren",
+      "descriptor": "Marquise side-stone",
+      "shape": "Marquise",
+      "style": "Side Stone",
+      "price_from": 96000,
+      "centre_carat_shown": 0.75,
+      "metal_default": "18K White Gold",
+      "badges": [
+        "Natural Diamond"
+      ],
+      "media": {
+        "thumb": "products_media/0_b3fee6_1200x1200.webp",
+        "alt": "The Wren — marquise natural diamond engagement ring, view 1"
+      },
+      "created_at": "2026-08-06",
+      "sort_weight": 58
+    },
+    {
+      "id": "the-elle",
+      "slug": "the-elle",
+      "name": "The Elle",
+      "descriptor": "Radiant contemporary",
+      "shape": "Radiant",
+      "style": "Contemporary",
+      "price_from": 205000,
+      "centre_carat_shown": 1.2,
+      "metal_default": "18K White Gold",
+      "badges": [
+        "Natural Diamond"
+      ],
+      "media": {
+        "thumb": "products_media/0_07f5f9_1200x1200.webp",
+        "alt": "The Elle — radiant natural diamond engagement ring, view 1"
+      },
+      "created_at": "2026-08-07",
+      "sort_weight": 51
+    }
+  ]
+}
