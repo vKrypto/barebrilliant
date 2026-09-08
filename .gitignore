@@ -23,7 +23,6 @@ storefront/public/service-worker.js
 
 # ---- Django (dashboard) ----
 dashboard/.venv/
-dashboard/db.sqlite3
 dashboard/media/
 dashboard/staticfiles/
 dashboard/scratch_storage/
