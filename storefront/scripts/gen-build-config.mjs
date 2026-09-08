@@ -14,6 +14,8 @@
 //                     GITHUB_RUN_NUMBER, then a dev timestamp.
 //   VITE_LAMBDA_URL   events endpoint, no trailing slash (LAMBDA_URL also accepted)
 //   VITE_TENANT_NAME  tenant header value (TENANT_NAME also accepted)
+//   VITE_BASE         app base path ("/" locally, "/<repo>/" on Pages) — the SW
+//                     uses it for the PWA precache list and navigation fallback
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -45,6 +47,10 @@ function buildId() {
 const SW_VERSION = buildId();
 const LAMBDA_URL = (process.env.VITE_LAMBDA_URL || process.env.LAMBDA_URL || "").replace(/\/+$/, "");
 const TENANT_NAME = process.env.VITE_TENANT_NAME || process.env.TENANT_NAME || "storefront.local";
+// Match Vite: base must start and end with "/".
+let BASE_URL = process.env.VITE_BASE || "/";
+if (!BASE_URL.startsWith("/")) BASE_URL = "/" + BASE_URL;
+if (!BASE_URL.endsWith("/")) BASE_URL += "/";
 const BUILD_TIME = new Date().toISOString();
 
 // --- 1) service worker ---------------------------------------------------------
@@ -53,6 +59,7 @@ const sw = template
   .replaceAll("__SW_VERSION__", SW_VERSION)
   .replaceAll("__LAMBDA_URL__", LAMBDA_URL)
   .replaceAll("__TENANT_NAME__", TENANT_NAME)
+  .replaceAll("__BASE_URL__", BASE_URL)
   .replaceAll("__BUILD_TIME__", BUILD_TIME);
 mkdirSync(resolve(root, "public"), { recursive: true });
 writeFileSync(resolve(root, "public/service-worker.js"), sw);
@@ -72,5 +79,5 @@ writeFileSync(
 );
 
 console.log(
-  `[gen-build-config] SW_VERSION=${SW_VERSION}  LAMBDA_URL=${LAMBDA_URL || "(unset — events queue only)"}  TENANT_NAME=${TENANT_NAME}`
+  `[gen-build-config] SW_VERSION=${SW_VERSION}  BASE_URL=${BASE_URL}  LAMBDA_URL=${LAMBDA_URL || "(unset — events queue only)"}  TENANT_NAME=${TENANT_NAME}`
 );

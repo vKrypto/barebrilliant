@@ -25,7 +25,12 @@ globalThis.self = {
   skipWaiting: () => {},
   clients: { claim: async () => {}, matchAll: async () => [] },
 };
-globalThis.caches = { keys: async () => [], delete: async () => {} };
+globalThis.caches = {
+  keys: async () => [],
+  delete: async () => true,
+  match: async () => undefined,
+  open: async () => ({ add: async () => {}, put: async () => {}, match: async () => undefined }),
+};
 globalThis.fetch = (...a) => fetchImpl(...a);
 globalThis.setInterval = () => 0; // don't let the SW's own interval spin during the test
 const realSetTimeout = globalThis.setTimeout;
@@ -36,10 +41,11 @@ globalThis.setTimeout = (fn, ms) => {
 
 // Load the template (placeholders filled) and grab its internals.
 const src = readFileSync(resolve(root, "scripts/service-worker.template.js"), "utf8")
-  .replace("__SW_VERSION__", "test")
-  .replace("__LAMBDA_URL__", "https://lambda.test")
-  .replace("__TENANT_NAME__", "test.local")
-  .replace("__BUILD_TIME__", new Date().toISOString());
+  .replaceAll("__SW_VERSION__", "test")
+  .replaceAll("__BASE_URL__", "/")
+  .replaceAll("__LAMBDA_URL__", "https://lambda.test")
+  .replaceAll("__TENANT_NAME__", "test.local")
+  .replaceAll("__BUILD_TIME__", new Date().toISOString());
 // eslint-disable-next-line no-eval
 eval(src + "\n;globalThis.__sw = { flushQueue, readCircuit, openDb, QUEUE_STORE, META_STORE };");
 const sw = globalThis.__sw;

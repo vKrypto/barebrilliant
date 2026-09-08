@@ -1,7 +1,7 @@
 // TEMPLATE — scripts/gen-build-config.mjs fills the __PLACEHOLDERS__ and writes
 // the result to public/service-worker.js (git-ignored, regenerated every build).
 //
-// Ported from server_docs/service-worker.js. Two jobs:
+// Ported from server_docs/service-worker.js. Three jobs:
 //
 //  1. Reliable background delivery of tracked events. src/events/tracker.js
 //     queues events into IndexedDB and never touches the network. Every
@@ -13,21 +13,28 @@
 //     pause — nothing is lost. Background Sync is the backstop when the tab
 //     closes before a flush.
 //
-//  2. Cache-bust on deploy. Each GitHub Actions run bakes a fresh SW_VERSION
-//     below, so the browser downloads new bytes and installs a new worker.
-//     `activate` deletes every Cache Storage entry, resets the circuit breaker
-//     (fresh start — a deploy may have fixed the endpoint), and posts
-//     SW_UPDATED to open tabs, which reload once (see src/events/swClient.js).
+//  2. PWA app shell. `install` precaches the shell into bb-shell-<SW_VERSION>;
+//     `fetch` serves navigations network-first (falling back to the cached
+//     shell, then offline.html) and hashed /assets/ + icons
+//     stale-while-revalidate. Product data + media (/storage/, or a separate
+//     origin) always go straight to the network.
+//
+//  3. Cache-bust on deploy. Each GitHub Actions run bakes a fresh SW_VERSION,
+//     so the browser installs a new worker. `activate` deletes every cache
+//     except the fresh shell, resets the circuit breaker (a new build may have
+//     fixed the endpoint), and posts SW_UPDATED to open tabs, which reload
+//     once (see src/events/swClient.js).
 //
 // Registered at the app's own scope (import.meta.env.BASE_URL). The storefront
-// runs no other service worker, so root scope is safe and lets `activate`
-// claim the open pages and message them.
+// runs no other service worker.
 
 const SW_VERSION = "__SW_VERSION__";
+const BASE_URL = "__BASE_URL__"; // "/" locally, "/<repo>/" on GitHub Pages
 const API_BASE_URL = "__LAMBDA_URL__"; // no trailing slash; empty until the Lambda exists
 const TENANT_NAME = "__TENANT_NAME__";
 const BUILD_TIME = "__BUILD_TIME__";
 
+// ---- events pipeline config -------------------------------------------------
 const DB_NAME = "mini_server_events";
 const DB_VERSION = 2; // v2 adds the META_STORE for circuit-breaker state
 const QUEUE_STORE = "queue";
@@ -40,17 +47,40 @@ const MAX_BATCHES_PER_FLUSH = 40; // safety cap: ≤2000 events/tick, rest waits
 const RETRY_DELAYS_MS = [1000, 2000, 4000]; // 3 retries, exponential backoff (1s, 2s, 4s)
 const CIRCUIT_PAUSE_MS = 30 * 60 * 1000; // pause 30 min after all retries fail
 
+// ---- PWA config ----------------------------------------------------------
+const SHELL_CACHE = `bb-shell-${SW_VERSION}`;
+const PRECACHE_URLS = [
+  BASE_URL,
+  `${BASE_URL}offline.html`,
+  `${BASE_URL}manifest.webmanifest`,
+  `${BASE_URL}favicon/favicon.svg`,
+  `${BASE_URL}favicon/apple-touch-icon.png`,
+  `${BASE_URL}favicon/web-app-manifest-192x192.png`,
+  `${BASE_URL}favicon/web-app-manifest-512x512.png`,
+];
+const OFFLINE_URL = `${BASE_URL}offline.html`;
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-self.addEventListener("install", () => {
-  self.skipWaiting();
+// ============================ lifecycle ============================
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    (async () => {
+      const cache = await caches.open(SHELL_CACHE);
+      // Individually, so one missing optional asset can't fail the install.
+      await Promise.all(
+        PRECACHE_URLS.map((url) => cache.add(new Request(url, { cache: "reload" })).catch(() => {}))
+      );
+      await self.skipWaiting();
+    })()
+  );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
-      await Promise.all(keys.map((key) => caches.delete(key)));
+      await Promise.all(keys.filter((key) => key !== SHELL_CACHE).map((key) => caches.delete(key)));
       await writeCircuit({ pausedUntil: 0, trips: 0 }).catch(() => {}); // fresh start on deploy
       await self.clients.claim();
       const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
@@ -61,6 +91,57 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// ============================ fetch (PWA) ============================
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return; // storage on another origin, CDNs — pass through
+  if (url.pathname.startsWith(`${BASE_URL}storage/`)) return; // product data + media — always fresh
+  if (url.pathname === `${BASE_URL}service-worker.js`) return;
+
+  // Navigations: network-first, then cached shell, then offline page.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      (async () => {
+        try {
+          return await fetch(request);
+        } catch {
+          return (
+            (await caches.match(BASE_URL)) ||
+            (await caches.match(OFFLINE_URL)) ||
+            new Response("Offline", { status: 503, headers: { "Content-Type": "text/plain" } })
+          );
+        }
+      })()
+    );
+    return;
+  }
+
+  // Hashed build output + icons + manifest: stale-while-revalidate.
+  const cacheable =
+    url.pathname.startsWith(`${BASE_URL}assets/`) ||
+    url.pathname.startsWith(`${BASE_URL}favicon/`) ||
+    url.pathname === `${BASE_URL}manifest.webmanifest`;
+  if (!cacheable) return;
+
+  event.respondWith(
+    (async () => {
+      const cache = await caches.open(SHELL_CACHE);
+      const cached = await cache.match(request);
+      const network = fetch(request)
+        .then((res) => {
+          if (res && res.ok && res.type === "basic") cache.put(request, res.clone());
+          return res;
+        })
+        .catch(() => null);
+      return cached || (await network) || new Response("", { status: 504 });
+    })()
+  );
+});
+
+// ============================ IndexedDB ============================
 function openDb() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);

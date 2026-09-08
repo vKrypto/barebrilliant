@@ -54,6 +54,10 @@ jobs:
           VITE_BASE: ${{ vars.VITE_BASE || format('/{0}/', github.event.repository.name) }}
           VITE_LAMBDA_URL: ${{ vars.VITE_LAMBDA_URL }}
           VITE_TENANT_NAME: ${{ vars.VITE_TENANT_NAME || github.event.repository.name }}
+          # Where catalog/product JSON and product media are served from. Unset =
+          # bundled dist/storage/. Set these to a static server / CDN when ready.
+          VITE_CATALOG_BASE: ${{ vars.VITE_CATALOG_BASE }}
+          VITE_MEDIA_BASE: ${{ vars.VITE_MEDIA_BASE }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

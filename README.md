@@ -8,9 +8,13 @@ the outside world only through:
 - **Events** → a configurable **Lambda function URL** (`/add-events`, the
   contract in `server_docs/`), via IndexedDB + a service worker, with
   `send_event_now()` for the immediate path.
-- **Static storage** → catalog + product JSON and product media under
-  `storefront/public/storage/`, fetched at runtime. Search / filter / sort run
-  client-side. Cart and wishlist live in `localStorage`.
+- **Static storage** → catalog + product JSON (`VITE_CATALOG_BASE`) and product
+  media (`VITE_MEDIA_BASE`), fetched at runtime; both default to the bundled
+  `storefront/public/storage/`. Search / filter / sort run client-side. Cart and
+  wishlist live in `localStorage`.
+
+The storefront is an installable **PWA** (manifest + Bare Brilliant icons +
+app-shell service worker with an offline fallback).
 
 ```
 storefront/            React + Vite storefront (see storefront/README.md)
@@ -59,4 +63,4 @@ Push to `main`. `.github/workflows/deploy.yml` builds `storefront/` and
 publishes to GitHub Pages at `https://vkrypto.github.io/barebrilliant/`
 (the workflow sets `VITE_BASE=/barebrilliant/` automatically). Repo variables:
 `VITE_LAMBDA_URL` (events endpoint — until set, events queue locally),
-optional `VITE_TENANT_NAME`, `VITE_STORAGE_BASE`.
+optional `VITE_TENANT_NAME`, `VITE_CATALOG_BASE`, `VITE_MEDIA_BASE`.
