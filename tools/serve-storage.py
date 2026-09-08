@@ -24,7 +24,10 @@ class CORSHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Accept, Content-Type, Range")
         self.send_header("Access-Control-Max-Age", "86400")
-        self.send_header("Cache-Control", "public, max-age=60")
+        self.send_header("Vary", "Origin")
+        # no-store: never let the browser reuse a cached copy (esp. a pre-CORS
+        # one) for a cross-origin fetch while you iterate on the data.
+        self.send_header("Cache-Control", "no-store")
         super().end_headers()
 
     def do_OPTIONS(self):
