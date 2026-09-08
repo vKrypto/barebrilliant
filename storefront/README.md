@@ -111,8 +111,12 @@ for `lead_submitted` and `order_placed`; on failure the caller falls back to
 
 ### Service worker delivery policy (`scripts/service-worker.template.js`)
 
-- **Cadence** — every **10s** (`setInterval`), plus Background Sync when a tab
-  closes first, plus `flushNow()` on demand.
+- **Cadence** — the SW's own **10s** `setInterval` is the only regular flush.
+  `trackEvent()` just writes to IndexedDB — it does **not** poke the SW, so a
+  navigation / click does not trigger an immediate send. Background Sync
+  (`flush-events`, registered **once per page load**) is the backstop for a tab
+  that closes before the tick or a device that reconnects; `flushNow()` and
+  `sendEventNow()` are the explicit "go now" paths.
 - **Drains the whole queue** — each flush sends **every** queued event in FIFO
   batches of 50 (`MAX_BATCH_SIZE`), up to `MAX_BATCHES_PER_FLUSH` (2000
   events) per tick; anything beyond that waits for the next tick.

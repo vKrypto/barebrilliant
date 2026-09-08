@@ -84,10 +84,14 @@ function enqueue(record) {
   );
 }
 
-// trackEvent(eventType, eventName, eventValue, data, userId) — queues into
-// IndexedDB; the service worker sends it in the next batch. Resolves once
-// written locally (not once delivered). Never rejects — a broken IndexedDB
-// should not take down a page.
+// trackEvent(eventType, eventName, eventValue, data, userId) — writes the event
+// to IndexedDB and stops. It does NOT poke the service worker: delivery is the
+// SW's own 10s interval (see FLUSH_INTERVAL_MS in service-worker.template.js),
+// with Background Sync as the backstop. Nudging on every event would make each
+// navigation / click flush immediately, which defeats the batching. Use
+// sendEventNow() when a call genuinely needs to go out right away.
+// Resolves once written locally (not once delivered); never rejects — a broken
+// IndexedDB must not take down a page.
 export function trackEvent(eventType, eventName, eventValue = 1, data = {}, userId = "") {
   return enqueue({
     sessionId: getSessionId(),
@@ -102,11 +106,9 @@ export function trackEvent(eventType, eventName, eventValue = 1, data = {}, user
       browser_info: collectBrowserInfo(),
       send_time: microsecondTimestamp(),
     },
-  })
-    .then(() => nudgeBackgroundSync())
-    .catch((err) => {
-      console.warn("[tracker] enqueue failed:", err);
-    });
+  }).catch((err) => {
+    console.warn("[tracker] enqueue failed:", err);
+  });
 }
 
 // page_visit — call on first load and on every SPA route change (RouteTracker).
@@ -138,6 +140,10 @@ function getElementXPath(el) {
 
 let registration = null;
 
+// Registers a one-off Background Sync. Called once per page load (below) so the
+// browser will drain the queue if the tab closes before the SW's 10s tick, or
+// when connectivity returns. NOT called per event — that would collapse the
+// batching into an immediate flush on every navigation / click.
 export function nudgeBackgroundSync() {
   if (registration && "sync" in registration) {
     registration.sync.register("flush-events").catch(() => {});
@@ -148,7 +154,7 @@ async function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
   try {
     registration = await navigator.serviceWorker.register(SW_URL, { scope: SW_SCOPE });
-    nudgeBackgroundSync();
+    nudgeBackgroundSync(); // once, on load
   } catch (err) {
     console.warn("[tracker] service worker registration failed; events still queue locally:", err);
   }
