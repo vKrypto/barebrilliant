@@ -74,13 +74,16 @@ separately. Each falls back to `VITE_STORAGE_BASE`, then to the bundled
 | `VITE_MEDIA_BASE` | `products_media/*`, `product_placeholder.webp` |
 
 ```bash
-# both on a local static server for now:
+# serve the storage dir on :8000 WITH cors, then point the app at it:
+python3 ../tools/serve-storage.py 8000        # ../docker/nginx-storage.conf or `npx serve --cors` also work
 VITE_CATALOG_BASE=http://localhost:8000/ VITE_MEDIA_BASE=http://localhost:8000/ yarn dev
 ```
 
-A cross-origin host must send `Access-Control-Allow-Origin` for the JSON
-`fetch`es (images load without CORS). The service worker never caches
-`/storage/` or cross-origin requests, so product data is always fresh.
+A cross-origin host **must** send `Access-Control-Allow-Origin` for the JSON
+`fetch`es — plain `python -m http.server` does not, so those requests fail;
+`tools/serve-storage.py` is a drop-in that adds the header (images load
+without CORS either way). The service worker never caches `/storage/` or
+cross-origin requests, so product data is always fresh.
 
 ## PWA
 
