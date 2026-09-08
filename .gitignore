@@ -1,0 +1,23 @@
+# ---- Node / Vite (storefront) ----
+node_modules/
+storefront/dist/
+storefront/.env
+storefront/.env.local
+# yarn is the package manager here; don't commit a competing npm lockfile
+package-lock.json
+# yarn berry local state (if anyone opts in)
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+# generated per build by scripts/gen-build-config.mjs
+storefront/src/generated/
+storefront/public/service-worker.js
+
+# ---- OS / editor ----
+.DS_Store
+*.log
+!raw_plans/plan.log

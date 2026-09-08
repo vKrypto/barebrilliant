@@ -1,0 +1,100 @@
+/* Bare Brilliant design language — tokens from raw_plans/design_language_guide.pdf.
+   Quiet premium: dark editorial ground, warm ivory text, brushed-platinum accents,
+   high-contrast serif headlines over a clean sans for UI. Dark is the default
+   (matches the guide's moodboard); a restrained light palette follows for users
+   who ask for it. */
+
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap");
+
+:root {
+  color-scheme: light dark;
+
+  --ff-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --ff-sans: "DM Sans", "Helvetica Neue", system-ui, sans-serif;
+
+  --bb-radius-sheet: 1.25rem;
+  --bb-radius-field: 0.75rem;
+  --bb-radius-btn: 0.875rem;
+  --bb-radius-pill: 624.9375rem;
+
+  /* Dark — default (guide §2 Color System) */
+  --bb-bg: #0b0b0c; /* Ink black */
+  --bb-bg-secondary: #171718; /* Deep charcoal */
+  --bb-surface: #2a2a2c; /* Soft ash grey */
+  --bb-text: #f1efea; /* Warm ivory */
+  --bb-text-muted: #c7c4be; /* Muted linen */
+  --bb-accent: #c9c3b8; /* Brushed platinum */
+  --bb-accent-soft: #dcd6cc; /* Soft stone beige */
+  --bb-border: #3a3938; /* Smoked graphite */
+
+  --bb-form: #f7f4ef; /* Pale editorial cream — form surface */
+  --bb-form-text: #0b0b0c;
+  --bb-form-border: #d4cfc7;
+  --bb-form-field: #f0ede7;
+
+  --bb-topbar-bg: rgba(11, 11, 12, 0.65);
+  --bb-footer-bg: #0b0b0c;
+
+  --bb-btn-fg: #0b0b0c;
+  --bb-btn-bg: #f1efea;
+  --bb-btn-border: #c9c3b8;
+  --bb-btn-hover-bg: #e8e4de;
+  --bb-btn-hover-border: #b0a99c;
+
+  --bb-error-text: #7a3224;
+  --bb-error-field-border: #8a4a3a;
+
+  /* Hero backdrop. --bb-hero-image is set from main.jsx so the base path is
+     correct on a GitHub Pages project site; this gradient is the fallback. */
+  --bb-hero-image: linear-gradient(160deg, #141416 0%, #0b0b0c 60%);
+  --bb-hero-overlay-1: linear-gradient(
+    105deg,
+    rgba(11, 11, 12, 0.95) 0%,
+    rgba(11, 11, 12, 0.8) 42%,
+    rgba(11, 11, 12, 0.55) 58%,
+    rgba(11, 11, 12, 0.9) 100%
+  );
+  --bb-hero-overlay-2: linear-gradient(180deg, rgba(11, 11, 12, 0.65) 0%, transparent 45%);
+  --bb-hero-overlay-3: linear-gradient(0deg, rgba(11, 11, 12, 0.5) 0%, transparent 40%);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bb-bg: #f6f0e8;
+    --bb-bg-secondary: #fbf7f2;
+    --bb-surface: #e6ded4;
+    --bb-text: #2b2b2b;
+    --bb-text-muted: #5c5650;
+    --bb-accent: #6a5f52;
+    --bb-accent-soft: #8a7d6c;
+    --bb-border: #d4cfc7;
+
+    --bb-form: #fbf7f2;
+    --bb-form-text: #2b2b2b;
+    --bb-form-border: #d4cfc7;
+    --bb-form-field: #f3efe8;
+
+    --bb-topbar-bg: rgba(246, 240, 232, 0.82);
+    --bb-footer-bg: #efe7dc;
+
+    --bb-btn-fg: #f6f0e8;
+    --bb-btn-bg: #2b2b2b;
+    --bb-btn-border: #3a3938;
+    --bb-btn-hover-bg: #1a1a1a;
+    --bb-btn-hover-border: #2b2b2b;
+
+    --bb-error-text: #7a3224;
+    --bb-error-field-border: #b4553f;
+
+    --bb-hero-image: linear-gradient(160deg, #efe7dc 0%, #f6f0e8 60%);
+    --bb-hero-overlay-1: linear-gradient(
+      105deg,
+      rgba(246, 240, 232, 0.94) 0%,
+      rgba(246, 240, 232, 0.78) 42%,
+      rgba(251, 247, 242, 0.55) 58%,
+      rgba(246, 240, 232, 0.9) 100%
+    );
+    --bb-hero-overlay-2: linear-gradient(180deg, rgba(246, 240, 232, 0.7) 0%, transparent 45%);
+    --bb-hero-overlay-3: linear-gradient(0deg, rgba(230, 222, 212, 0.45) 0%, transparent 40%);
+  }
+}

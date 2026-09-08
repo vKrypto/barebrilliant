@@ -1,0 +1,72 @@
+# Builds the React storefront in storefront/ and publishes the static output
+# to GitHub Pages. In the repo: Settings -> Pages -> Source: "GitHub Actions".
+#
+# Every run mints a fresh SW_VERSION (the "sw-version" / build number from the
+# plan). That string is baked into public/service-worker.js, so the browser
+# sees new bytes, reinstalls the service worker, and on `activate` it wipes
+# every Cache Storage entry and tells open tabs to reload once -- which is how
+# a changed frontend bundle or a changed VITE_LAMBDA_URL reaches clients.
+#
+# Repo variables (Settings -> Secrets and variables -> Actions -> Variables):
+#   VITE_LAMBDA_URL   HTTPS endpoint that receives events, no trailing slash
+#                     (the AWS Lambda Function URL). The SW PUTs batches to
+#                     `${VITE_LAMBDA_URL}/add-events`. Leave unset until the
+#                     Lambda exists -- events then just queue in IndexedDB.
+#   VITE_TENANT_NAME  Optional. Identifies this site to the events backend.
+#                     Defaults to the repository name.
+
+name: Deploy storefront to GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: yarn
+          cache-dependency-path: storefront/yarn.lock
+
+      - name: Install and build
+        working-directory: storefront
+        run: yarn install --frozen-lockfile && yarn build
+        env:
+          # New build number every run -> service worker reinstalls -> caches wiped.
+          SW_VERSION: gh-${{ github.run_number }}-${{ github.sha }}
+          # Project site lives under /<repo>/ ; for a user/org site or a custom
+          # domain, override this repo-wide by setting a VITE_BASE variable to "/".
+          VITE_BASE: ${{ vars.VITE_BASE || format('/{0}/', github.event.repository.name) }}
+          VITE_LAMBDA_URL: ${{ vars.VITE_LAMBDA_URL }}
+          VITE_TENANT_NAME: ${{ vars.VITE_TENANT_NAME || github.event.repository.name }}
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: storefront/dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

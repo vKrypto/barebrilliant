@@ -1,0 +1,22 @@
+need to build a e-commerce application ut step by step.
+
+frontend: react
+backend: nothing
+
+implementation:
+    to flush all the events like lead_generated, lead_submitted, lead_approved, lead_rejected, order_placed, order_shipped, order_delivered, scroll, href_click, banner_click, page_visit etc. we will use lambda functions to push events to the backend.
+        you can use following folder "mini_server_docs" and docs about how to implement the events in the frontend and how to push them to the backend using lambda functions.
+    also lambda function url and service worker version should be build like hat every time when we run github action --> generate a new build number(sw-version) it will clean all the cache and update service worker so if anything changed like frontend or lambda url endpoint etc it will get updated on frontend side.
+    in document we will use indexdb--> service work flushing if events timing does not matter, if we need response or flush right now, then please create a utils fucntion like send_event_now to send the event to the backend and get the response back.
+
+folder structure:
+    work only within folder (final_code) and do not create any new folder outside it.
+    storefront/ --> react based storefront, for backend we will use lambda functions to push events to the backend
+    dashboard/ --> django based siple CRM
+
+you can define a theme and color pallette for storefront as mentioned in raw_plans/design_language_guide.pdf file.
+
+
+/chat page:
+    copy frontend from bare-brilliant page, you can use sw events etc.. as mentioned above to push data to backend.
+    on submit it will redirect to thank you page.
