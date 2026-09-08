@@ -1,0 +1,107 @@
+{
+  "id": "the-isla",
+  "slug": "the-isla",
+  "name": "The Isla",
+  "subtitle": "Pear Natural Diamond Engagement Ring",
+  "price_from": 84000,
+  "currency": "INR",
+  "made_to_order_note": "Made to order. Final value depends on the natural diamond and specifications you choose.",
+  "trust_line": [
+    "Natural Diamond",
+    "HUID Gold",
+    "Made to Order",
+    "Insured PAN-India Delivery"
+  ],
+  "shape": "Pear",
+  "style": "Bezel",
+  "metals": [
+    "18K White Gold",
+    "18K Yellow Gold",
+    "18K Rose Gold",
+    "Platinum 950"
+  ],
+  "metal_default": "18K White Gold",
+  "gallery": [
+    {
+      "src": "products_media/0_3d343c_1600x2000.webp",
+      "type": "image",
+      "alt": "The Isla — pear natural diamond engagement ring, view 1"
+    },
+    {
+      "src": "products_media/1_3d343c_1600x2000.webp",
+      "type": "image",
+      "alt": "The Isla — pear natural diamond engagement ring, view 2"
+    },
+    {
+      "src": "products_media/2_3d343c_1600x2000.webp",
+      "type": "image",
+      "alt": "The Isla — pear natural diamond engagement ring, view 3"
+    }
+  ],
+  "about": "A pear-shaped natural diamond is held in a full bezel, its point protected by the metal rather than exposed. The band is slim and rounded, comfortable for everyday wear.",
+  "why_this_works": "The bezel makes the pear shape feel deliberate and modern, and it shields the most vulnerable part of the stone. Less light enters from the sides, so the cut has to be excellent — which is where we spend the budget.",
+  "wedding_band_fit": "A straight band sits closely with no gap.",
+  "price_breakup": [
+    {
+      "label": "Centre Natural Diamond",
+      "amount": 47040
+    },
+    {
+      "label": "Accent Diamonds",
+      "amount": 5880
+    },
+    {
+      "label": "Gold / Platinum",
+      "amount": 18480
+    },
+    {
+      "label": "Making / Crafting",
+      "amount": 8400
+    },
+    {
+      "label": "GST",
+      "amount": 4200
+    }
+  ],
+  "total": 84000,
+  "specifications": {
+    "band_width_mm": "1.6",
+    "setting_height_mm": "5.4",
+    "centre_shape": "Pear",
+    "side_diamond_weight_ct": "0.17",
+    "accent_diamond_count": 34,
+    "accent_colour_clarity": "F–G / VS",
+    "metal_purity": "18K / 950",
+    "approx_metal_weight_g": "2.8",
+    "resizable": "Limited",
+    "wedding_band_fit": "A straight band sits closely with no gap."
+  },
+  "variation_note": "Carat weight, accent-stone count, metal weight and dimensions may vary with ring size, centre stone and custom configuration.",
+  "what_can_change": [
+    "Shape",
+    "Centre-stone carat",
+    "Colour",
+    "Clarity",
+    "Band width",
+    "Setting height",
+    "Prong style",
+    "Hidden halo",
+    "Side diamonds",
+    "Engraving",
+    "Gold colour",
+    "Supported karatage"
+  ],
+  "what_comes_with": [
+    "GIA report for the applicable centre solitaire",
+    "HUID gold",
+    "Final price & specification record",
+    "Insured PAN-India shipping",
+    "Bare Brilliant packaging",
+    "Service & aftercare information"
+  ],
+  "related": [
+    "the-aria",
+    "the-lumen",
+    "the-vera"
+  ]
+}

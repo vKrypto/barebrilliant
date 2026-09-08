@@ -1,0 +1,40 @@
+.bb-stub__inner {
+  max-width: 60rem;
+}
+.bb-stub .bb-eyebrow {
+  margin-bottom: 1.25rem;
+}
+.bb-stub__support {
+  margin-top: 1.25rem;
+}
+.bb-stub__points {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 2rem;
+  max-width: var(--bb-measure);
+}
+.bb-stub__points li {
+  display: flex;
+  gap: 0.9rem;
+  align-items: baseline;
+  font: 400 1rem/1.6 var(--bb-sans);
+  color: var(--bb-text-muted);
+}
+.bb-stub__points .bb-diamond {
+  color: var(--bb-accent);
+  translate: 0 -1px;
+}
+.bb-stub__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+}
+.bb-stub__note {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--bb-line);
+  font: 400 0.8rem/1.6 var(--bb-sans);
+  color: var(--bb-text-muted);
+  max-width: var(--bb-measure);
+}

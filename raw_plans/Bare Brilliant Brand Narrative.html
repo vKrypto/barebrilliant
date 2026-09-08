@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bare Brilliant — Brand Narrative &amp; House Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B0B0A;        /* deep navy-black */
+  --ink2:#171715;       /* card on dark */
+  --ink3:#21211F;       /* raised card */
+  --cream:#F4F1EB;      /* light ground */
+  --cream2:#E8E3DA;     /* light card */
+  --gold:#B79A72;       /* primary accent */
+  --gold-l:#D5C1A2;
+  --gold-d:#7C674A;
+  --teal:#65706E;       /* secondary accent */
+  --teal-l:#A6AEAA;
+  --coral:#9C6F63;      /* alert */
+  --tx-d:#2D2D2A;       /* text on cream */
+  --tx-dm:#73736E;      /* muted on cream */
+  --tx-l:#DED8CE;       /* text on dark */
+  --tx-lm:#999890;      /* muted on dark */
+  --line-d:rgba(43,53,64,.14);
+  --line-l:rgba(216,209,196,.16);
+  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#05070B;font-family:var(--sans);-webkit-font-smoothing:antialiased}
+
+/* ---------- stage & scaling ---------- */
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1280px;height:720px;position:relative;transform-origin:center center;
+  box-shadow:0 40px 120px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.05)}
+.slide{position:absolute;inset:0;opacity:0;pointer-events:none;overflow:hidden;
+  transition:opacity .5s cubic-bezier(.4,0,.2,1)}
+.slide.active{opacity:1;pointer-events:auto}
+.slide.dark{background:var(--ink);color:var(--tx-l)}
+.slide.light{background:var(--cream);color:var(--tx-d)}
+.slide.dark::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 55% at 78% 18%,rgba(201,154,67,.075),transparent 62%),
+             radial-gradient(ellipse 60% 50% at 8% 92%,rgba(46,124,120,.06),transparent 60%)}
+.slide>*{position:relative;z-index:2}
+
+/* ---------- entrance animation ---------- */
+.slide.active .anim{animation:rise .62s cubic-bezier(.22,1,.36,1) both}
+.slide.active .anim:nth-child(1){animation-delay:.04s}
+.anim.d1{animation-delay:.10s!important}.anim.d2{animation-delay:.16s!important}
+.anim.d3{animation-delay:.22s!important}.anim.d4{animation-delay:.28s!important}
+.anim.d5{animation-delay:.34s!important}.anim.d6{animation-delay:.40s!important}
+.anim.d7{animation-delay:.46s!important}.anim.d8{animation-delay:.52s!important}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ---------- typography ---------- */
+.eyebrow{font:600 10.5px/1 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--gold);
+  display:flex;align-items:center;gap:9px}
+.eyebrow::before{content:'';width:7px;height:7px;background:var(--gold);transform:rotate(45deg);flex:none}
+.light .eyebrow{color:var(--gold-d)}
+h1{font:600 62px/1.03 var(--serif);letter-spacing:-.015em}
+h2{font:600 35px/1.12 var(--serif);letter-spacing:-.01em;max-width:1020px}
+h3{font:600 21px/1.2 var(--serif)}
+.sub{font:400 14.5px/1.5 var(--sans);color:var(--tx-dm);max-width:880px}
+.dark .sub{color:var(--tx-lm)}
+.lede{font:400 16px/1.55 var(--serif);font-style:italic;color:var(--tx-dm)}
+.dark .lede{color:var(--tx-l);opacity:.82}
+
+/* ---------- layout scaffolding ---------- */
+.pad{padding:44px 62px 58px}
+.head{margin-bottom:24px}
+.head .eyebrow{margin-bottom:13px}
+.head h2{margin-bottom:9px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g5{grid-template-columns:repeat(5,1fr)}
+.g6{grid-template-columns:repeat(6,1fr)}
+
+/* ---------- cards ---------- */
+.card{border:1px solid var(--line-d);background:rgba(255,255,255,.5);padding:17px 19px;border-radius:3px}
+.dark .card{border-color:var(--line-l);background:var(--ink2)}
+.card.gold{border-color:rgba(201,154,67,.5);background:rgba(201,154,67,.07)}
+.card.teal{border-color:rgba(46,124,120,.42);background:rgba(46,124,120,.07)}
+.card.coral{border-color:rgba(216,108,85,.42);background:rgba(216,108,85,.07)}
+.card h4{font:600 12.5px/1.3 var(--sans);letter-spacing:.02em;margin-bottom:6px}
+.card p{font:400 12px/1.5 var(--sans);color:var(--tx-dm)}
+.dark .card p{color:var(--tx-lm)}
+
+/* ---------- stat blocks ---------- */
+.stat .lbl{font:600 9.5px/1 var(--sans);letter-spacing:.17em;text-transform:uppercase;color:var(--tx-dm);margin-bottom:9px}
+.dark .stat .lbl{color:var(--tx-lm)}
+.stat .val{font:600 40px/1 var(--serif);color:var(--gold);letter-spacing:-.01em}
+.light .stat .val{color:var(--gold-d)}
+.stat .note{font:400 11px/1.4 var(--sans);color:var(--tx-dm);margin-top:7px}
+.dark .stat .note{color:var(--tx-lm)}
+.stat.sm .val{font-size:28px}
+.stat.lg .val{font-size:52px}
+
+/* numbered marker */
+.num{font:600 11px/1 var(--sans);letter-spacing:.06em;color:var(--gold);opacity:.85;margin-bottom:8px;display:block}
+.light .num{color:var(--gold-d)}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;font-family:var(--sans)}
+th,td{text-align:right;padding:6.5px 7px;font-size:11px;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;font-weight:500}
+thead th{font:600 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold);border-bottom:1px solid rgba(201,154,67,.42);padding-bottom:9px}
+.light thead th{color:var(--gold-d)}
+tbody tr{border-bottom:1px solid var(--line-d)}
+.dark tbody tr{border-bottom-color:var(--line-l)}
+tbody tr:last-child{border-bottom:none}
+tbody td{color:var(--tx-d)}
+.dark tbody td{color:var(--tx-l)}
+tr.tot{font-weight:600}
+tr.tot td{border-top:1px solid rgba(201,154,67,.42);padding-top:9px;color:var(--gold)}
+.light tr.tot td{color:var(--gold-d)}
+td.pos{color:var(--teal);font-weight:600}
+.dark td.pos{color:var(--teal-l)}
+td.neg{color:var(--coral)}
+td.hi{color:var(--gold);font-weight:600}
+.light td.hi{color:var(--gold-d)}
+
+/* ---------- interactive controls ---------- */
+.tabs{display:inline-flex;gap:3px;padding:3px;border:1px solid var(--line-d);border-radius:3px;background:rgba(255,255,255,.4)}
+.dark .tabs{border-color:var(--line-l);background:rgba(255,255,255,.03)}
+.tab{font:600 10.5px/1 var(--sans);letter-spacing:.09em;text-transform:uppercase;padding:8px 15px;
+  border:none;background:none;color:var(--tx-dm);cursor:pointer;border-radius:2px;transition:.22s;font-family:var(--sans)}
+.dark .tab{color:var(--tx-lm)}
+.tab:hover{color:var(--gold)}
+.tab.on{background:var(--gold);color:#14100A}
+.dark .tab.on{background:var(--gold);color:var(--ink)}
+.pill{display:inline-block;font:600 9px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;
+  padding:5px 9px;border:1px solid currentColor;border-radius:2px;color:var(--gold)}
+.light .pill{color:var(--gold-d)}
+.pill.teal{color:var(--teal)}
+.dark .pill.teal{color:var(--teal-l)}
+.pill.coral{color:var(--coral)}
+
+/* ---------- charts ---------- */
+.chart{width:100%}
+.chart .bar{transition:.5s cubic-bezier(.22,1,.36,1);cursor:pointer}
+.chart .bar:hover{opacity:.72}
+.axis{font:500 9px var(--sans);fill:var(--tx-dm)}
+.dark .axis{fill:var(--tx-lm)}
+.gridline{stroke:var(--line-d);stroke-width:1}
+.dark .gridline{stroke:var(--line-l)}
+#tip{position:fixed;z-index:99;pointer-events:none;opacity:0;transition:opacity .14s;
+  background:rgba(12,16,25,.97);border:1px solid rgba(201,154,67,.45);border-radius:3px;
+  padding:8px 11px;font:500 11px/1.45 var(--sans);color:#F5F0EA;white-space:nowrap;
+  box-shadow:0 10px 30px rgba(0,0,0,.5)}
+#tip b{color:var(--gold-l);font-weight:600}
+
+/* ---------- footer / chrome ---------- */
+.foot{position:absolute;left:62px;right:62px;bottom:22px;display:flex;justify-content:space-between;
+  align-items:center;font:500 9px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--tx-dm);z-index:3}
+.dark .foot{color:rgba(143,152,166,.62)}
+.light .foot{color:rgba(111,118,128,.6)}
+
+#bar{position:fixed;left:0;bottom:0;height:2px;background:var(--gold);z-index:60;transition:width .45s cubic-bezier(.4,0,.2,1)}
+#nav{position:fixed;bottom:16px;right:20px;display:flex;gap:7px;z-index:61}
+.nb{width:32px;height:32px;border:1px solid rgba(216,209,196,.2);background:rgba(12,16,25,.72);
+  color:#D8D1C4;border-radius:2px;cursor:pointer;font-size:13px;display:flex;align-items:center;
+  justify-content:center;transition:.2s;backdrop-filter:blur(8px)}
+.nb:hover{border-color:var(--gold);color:var(--gold)}
+#counter{position:fixed;bottom:16px;left:20px;z-index:61;font:500 10px/1 var(--sans);
+  letter-spacing:.15em;color:rgba(216,209,196,.5);display:flex;align-items:center;gap:8px;height:32px}
+#counter b{color:var(--gold);font-weight:600}
+
+/* ---------- overview grid ---------- */
+#ov{position:fixed;inset:0;background:rgba(5,7,11,.97);z-index:80;display:none;
+  padding:34px 40px;overflow-y:auto;backdrop-filter:blur(6px)}
+#ov.on{display:block}
+#ov h5{font:600 11px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
+#ovg{display:grid;grid-template-columns:repeat(5,1fr);gap:13px}
+.ovi{border:1px solid rgba(216,209,196,.15);border-radius:3px;padding:13px 14px;cursor:pointer;
+  transition:.2s;background:rgba(19,26,34,.7);min-height:74px}
+.ovi:hover{border-color:var(--gold);background:rgba(201,154,67,.09);transform:translateY(-2px)}
+.ovi .n{font:600 9px/1 var(--sans);color:var(--gold);letter-spacing:.1em;margin-bottom:7px}
+.ovi .t{font:500 11.5px/1.35 var(--sans);color:#D8D1C4}
+.ovi.act{border-color:var(--gold);background:rgba(201,154,67,.14)}
+
+#hint{position:fixed;top:16px;right:20px;z-index:61;font:500 9.5px/1 var(--sans);letter-spacing:.1em;
+  color:rgba(216,209,196,.34);text-transform:uppercase;transition:opacity .5s}
+#hint.hide{opacity:0}
+
+/* diamond motif */
+.dia{position:absolute;border:1px solid rgba(201,154,67,.22);transform:rotate(45deg);pointer-events:none;z-index:1}
+
+@media print{
+  @page{size:13.333in 7.5in landscape;margin:0}
+  html,body{height:auto!important;overflow:visible!important;background:#fff!important}
+  #viewport{position:static!important;display:block!important}
+  #stage{width:1280px!important;height:auto!important;transform:none!important;box-shadow:none!important}
+  .slide{position:relative!important;width:1280px!important;height:720px!important;opacity:1!important;pointer-events:auto!important;page-break-after:always!important;break-after:page!important}
+  .slide:last-child{page-break-after:auto!important}
+  #bar,#nav,#counter,#hint,#ov,#tip{display:none!important}
+  .anim{animation:none!important;opacity:1!important;transform:none!important}
+}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage"></div></div>
+<div id="tip"></div>
+<div id="bar"></div>
+<div id="counter"><b id="cn">01</b> / <span id="ct">20</span></div>
+<div id="nav">
+  <div class="nb" onclick="go(idx-1)" title="Previous">&#8249;</div>
+  <div class="nb" onclick="toggleOv()" title="Overview (O)">&#9783;</div>
+  <div class="nb" onclick="fs()" title="Fullscreen (F)">&#9974;</div>
+  <div class="nb" onclick="go(idx+1)" title="Next">&#8250;</div>
+</div>
+<div id="hint">&#8592; &#8594; navigate &nbsp;·&nbsp; O overview &nbsp;·&nbsp; F fullscreen</div>
+<div id="ov"><h5>Contents</h5><div id="ovg"></div></div>
+<script>
+/* =================== SLIDES =================== */
+const S=[];
+S.push({t:'Cover',cls:'dark',html:`<div class="dia" style="width:330px;height:330px;right:-70px;top:120px"></div>
+<div class="dia" style="width:190px;height:190px;right:10px;top:200px;border-color:rgba(183,154,114,.44)"></div>
+<div class="pad" style="padding-top:118px">
+  <div class="eyebrow anim">Brand Narrative &amp; House Book</div>
+  <h1 class="anim d1" style="margin-top:30px;max-width:950px;font-size:54px;line-height:1.1">Some things in life<br>cannot be manufactured.</h1>
+  <div class="anim d2" style="font:300 28px/1.35 var(--serif);font-style:italic;color:var(--gold-l);margin-top:16px">Some things feel significant before we ever decide what to call them.</div>
+  <div class="anim d3" style="width:54px;height:1px;background:var(--gold);margin:38px 0 24px"></div>
+  <div class="anim d4" style="font:400 14.5px/1.65 var(--sans);color:var(--tx-lm);max-width:620px">
+    A modern natural-diamond engagement house.<br>
+    The name comes later. The belief comes first.</div>
+</div>`});
+S.push({t:'How to read this book',cls:'dark',html:`<div class="pad">
+  <div class="head">
+    <div class="eyebrow anim">The Structure</div>
+    <h2 class="anim d1">Five questions, answered in order</h2>
+    <div class="sub anim d2">This is a constitution, not a campaign deck. A new hire should know how to think after reading it; a customer should understand what the house stands for.</div>
+  </div>
+  <div class="anim d3" style="position:relative;margin-top:38px">
+    <div style="position:absolute;left:5%;right:5%;top:34px;height:1px;background:linear-gradient(90deg,transparent,rgba(183,154,114,.55) 8%,rgba(183,154,114,.55) 92%,transparent)"></div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px">
+      ${[['01','The Insight','What this generation is reacting to'],['02','The Belief','The worldview before the jewellery'],['03','The House','Product, experience &amp; story world'],['04','The Reveal','The name, signature &amp; brand DNA'],['05','The Proof','Natural origin, standards &amp; house rules']]
+        .map(x=>`<div style="text-align:center"><div style="width:14px;height:14px;background:var(--ink);border:1px solid var(--gold);transform:rotate(45deg);margin:26px auto 18px;position:relative;z-index:2"></div><div style="font:600 10px/1 var(--sans);letter-spacing:.1em;color:var(--gold);margin-bottom:8px">${x[0]}</div><div style="font:600 15px/1.25 var(--serif);color:var(--tx-l);margin-bottom:7px">${x[1]}</div><div style="font:400 10.5px/1.4 var(--sans);color:var(--tx-lm);padding:0 4px">${x[2]}</div></div>`).join('')}
+    </div>
+  </div>
+  <div class="anim d4" style="margin-top:52px;max-width:850px"><div class="card gold"><p style="font:400 13.5px/1.6 var(--sans);color:var(--tx-l)">Natural diamonds are not the entire message. They are the material that makes the message unusually coherent. The brand must still mean something when no ring is visible.</p></div></div>
+</div>`});
+S.push({t:'The cultural moment',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">01 &mdash; The Insight</div><h2 class="anim d1" style="max-width:980px">We are living through the age of manufacture</h2><div class="sub anim d2">More of life can now be designed, generated, optimised and delivered to specification than any generation before us has experienced.</div></div>
+  <div class="grid g3 anim d3" style="gap:16px;margin-top:25px">
+    <div class="card"><h4>We build the visible self</h4><p>Profiles, feeds, careers, personal brands, photographs, playlists, routines and entire digital identities can be deliberately constructed.</p></div>
+    <div class="card"><h4>We optimise the options</h4><p>Algorithms narrow choices. Apps match preferences. Products are configured. Experiences are planned down to the last detail.</p></div>
+    <div class="card gold"><h4 style="color:var(--gold-d)">And that makes the unmanufactured more precious</h4><p>The chemistry nobody briefed. The timing nobody scheduled. The person who was not part of the plan. The part of life that still refuses a specification sheet.</p></div>
+  </div>
+  <div class="anim d4" style="max-width:910px;margin-top:28px"><p class="lede">The opportunity is not nostalgia. It is to give a modern generation a language for why authenticity, origin and unplanned human connection can still matter in a world of infinite manufacture.</p></div>
+</div>`});
+S.push({t:'The category problem',cls:'dark',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">01 &mdash; The Insight (continued)</div><h2 class="anim d1">Natural-diamond facts are necessary. None of them is a brand by itself.</h2><div class="sub anim d2">A certificate can prove a stone. It cannot create a cultural reason to prefer the house.</div></div>
+  <div class="anim d3" style="margin-top:18px"><table><thead><tr><th style="text-align:left">Common natural-diamond claim</th><th style="text-align:left">Why it is insufficient alone</th></tr></thead><tbody>
+    <tr><td style="text-align:left">Billions of years old</td><td style="text-align:left;color:var(--tx-lm)">Extraordinary origin, but easily reduced to a geology fact unless connected to human meaning.</td></tr>
+    <tr><td style="text-align:left">Rare / precious</td><td style="text-align:left;color:var(--tx-lm)">Luxury language used by the entire category; it does not tell us what Bare Brilliant believes.</td></tr>
+    <tr><td style="text-align:left">Certified natural</td><td style="text-align:left;color:var(--tx-lm)">Essential proof and trust hygiene, not a worldview.</td></tr>
+    <tr><td style="text-align:left">Investment / value</td><td style="text-align:left;color:var(--tx-lm)">Can distort an emotional purchase into a financial claim and creates avoidable expectation risk.</td></tr>
+    <tr><td style="text-align:left">Heritage / forever</td><td style="text-align:left;color:var(--tx-lm)">Familiar category territory. Bare Brilliant needs a more contemporary interpretation of commitment.</td></tr>
+  </tbody></table></div>
+  <div class="anim d4" style="margin-top:20px;max-width:900px"><div class="card gold"><p style="font:400 13.5px/1.6 var(--sans);color:var(--tx-l)">Our origin story matters because it supports the belief. The belief does not exist merely to decorate the origin story.</p></div></div>
+</div>`});
+S.push({t:'The belief',cls:'dark',html:`<div class="pad" style="padding-top:56px">
+  <div class="eyebrow anim">02 &mdash; The Belief</div>
+  <h2 class="anim d1" style="max-width:920px;margin-top:16px;font-size:40px">Some things can be designed.<br>Some things can only happen.</h2>
+  <div class="anim d2" style="max-width:800px;margin-top:30px"><p style="font:400 19px/1.68 var(--serif);color:var(--tx-l)">You can plan the proposal. You cannot manufacture the reason you want to propose.<br><br>You can choose the restaurant, the date and the ring. You cannot order chemistry, timing, character or the strange accumulation of moments through which one person stops feeling like everyone else.<br><br>That is not an argument against choice. It is the reason choice matters.</p></div>
+  <div class="anim d3" style="margin-top:30px;max-width:800px"><div class="card gold" style="padding:20px 24px"><p style="font:italic 400 17px/1.6 var(--serif);color:var(--gold-l)">Some things can&rsquo;t be made. They become meaningful before they become a promise.</p></div></div>
+</div>`});
+S.push({t:'Meant, not made',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">02 &mdash; The Belief (continued)</div><h2 class="anim d1">The most important connection in the story is the one nobody could manufacture</h2><div class="sub anim d2">The house signature compresses the belief without turning love into passive destiny.</div></div>
+  <div class="grid g2 anim d3" style="gap:22px;margin-top:28px">
+    <div class="card gold" style="padding:22px 24px"><div class="pill" style="margin-bottom:12px">MEANT</div><h3 style="margin-bottom:12px">Significance before specification</h3><p style="font-size:13px;line-height:1.62">Not predestined. Not guaranteed. Simply the feeling that one particular connection has become different from all the interchangeable possibilities around it &mdash; through chemistry, timing, history, character and the moments nobody could have ordered in advance.</p></div>
+    <div class="card teal" style="padding:22px 24px"><div class="pill teal" style="margin-bottom:12px">NOT MADE</div><h3 style="margin-bottom:12px">The part no brief can create</h3><p style="font-size:13px;line-height:1.62">The proposal can be planned. The ring can be designed. The future can be worked on. But the reason this person became the person cannot be manufactured to specification. A natural diamond gives that belief an unusually coherent material expression through its natural origin.</p></div>
+  </div>
+  <div class="anim d4" style="margin-top:30px;text-align:center"><div style="font:600 48px/1 var(--serif);color:var(--gold-d)">MEANT, NOT MADE.</div><div style="font:400 13px/1.5 var(--sans);color:var(--tx-dm);margin-top:12px">The house signature &mdash; the belief compressed.</div></div>
+</div>`});
+S.push({t:'Forever is a verb',cls:'dark',html:`<div class="pad" style="padding-top:62px">
+  <div class="eyebrow anim">The Engagement Philosophy</div>
+  <h2 class="anim d1" style="font-size:48px;margin-top:18px">Forever is a verb.</h2>
+  <div class="anim d2" style="max-width:820px;margin-top:30px"><p style="font:400 18px/1.7 var(--serif);color:var(--tx-l)">The connection may begin outside the plan. Forever does not.<br><br>A proposal can be captured in a photograph. Commitment cannot. It is practised in ordinary mornings, changed plans, difficult conversations, repaired arguments, new cities and versions of each other neither person has met yet.</p></div>
+  <div class="grid g3 anim d3" style="gap:14px;margin-top:30px"><div class="card"><h4>The connection</h4><p>Something you could not fully manufacture.</p></div><div class="card gold"><h4>The proposal</h4><p>The moment you deliberately choose what that connection will mean.</p></div><div class="card teal"><h4>The forever</h4><p>Everything you continue doing after the yes.</p></div></div>
+  <div class="anim d4" style="margin-top:28px;font:italic 400 17px/1.5 var(--serif);color:var(--gold-l)">The ring carries the promise. The people carry the forever.</div>
+</div>`});
+S.push({t:'Brand objectives',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">What This House Is Actually For</div><h2 class="anim d1">Four objectives, in priority order</h2><div class="sub anim d2">The commercial outcome is strongest when the cultural meaning, trust and customer behaviour are built first.</div></div>
+  <div class="grid g2 anim d3" style="gap:16px;margin-top:22px">
+    <div class="card gold"><div class="pill" style="margin-bottom:10px">01 &middot; Cultural</div><h4>Own the modern meaning of natural commitment</h4><p>Become the engagement-ring house associated with the belief that some parts of love arrive naturally and forever is what we deliberately do with them.</p></div>
+    <div class="card teal"><div class="pill teal" style="margin-bottom:10px">02 &middot; Trust</div><h4>Make online fine jewellery feel unusually clear</h4><p>Origin, certification, selection logic, manufacturing, pricing and delivery should be explainable without theatre or pressure.</p></div>
+    <div class="card"><div class="pill" style="margin-bottom:10px">03 &middot; Behavioural</div><h4>Make couples tell the story</h4><p>Invite people to talk about what they could not have planned, what made them choose, and what forever looks like after the proposal.</p></div>
+    <div class="card"><div class="pill" style="margin-bottom:10px">04 &middot; Commercial</div><h4>Become the default consideration for a natural engagement ring</h4><p>When someone in our audience thinks proposal + natural diamond, Bare Brilliant should be one of the first names recalled.</p></div>
+  </div>
+</div>`});
+S.push({t:'The house architecture',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">03 &mdash; Building The House</div><h2 class="anim d1">Four product worlds. One relationship journey.</h2><div class="sub anim d2">These are not campaign names. They are permanent house architecture and can appear directly in website navigation, packaging, CRM and client language.</div></div>
+  <div class="grid g2 anim d3" style="gap:16px;margin-top:20px">
+    <div class="card gold" style="padding:20px 22px"><div class="pill" style="margin-bottom:10px">01</div><h3>THE PROPOSAL</h3><p style="margin-top:8px">Engagement rings, custom solitaires, proposal rings and secret proposal guidance. The moment one person deliberately asks another to make the future shared.</p></div>
+    <div class="card teal" style="padding:20px 22px"><div class="pill teal" style="margin-bottom:10px">02</div><h3>THE VOW</h3><p style="margin-top:8px">Wedding bands and couple rings. The proposal becomes mutual commitment; the promise moves from question to practice.</p></div>
+    <div class="card" style="padding:20px 22px"><div class="pill" style="margin-bottom:10px">03</div><h3>THE CHAPTERS</h3><p style="margin-top:8px">Anniversaries and relationship milestones. Jewellery for what the relationship becomes after the first promise.</p></div>
+    <div class="card" style="padding:20px 22px"><div class="pill" style="margin-bottom:10px">04</div><h3>PRIVATE COMMISSION</h3><p style="margin-top:8px">Earrings, bracelets, necklaces, high jewellery and one-off personal projects. Everything that begins with a person or story rather than a catalogue requirement.</p></div>
+  </div>
+</div>`});
+S.push({t:'Why these names matter',cls:'dark',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">The Product World</div><h2 class="anim d1">The architecture follows the relationship, not the jewellery trade</h2><div class="sub anim d2">A conventional jeweller organises the business by object. Bare Brilliant can organise it by meaning.</div></div>
+  <div class="anim d3" style="margin-top:20px"><table><thead><tr><th style="text-align:left">House world</th><th style="text-align:left">Customer meaning</th><th style="text-align:left">Commercial role</th></tr></thead><tbody>
+    <tr><td style="text-align:left"><b>The Proposal</b></td><td style="text-align:left;color:var(--tx-lm)">I am choosing you.</td><td style="text-align:left;color:var(--tx-lm)">Acquisition &amp; hero category</td></tr>
+    <tr><td style="text-align:left"><b>The Vow</b></td><td style="text-align:left;color:var(--tx-lm)">We are choosing this together.</td><td style="text-align:left;color:var(--tx-lm)">Wedding conversion &amp; couple purchase</td></tr>
+    <tr><td style="text-align:left"><b>The Chapters</b></td><td style="text-align:left;color:var(--tx-lm)">We are still becoming us.</td><td style="text-align:left;color:var(--tx-lm)">Lifetime value &amp; anniversaries</td></tr>
+    <tr><td style="text-align:left"><b>Private Commission</b></td><td style="text-align:left;color:var(--tx-lm)">This deserves to exist only for me / us.</td><td style="text-align:left;color:var(--tx-lm)">Bespoke &amp; high-value work</td></tr>
+  </tbody></table></div>
+  <div class="anim d4" style="margin-top:24px;max-width:910px"><p class="lede">The public perception remains focused: Bare Brilliant is an engagement-ring house. The architecture simply gives the relationship somewhere to go after the first ring.</p></div>
+</div>`});
+S.push({t:'Website architecture',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">How The House Appears Online</div><h2 class="anim d1">Use the house names publicly &mdash; keep product language underneath them unmistakably clear</h2><div class="sub anim d2">Poetry should organise the experience, never obstruct shopping intent or search clarity.</div></div>
+  <div class="grid g2 anim d3" style="gap:20px;margin-top:20px">
+    <div class="card gold" style="padding:20px 22px"><h4>PRIMARY NAVIGATION</h4><div style="font:500 15px/1.85 var(--serif);margin-top:10px;color:var(--tx-d)">THE PROPOSAL<br>THE VOW<br>THE CHAPTERS<br>PRIVATE COMMISSION<br>WHY NATURAL<br>OUR HOUSE</div><div style="margin-top:15px"><span class="pill">START YOUR RING</span></div></div>
+    <div class="card" style="padding:20px 22px"><h4>INSIDE THE PROPOSAL</h4><p style="font-size:12.5px;line-height:1.65">Engagement Rings<br>Custom Solitaires<br>Proposal Rings<br>Secret Proposal Guidance</p><h4 style="margin-top:17px">STYLE FILTERS</h4><p style="font-size:12.5px;line-height:1.65">Solitaire &middot; Halo &middot; Hidden Halo &middot; Three Stone &middot; Toi et Moi &middot; Pav&eacute; &middot; Bezel &middot; Vintage &middot; Modern</p><p style="margin-top:15px">Use descriptive product names for usability and SEO. The house architecture carries the emotion; filters carry the function.</p></div>
+  </div>
+</div>`});
+S.push({t:'The consultation journey',cls:'dark',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">The Bare Brilliant Journey</div><h2 class="anim d1">Start with the person. The stone comes second.</h2><div class="sub anim d2">A consultation-led house should feel materially different from opening a digital display case.</div></div>
+  <div class="grid g5 anim d3" style="gap:12px;margin-top:24px">
+    ${[['01','THE BARE BRIEF','The person, relationship, style, budget and proposal context.'],['02','THE NATURAL SHORTLIST','A deliberately small set of natural stones worth considering.'],['03','THE REASON','What we recommend, the trade-offs and why.'],['04','THE CREATION','Design, CAD, manufacturing, quality control and updates.'],['05','THE RECORD','Independent reports, HUID, specifications, service and delivery documentation.']]
+      .map((x,i)=>`<div class="card ${i===0?'gold':i===2?'teal':''}" style="padding:18px 16px"><div class="pill ${i===2?'teal':''}" style="margin-bottom:10px">${x[0]}</div><h4 style="font:600 13px var(--serif);margin-bottom:8px">${x[1]}</h4><p style="font-size:10.8px">${x[2]}</p></div>`).join('')}
+  </div>
+  <div class="anim d4" style="margin-top:28px;max-width:900px"><div class="card gold"><p style="font:italic 400 15px/1.6 var(--serif);color:var(--tx-l)">We do not ask which ring she fits. We learn enough to create the ring around her.</p></div></div>
+</div>`});
+S.push({t:'The Proposal service',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">Inside The Proposal</div><h2 class="anim d1">The ring can be a surprise. The buying decision does not have to be a guess.</h2></div>
+  <div class="grid g2 anim d2" style="gap:20px;margin-top:28px">
+    <div class="card gold"><h3 style="margin-bottom:12px">Secret Proposal Guidance</h3><p style="font-size:12.8px;line-height:1.65">A guided path for someone buying without the wearer present: infer style from existing jewellery, saved references, lifestyle, metal preference, proportions and trusted friends or siblings &mdash; while protecting the surprise.</p></div>
+    <div class="card"><h3 style="margin-bottom:12px">Together, if they prefer</h3><p style="font-size:12.8px;line-height:1.65">Modern commitment does not require one ritual. Couples can choose the ring together, collaborate on the brief or let one person lead. Bare Brilliant protects meaning, not a fixed gender script.</p></div>
+  </div>
+  <div class="anim d3" style="margin-top:30px;text-align:center;font:italic 400 20px/1.45 var(--serif);color:var(--gold-d)">The proposal should feel personal because the process was personal.</div>
+</div>`});
+S.push({t:'The story world',cls:'dark',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">The House In Culture</div><h2 class="anim d1">Three permanent story properties &mdash; not a calendar of random jewellery posts</h2></div>
+  <div class="grid g3 anim d2" style="gap:16px;margin-top:26px">
+    <div class="card gold" style="padding:20px"><div class="pill" style="margin-bottom:11px">Master worldview</div><h3>SOME THINGS CAN&rsquo;T BE MADE</h3><p style="margin-top:9px">The deeper worldview behind &ldquo;Meant, Not Made&rdquo;: chemistry, timing, authenticity, natural origin and the parts of a relationship no algorithm or sales script can manufacture.</p></div>
+    <div class="card teal" style="padding:20px"><div class="pill teal" style="margin-bottom:11px">Engagement</div><h3>FOREVER IS A VERB</h3><p style="margin-top:9px">What commitment looks like after the photograph: actions, habits, repair, growth and the ordinary life that makes the promise real.</p></div>
+    <div class="card" style="padding:20px"><div class="pill" style="margin-bottom:11px">Customer stories</div><h3>THE UNPLANNED PART</h3><p style="margin-top:9px">How people actually met, what almost did not happen, what changed the plan, and the moment one person became different from everyone else.</p></div>
+  </div>
+</div>`});
+S.push({t:'The first brand film',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">The First Story We Tell</div><h2 class="anim d1">We can make almost anything now.</h2><div class="sub anim d2">The brand should enter culture with a thought before it enters with a ring.</div></div>
+  <div class="grid g3 anim d3" style="gap:16px;margin-top:20px">
+    <div class="card"><div class="pill" style="margin-bottom:8px">Act I</div><h3>Manufacture</h3><p style="margin-top:8px">Images. Identities. Experiences. Matches. Objects. Even diamonds can now be produced by people with astonishing precision.</p></div>
+    <div class="card gold"><div class="pill" style="margin-bottom:8px">Act II</div><h3>The limit</h3><p style="margin-top:8px">But not chemistry. Not the exact timing. Not the unplanned person who changes the plan. Not the reason a proposal matters.</p></div>
+    <div class="card teal"><div class="pill teal" style="margin-bottom:8px">Act III</div><h3>The recognition</h3><p style="margin-top:8px">Some connections become meaningful before anyone can explain why. The proposal is what turns that recognition into a deliberate promise.</p></div>
+  </div>
+  <div class="anim d4" style="margin-top:28px;text-align:center"><div style="font:600 38px/1 var(--serif);color:var(--gold-d)">MEANT, NOT MADE.</div></div>
+</div>`});
+S.push({t:'The reveal',cls:'dark',html:`<div class="dia" style="width:250px;height:250px;right:-40px;top:80px"></div>
+<div class="pad" style="padding-top:52px">
+  <div class="eyebrow anim">04 &mdash; The Reveal</div>
+  <h2 class="anim d1" style="max-width:900px;margin-top:14px">Strip away the manufactured. Keep the thing that is true. Then make it worthy of being seen.</h2>
+  <div class="anim d2" style="margin:36px 0 8px">
+    <div style="font:600 60px/1 var(--serif);color:var(--gold-l);letter-spacing:.005em">BARE BRILLIANT</div>
+    <div style="font:300 24px/1.4 var(--serif);font-style:italic;color:var(--tx-l);opacity:.9;margin-top:9px">Meant, Not Made.</div>
+  </div>
+  <div class="grid g3 anim d3" style="gap:16px;margin-top:28px">
+    <div class="card gold"><div class="pill" style="margin-bottom:10px">BARE</div><h4>What remains when the performance is removed</h4><p>Strip away pressure, trends, sales theatre, social comparison and the perfect public version. What remains is the person, the relationship and the reason.</p></div>
+    <div class="card teal"><div class="pill teal" style="margin-bottom:10px">BRILLIANT</div><h4>Light, diamond brilliance and clarity of choice</h4><p>The literal brilliance of the stone, and the moment something important becomes unmistakably clear enough to put into the light.</p></div>
+    <div class="card"><div class="pill" style="margin-bottom:10px">TOGETHER</div><h4>A house for what feels meant &mdash; and what must still be chosen</h4><p>Bare Brilliant strips away the manufactured performance around the decision, then creates something worthy of the connection that remains.</p></div>
+  </div>
+</div>`});
+S.push({t:'Everything now has a name',cls:'dark',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">04 &mdash; The Reveal (continued)</div><h2 class="anim d1">Everything in the house now sits under one language system</h2></div>
+  <div class="anim d2" style="margin-top:24px;display:flex;flex-wrap:wrap;gap:10px;max-width:1050px">
+    ${[['Master belief','Some Things Can&rsquo;t Be Made'],['House signature','Meant, Not Made.'],['Engagement philosophy','Forever Is A Verb'],['Engagement','The Proposal'],['Wedding','The Vow'],['Milestones','The Chapters'],['Bespoke','Private Commission'],['Consultation','The Bare Brief'],['Stone curation','The Natural Shortlist'],['Recommendation','The Reason'],['Documentation','The Record']]
+      .map(x=>`<div style="font:400 11px/1.45 var(--sans);color:var(--tx-lm);background:rgba(255,255,255,.035);border:1px solid var(--line-l);border-radius:2px;padding:8px 11px"><span style="color:var(--gold)">${x[0]}</span> &nbsp;&rarr;&nbsp; <b style="color:var(--tx-l);font-weight:600">${x[1]}</b></div>`).join('')}
+  </div>
+  <div class="anim d3" style="margin-top:38px;max-width:900px"><div class="card gold"><p style="font:italic 400 16px/1.6 var(--serif);color:var(--gold-l)">The naming system should make the business easier to understand, not merely more poetic.</p></div></div>
+</div>`});
+S.push({t:'Brand DNA',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">The Brand, Stated Formally</div><h2 class="anim d1">The case, compressed to six lines</h2><div class="sub anim d2">Every hire, brief, campaign, client interaction and design decision should be checkable against these.</div></div>
+  <div class="anim d3" style="margin-top:18px"><table><tbody>
+    <tr><td style="text-align:left;width:15%"><b>Mission</b></td><td style="text-align:left;color:var(--tx-dm)">To create natural-diamond jewellery for rare human connections and the commitments people deliberately choose to make around them.</td></tr>
+    <tr><td style="text-align:left"><b>Vision</b></td><td style="text-align:left;color:var(--tx-dm)">To become India&rsquo;s defining modern natural-diamond engagement-ring house.</td></tr>
+    <tr><td style="text-align:left"><b>Positioning</b></td><td style="text-align:left;color:var(--tx-dm)">For modern couples who value authenticity over performance, Bare Brilliant creates made-to-order natural-diamond engagement rings around the person and relationship &mdash; not inventory, trends or manufactured urgency.</td></tr>
+    <tr><td style="text-align:left"><b>Promise</b></td><td style="text-align:left;color:var(--tx-dm)">A ring made around who you are choosing, with clear guidance on what you are buying and why.</td></tr>
+    <tr><td style="text-align:left"><b>Personality</b></td><td style="text-align:left;color:var(--tx-dm)">Intimate, intelligent, assured, romantic, culturally modern and quietly premium.</td></tr>
+    <tr><td style="text-align:left"><b>Tone</b></td><td style="text-align:left;color:var(--tx-dm)">Human first, diamond second. Simple, emotionally precise, observant, occasionally witty; never syrupy, defensive or pushy.</td></tr>
+  </tbody></table></div>
+</div>`});
+S.push({t:'House values',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">Values That Change Behaviour</div><h2 class="anim d1">Six rules for how Bare Brilliant should operate</h2></div>
+  <div class="grid g3 anim d2" style="gap:14px;margin-top:24px">
+    <div class="card gold"><h4>01 &middot; Truth over theatre</h4><p>Never create drama to compensate for weak substance.</p></div>
+    <div class="card"><h4>02 &middot; Person before product</h4><p>Learn enough about the wearer before recommending the object.</p></div>
+    <div class="card"><h4>03 &middot; Choice without pressure</h4><p>Urgency must come from reality: timing, availability or manufacturing &mdash; never invention.</p></div>
+    <div class="card teal"><h4>04 &middot; Origin with meaning</h4><p>Explain why natural origin matters to this house without demeaning another customer&rsquo;s choice.</p></div>
+    <div class="card"><h4>05 &middot; Explain, don&rsquo;t overwhelm</h4><p>Expertise is the ability to make complexity usable, not to prove how much we know.</p></div>
+    <div class="card"><h4>06 &middot; Make it worthy</h4><p>A deeply personal object should feel considered from recommendation to craftsmanship to delivery.</p></div>
+  </div>
+</div>`});
+S.push({t:'Voice & language',cls:'dark',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">How Bare Brilliant Sounds</div><h2 class="anim d1">Romantic without pretending. Expert without lecturing.</h2></div>
+  <div class="grid g2 anim d2" style="gap:18px;margin-top:22px">
+    <div class="card gold"><h4 style="margin-bottom:10px">SAY THIS</h4><p style="font-size:12.5px;line-height:1.72">&ldquo;Tell us about her. We&rsquo;ll help with the ring.&rdquo;<br>&ldquo;Here are the two stones we would genuinely consider.&rdquo;<br>&ldquo;The proposal is a moment. Forever is a verb.&rdquo;<br>&ldquo;Some things feel meant. The ring is how you choose to mark them.&rdquo;<br>&ldquo;You don&rsquo;t need to know diamonds to buy one well.&rdquo;</p></div>
+    <div class="card"><h4 style="margin-bottom:10px">NOT THIS</h4><p style="font-size:12.5px;line-height:1.72">&ldquo;Only a real diamond proves real love.&rdquo;<br>&ldquo;Last chance! Offer ends tonight.&rdquo;<br>&ldquo;The perfect ring for every bride.&rdquo;<br>&ldquo;Luxury redefined.&rdquo;<br>&ldquo;Best quality at the lowest price.&rdquo;</p></div>
+  </div>
+  <div class="anim d3" style="margin-top:26px;max-width:930px"><div class="card teal"><p style="font:400 12.5px/1.6 var(--sans);color:var(--tx-l)">Never use &ldquo;Gen Z language&rdquo; as a costume. The house should sound contemporary because the thought is contemporary, not because the copy contains forced slang.</p></div></div>
+</div>`});
+S.push({t:'Visual world',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">The Visual House</div><h2 class="anim d1">Natural does not mean rustic. Premium does not mean black-and-gold theatre.</h2></div>
+  <div class="grid g3 anim d2" style="gap:16px;margin-top:22px">
+    <div class="card gold"><h4>Palette</h4><p>Graphite black, diamond white, mineral grey, warm ivory and real skin tones. Metal and diamond provide the shine; the brand system does not need to imitate it.</p></div>
+    <div class="card"><h4>Photography</h4><p>Hands, movement, skin texture, close gestures, natural light, editorial framing, unposed couples, macro stone details and real creation processes.</p></div>
+    <div class="card teal"><h4>Restraint</h4><p>Avoid generic wedding florals, rose-petal hearts, champagne clich&eacute;s, over-retouching, AI-perfect couples and status-signalling props that overpower the relationship.</p></div>
+  </div>
+  <div class="anim d3" style="margin-top:30px;font:italic 400 19px/1.5 var(--serif);color:var(--gold-d);max-width:900px">The image should feel like somebody was there &mdash; not like a jewellery ad was assembled.</div>
+</div>`});
+S.push({t:'The proof system',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">05 &mdash; The Proof</div><h2 class="anim d1">The philosophy earns attention. Proof earns the transaction.</h2><div class="sub anim d2">A new online fine-jewellery house has to make confidence visible, especially when the product is custom and high value.</div></div>
+  <div style="display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:22px">
+    <div class="anim d3">
+      <div class="card gold" style="margin-bottom:12px"><h4>Independent diamond documentation</h4><p>GIA reports for solitaires; IGI documentation where used for smaller diamonds. The house never presents internal paperwork as a substitute for independent grading.</p></div>
+      <div class="card teal" style="margin-bottom:12px"><h4>Gold &amp; fulfilment proof</h4><p>HUID for gold, confirmed manufacturing specifications, insured logistics through Sequel, delivery documentation and clear service / exchange terms.</p></div>
+      <div class="card"><h4>The Bare Brilliant Record</h4><p>One organised customer record connecting the stone, design, metal, manufacturing details, independent reports, service information and the reason behind the recommendation.</p></div>
+    </div>
+    <div class="anim d4"><div style="font:600 10.5px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--gold-d);margin-bottom:13px">A HOUSE RULE</div>
+      <div class="card" style="padding:22px 24px"><p style="font:italic 400 17px/1.65 var(--serif);color:var(--tx-d)">We cannot manufacture the relationship.<br><br>We should never manufacture the sale.</p></div>
+      <p style="font:400 11.5px/1.6 var(--sans);color:var(--tx-dm);margin-top:14px">No fake scarcity. No invented deadline. No automatic upsell. No implication that laboratory-grown diamonds are &ldquo;fake.&rdquo; Bare Brilliant wins by explaining why natural origin matters to this house.</p>
+    </div>
+  </div>
+</div>`});
+S.push({t:'Why this is hard to copy',cls:'dark',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">Defensibility</div><h2 class="anim d1">A tagline is easy to copy. A coherent house is not.</h2></div>
+  <div class="anim d2" style="margin-top:22px">
+    ${[['01','Cultural belief','Some Things Can&rsquo;t Be Made'],['02','Signature','Meant, Not Made.'],['03','Engagement philosophy','Forever Is A Verb'],['04','Product architecture','The Proposal / The Vow / The Chapters / Private Commission'],['05','Consultation system','Bare Brief / Natural Shortlist / The Reason / The Record'],['06','Operating ethic','Never manufacture the sale']]
+      .map(x=>`<div style="display:flex;gap:16px;padding:10px 0;border-bottom:1px solid var(--line-l);align-items:center"><span style="font:600 11px var(--sans);color:var(--gold);min-width:24px">${x[0]}</span><span style="font:500 12.5px var(--sans);color:var(--tx-l);min-width:190px">${x[1]}</span><span style="font:400 12px var(--sans);color:var(--tx-lm)">${x[2]}</span></div>`).join('')}
+  </div>
+  <div class="anim d3" style="margin-top:24px;max-width:940px"><p class="lede">A competitor can copy a solitaire, a price, a consultation or even a sentence. Copying the worldview, language, journey, product hierarchy, rituals and behaviour at once requires becoming a different company.</p></div>
+</div>`});
+S.push({t:'The manifesto',cls:'dark',html:`<div class="pad" style="padding-top:50px">
+  <div class="eyebrow anim">The Customer-Facing Manifesto</div>
+  <div class="anim d1" style="max-width:920px;margin-top:24px"><p style="font:400 17px/1.62 var(--serif);color:var(--tx-l)">We can make almost anything now.<br><br>We can design the moment. Curate the photograph. Optimise the match. Create the object.<br><br>But not the reason one person becomes different from everyone else.<br><br>You can plan the proposal. You cannot manufacture the chemistry, timing, history and strange accumulation of moments that made you want to ask.<br><br>Some things can&rsquo;t be made.<br><br>They become meaningful before we ever decide what to call them. They feel meant &mdash; not because fate guarantees the ending, but because one connection has become unlike all the others.<br><br>Then comes the choice: the proposal, the promise, and everything the word forever will require after the yes.<br><br>We choose natural diamonds because origin is part of what this house values: something formed by nature becomes the object through which a deeply human promise is marked.<br><br>The ring carries the promise. The people carry the forever.</p></div>
+  <div class="anim d2" style="margin-top:28px"><div style="font:600 38px/1 var(--serif);color:var(--gold-l)">BARE BRILLIANT</div><div style="font:italic 400 22px/1.4 var(--serif);color:var(--tx-l);margin-top:7px">Meant, Not Made.</div></div>
+</div>`});
+S.push({t:'One-page onboarding',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">If You Remember Only One Page</div><h2 class="anim d1">Bare Brilliant in ten lines</h2></div>
+  <div class="grid g2 anim d2" style="gap:18px;margin-top:20px">
+    <div class="card gold" style="padding:20px 22px"><p style="font-size:12.5px;line-height:1.72"><b>We are:</b> a modern natural-diamond engagement-ring house.<br><b>We believe:</b> Some Things Can&rsquo;t Be Made.<br><b>We sign:</b> Meant, Not Made.<br><b>We say about commitment:</b> Forever Is A Verb.<br><b>We lead with:</b> The Proposal.</p></div>
+    <div class="card" style="padding:20px 22px"><p style="font-size:12.5px;line-height:1.72"><b>We organise the house as:</b> The Proposal / The Vow / The Chapters / Private Commission.<br><b>We sell:</b> consultation before catalogue.<br><b>We recommend:</b> person first, product second.<br><b>We never:</b> manufacture urgency or demean another diamond origin.<br><b>We want the customer to feel:</b> this was understood, not sold.</p></div>
+  </div>
+  <div class="anim d3" style="margin-top:30px;font:italic 400 20px/1.5 var(--serif);color:var(--gold-d)">If an idea cannot fit inside this world, it may perform &mdash; but it is not Bare Brilliant.</div>
+</div>`});
+S.push({t:'Source register',cls:'light',html:`<div class="pad">
+  <div class="head"><div class="eyebrow anim">Reference</div><h2 class="anim d1">External facts used in the house narrative</h2><div class="sub anim d2">The philosophy is ours. Scientific and advertising claims should remain traceable.</div></div>
+  <div class="anim d3" style="margin-top:18px"><table><thead><tr><th style="text-align:left">Source</th><th style="text-align:left">Used for</th></tr></thead><tbody>
+    <tr><td style="text-align:left">GIA &mdash; Natural Diamonds / Gem Encyclopedia</td><td style="text-align:left;color:var(--tx-dm)">Natural diamonds forming more than a billion years ago in Earth&rsquo;s mantle.</td></tr>
+    <tr><td style="text-align:left">GIA &mdash; Natural vs Laboratory-Grown Diamonds</td><td style="text-align:left;color:var(--tx-dm)">Origin distinction; laboratory-grown diamonds are diamonds and should not be described as fake.</td></tr>
+    <tr><td style="text-align:left">GIA &mdash; The Extraordinary Backstory of Natural Diamonds</td><td style="text-align:left;color:var(--tx-dm)">Some natural diamonds studied date to roughly 3.5&ndash;3.3 billion years ago.</td></tr>
+    <tr><td style="text-align:left">ASCI Code for Self-Regulation</td><td style="text-align:left;color:var(--tx-dm)">Truthful, fair advertising and substantiation discipline for factual / comparative claims.</td></tr>
+  </tbody></table></div>
+  <div class="anim d4" style="margin-top:18px;max-width:940px"><div class="card"><p style="font:400 11.5px/1.55 var(--sans);color:var(--tx-dm)">The house signature and naming system still require formal trademark clearance before permanent packaging, legal registration or large-scale media investment.</p></div></div>
+</div>`});
+S.push({t:'Closing',cls:'dark',html:`<div class="dia" style="width:260px;height:260px;right:-50px;top:150px"></div>
+<div class="pad" style="padding-top:105px">
+  <div class="eyebrow anim">The House In One Thought</div>
+  <h1 class="anim d1" style="margin-top:28px;max-width:900px;font-size:54px">Some things can&rsquo;t be made.</h1>
+  <div class="anim d2" style="font:300 28px/1.4 var(--serif);font-style:italic;color:var(--gold-l);margin-top:14px">Some things simply become impossible to mistake for anything else.</div>
+  <div class="anim d3" style="width:54px;height:1px;background:var(--gold);margin:38px 0 24px"></div>
+  <div class="anim d4" style="font:600 34px/1 var(--serif);color:var(--tx-l)">BARE BRILLIANT</div>
+  <div class="anim d5" style="font:italic 400 22px/1.4 var(--serif);color:var(--gold-l);margin-top:8px">Meant, Not Made.</div>
+</div>`});
+/* =================== NAV ENGINE =================== */
+let idx=0;const stage=document.getElementById('stage');
+S.forEach((s,i)=>{
+  const d=document.createElement('div');
+  d.className='slide '+s.cls;d.id='s'+i;
+  d.innerHTML=s.html+`<div class="foot"><span>Bare Brilliant &nbsp;&middot;&nbsp; Brand Narrative &amp; House Book</span><span>${String(i+1).padStart(2,'0')}</span></div>`;
+  stage.appendChild(d);
+});
+document.getElementById('ct').textContent=String(S.length).padStart(2,'0');
+document.getElementById('ovg').innerHTML=S.map((s,i)=>`<div class="ovi" data-i="${i}" onclick="go(${i});toggleOv()"><div class="n">${String(i+1).padStart(2,'0')}</div><div class="t">${s.t}</div></div>`).join('');
+function go(n){
+  if(n<0||n>=S.length)return;
+  document.getElementById('s'+idx).classList.remove('active');idx=n;
+  const cur=document.getElementById('s'+idx);cur.classList.add('active');
+  document.getElementById('cn').textContent=String(idx+1).padStart(2,'0');
+  document.getElementById('bar').style.width=((idx+1)/S.length*100)+'%';
+  document.querySelectorAll('.ovi').forEach(o=>o.classList.toggle('act',+o.dataset.i===idx));
+  cur.querySelectorAll('.anim').forEach(a=>{a.style.animation='none';a.offsetHeight;a.style.animation=''});
+}
+function toggleOv(){document.getElementById('ov').classList.toggle('on')}
+function fs(){const e=document.documentElement;if(!document.fullscreenElement){(e.requestFullscreen||e.webkitRequestFullscreen).call(e)}else{document.exitFullscreen()}}
+addEventListener('keydown',e=>{const k=e.key;if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){e.preventDefault();go(idx+1)}else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();go(idx-1)}else if(k==='Home'){go(0)}else if(k==='End'){go(S.length-1)}else if(k==='o'||k==='O'){toggleOv()}else if(k==='f'||k==='F'){fs()}else if(k==='Escape'){document.getElementById('ov').classList.remove('on')}});
+stage.addEventListener('click',e=>{if(e.target.closest('.tab')||e.target.closest('button'))return;const r=stage.getBoundingClientRect(),x=(e.clientX-r.left)/r.width;if(x>0.62)go(idx+1);else if(x<0.14)go(idx-1)});
+function resize(){const s=Math.min(innerWidth/1280,innerHeight/720)*(innerWidth<900?.98:.94);stage.style.transform='scale('+s+')'}
+addEventListener('resize',resize);resize();setTimeout(()=>document.getElementById('hint').classList.add('hide'),5200);go(0);
+</script></body></html>

@@ -20,4 +20,4 @@ storefront/public/service-worker.js
 # ---- OS / editor ----
 .DS_Store
 *.log
-!raw_plans/plan.log
+!raw_plans/*.log

@@ -1,41 +1,51 @@
 # barebrilliant
 
-Minimal-backend e-commerce build. The frontend is a static React app; the only
-thing it talks to is a **Lambda function URL** that ingests tracked events
-(`lead_generated`, `lead_submitted`, `order_placed`, `page_visit`, `scroll`,
-`href_click`, `banner_click`, …). There is no server in this repo.
+Minimal-backend e-commerce for **Bare Brilliant**, a natural-diamond
+engagement-ring house. The storefront is a static React app; there is **no
+server and no login** (deliberately, to keep hosting cost at zero). It reaches
+the outside world only through:
+
+- **Events** → a configurable **Lambda function URL** (`/add-events`, the
+  contract in `server_docs/`), via IndexedDB + a service worker, with
+  `send_event_now()` for the immediate path.
+- **Static storage** → catalog + product JSON and product media under
+  `storefront/public/storage/`, fetched at runtime. Search / filter / sort run
+  client-side. Cart and wishlist live in `localStorage`.
 
 ```
-storefront/            React + Vite. /chat + shared header/footer + /thank-you.
+storefront/            React + Vite storefront (see storefront/README.md)
 .github/workflows/     deploy.yml — builds storefront/ to GitHub Pages
-server_docs/           reference tracker (server.js + service-worker.js) + the
-                       /add-events wire format the storefront implements
-raw_plans/             the brief + the Bare Brilliant design guide
+server_docs/           reference event tracker + the /add-events wire format
+raw_plans/             brand narrative, design guide, and the Final website spec
 dashboard/             (later) Django CRM that reads the events
 ```
 
-## storefront
+## Design & content sources (`raw_plans/`)
 
-See [storefront/README.md](storefront/README.md) for the full rundown. In short:
+- **`BARE BRILLIANT WEBSITE.pdf`** — *Final Website Design, Content & Developer
+  Specification*. The authoritative source for routes, copy, CTAs and the
+  design system. Supersedes the April `design_language_guide.pdf`.
+- **`Bare Brilliant Brand Narrative`** (`.html` / `.pdf`, same content) — the
+  house book: belief, product architecture, voice, exact colour hexes.
 
-- **`/chat`** — the lead form, frontend copied from the Bare Brilliant reference
-  app, restyled to the design guide (`raw_plans/design_language_guide.pdf`).
-  Submitting pushes a `lead_submitted` event and redirects to **`/thank-you`**.
-- **Header / Footer** — shared shell; more pages slot in later.
-- **Events, two ways** (same `/add-events` wire format as `server_docs/`):
-  - deferred — `trackEvent(...)` writes to IndexedDB, the service worker
-    batches and flushes to `${VITE_LAMBDA_URL}/add-events`;
-  - immediate — `sendEventNow(...)` (alias `send_event_now`) PUTs now and
-    returns the response, for when a call needs the answer or a guaranteed flush.
-  With `VITE_LAMBDA_URL` unset, events just accumulate in IndexedDB and flush
-  once it is set.
-- **Cache-bust on deploy** — every GitHub Actions run bakes a fresh
-  `SW_VERSION` (the "sw-version" build number) into the service worker. The
-  browser reinstalls it, and its `activate` wipes all caches and reloads open
-  tabs once, so a changed bundle or a changed `VITE_LAMBDA_URL` always reaches
-  clients.
+**Design system**: Playfair Display + Inter · dark-first (black / ivory / grey)
+with warm gold `#B79A72` as a hairline accent only · type scale and tokens in
+`storefront/src/theme.css`.
 
-### Run
+## What's built
+
+**Phase 1** — `/chat` conversation gateway, shared header/footer, event
+pipeline (IndexedDB + service worker + `send_event_now`), SW-version cache-bust,
+GitHub Pages deploy workflow.
+
+**Phase 2** — the shopping flow: homepage, catalog, product detail, wishlist,
+cart, checkout (phone + email only, no payment), order confirmation. Every
+other spec route (`/the-vow`, `/why-natural`, `/faqs`, all policy pages, …) is a
+themed stub with real copy and CTAs so navigation never dead-ends.
+
+**Later** — fill in the stub pages; build the `dashboard/` Django CRM.
+
+## Run
 
 ```bash
 cd storefront
@@ -43,22 +53,10 @@ yarn install
 yarn dev             # http://localhost:8080
 ```
 
-Yarn (classic) is the package manager — `storefront/yarn.lock` is committed and
-CI uses it. Config generation is chained into the `dev` / `build` scripts, so
-npm/pnpm/bun also work if you'd rather (just don't commit their lockfiles).
+## Deploy
 
-### Deploy
-
-Push to `main` (this folder is the git repo). `.github/workflows/deploy.yml`
-builds `storefront/` and publishes to GitHub Pages. Set repo variables:
-
-| Variable | Purpose |
-| --- | --- |
-| `VITE_LAMBDA_URL` | events endpoint (Lambda function URL), no trailing slash |
-| `VITE_TENANT_NAME` | optional; `tenant_name` header value, defaults to the repo name |
-| `VITE_BASE` | optional; `/` for a user/org site or custom domain (default is `/<repo>/`) |
-
-## dashboard
-
-Django CRM that reads the event stream — **not built yet**, planned as a later
-step.
+Push to `main`. `.github/workflows/deploy.yml` builds `storefront/` and
+publishes to GitHub Pages at `https://vkrypto.github.io/barebrilliant/`
+(the workflow sets `VITE_BASE=/barebrilliant/` automatically). Repo variables:
+`VITE_LAMBDA_URL` (events endpoint — until set, events queue locally),
+optional `VITE_TENANT_NAME`, `VITE_STORAGE_BASE`.

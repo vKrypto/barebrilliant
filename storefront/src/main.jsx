@@ -1,16 +1,13 @@
-import { createRoot } from "react-dom/client";
-import App from "./App.jsx";
+// Base layer first (tokens + reset), so page/component stylesheets imported
+// later through the module graph can override cleanly regardless of Vite's
+// concatenation order.
 import "./theme.css";
 import "./index.css";
+
+import { createRoot } from "react-dom/client";
+import App from "./App.jsx";
 import { initTracker } from "./events/index.js";
 import "./events/swClient.js";
-
-// Point the CSS hero backdrop at the public asset with the correct base path
-// (a bare url() in CSS would miss the /<repo>/ prefix on GitHub Pages).
-document.documentElement.style.setProperty(
-  "--bb-hero-image",
-  `url("${import.meta.env.BASE_URL}hero-ring.jpg")`
-);
 
 initTracker();
 

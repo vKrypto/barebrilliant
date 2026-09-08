@@ -1,10 +1,10 @@
 import { useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { BUDGET_OPTIONS, COUNTRY_CODES } from "../constants/budgets.js";
 import { trackLeadGenerated, trackLeadSubmitted } from "../events/index.js";
 import { sendEventNow } from "../events/sendEventNow.js";
 import { EVENT_TYPES, EVENTS } from "../events/constants.js";
-import "../lead.css";
+import "../chat.css";
 
 const initial = {
   name: "",
@@ -14,13 +14,20 @@ const initial = {
   diamondPreference: "none",
 };
 
-// Frontend copied verbatim from the Bare Brilliant reference /chat
-// (barebrilliant-v1 LeadPage). Only the submit path differs: instead of a
-// fetch to an API, the lead goes through the event pipeline (immediate
-// sendEventNow, falling back to the deferred queue) and then /thank-you.
-// The page-level <header className="bb-topbar"> from the reference is dropped
-// here because the shared <Header/> in Layout renders the site chrome.
+// The lightweight conversation gateway (spec: no engineered Bare Brief in this
+// build). Form copied from the Bare Brilliant reference /chat; on submit the
+// lead goes through the event pipeline and redirects to /thank-you. Context
+// (intent, source, design) is read from the query string and passed along.
 export default function ChatPage() {
+  const [params] = useSearchParams();
+  const context = {
+    intent: params.get("intent") || "",
+    source: params.get("source") || "chat",
+    design: params.get("design") || "",
+    items: params.get("items") || "",
+    type: params.get("type") || "",
+  };
+
   const [form, setForm] = useState(initial);
   const [touched, setTouched] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -36,23 +43,17 @@ export default function ChatPage() {
     if (!form.budget) e.budget = "Choose the range that feels closest";
     return e;
   }, [form]);
-
   const isValid = Object.keys(errors).length === 0;
 
   function onChange(e) {
     const { name, value } = e.target;
-    // First real interaction = a lead has started. Fire once; timing does not
-    // matter, so it rides the deferred IndexedDB queue.
     if (!generatedRef.current) {
       generatedRef.current = true;
-      trackLeadGenerated({ source: "chat", path: "/chat" });
+      trackLeadGenerated({ ...context, path: "/chat" });
     }
     setForm((f) => ({ ...f, [name]: value }));
   }
-
-  function onBlurField(field) {
-    setTouched((t) => ({ ...t, [field]: true }));
-  }
+  const onBlurField = (field) => setTouched((t) => ({ ...t, [field]: true }));
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -66,10 +67,8 @@ export default function ChatPage() {
       phone: form.phone.replace(/\D/g, "") || form.phone.trim(),
       budget: form.budget,
       diamondPreference: form.diamondPreference,
+      ...context,
     };
-    // A submit is worth confirming, so try the immediate path first. If no
-    // Lambda is wired up yet (or the call fails), fall back to the durable
-    // queue and still move the visitor forward.
     try {
       await sendEventNow(EVENT_TYPES.LEAD, EVENTS.LEAD_SUBMITTED, 1, lead);
     } catch {
@@ -81,201 +80,133 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="bb-page">
-      <div className="bb-hero">
-        <div className="bb-hero__copy">
-          <h1>Understated brilliance</h1>
-          <p>
-            Designed with restraint. Made to be remembered. This is a gentle
-            first step if you are ready—we respond in person, without pressure.
+    <div className="bb-chat">
+      <div className="bb-container bb-chat__grid">
+        <div className="bb-chat__copy">
+          <p className="bb-eyebrow">Talk to Bare Brilliant</p>
+          <h1 className="bb-h1">Tell us what you're planning.</h1>
+          <p className="bb-body-lg">
+            No pressure. No obligation. Just a useful first conversation — a name
+            and a way to reach you help us answer thoughtfully, and a sense of
+            your range helps us prepare before we call or write.
           </p>
-          <div className="bb-hero__accent" aria-hidden />
+          <span className="bb-chat__rule" aria-hidden="true" />
+          <p className="bb-chat__reach">
+            Prefer email? <a href="mailto:care@barebrilliant.com">care@barebrilliant.com</a>
+          </p>
         </div>
 
-        <div>
-          <form className="bb-form" onSubmit={onSubmit} noValidate>
-            <h2>A word in private</h2>
-            <p className="bb-form__lede">
-              A name and a way to reach you help us answer thoughtfully. A sense
-              of your range helps us prepare before we call or write—no lists, no
-              pressure.
-              <span className="required-mark" aria-hidden> *</span> indicates
-              a few things we need to be able to reply.
-            </p>
+        <form className="bb-chat__form" onSubmit={onSubmit} noValidate>
+          <h2 className="bb-h3">A word in private</h2>
+          <p className="bb-chat__lede">
+            <span aria-hidden="true">*</span> indicates a few things we need to be able to reply.
+          </p>
 
-            {formError && (
-              <p className="error-banner" role="alert">
-                {formError}
-              </p>
-            )}
+          {formError && (
+            <p className="bb-chat__banner" role="alert">{formError}</p>
+          )}
 
-            <fieldset className="bb-field">
-              <label className="bb-label" htmlFor="name">
-                How we may address you{" "}
-                <span className="required-mark" aria-label="required">*</span>
-              </label>
-              <input
-                id="name"
-                name="name"
-                className={[
-                  "bb-input",
-                  touched.name && errors.name ? "bb-input--error" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                type="text"
-                autoComplete="name"
-                placeholder="Your name"
-                value={form.name}
-                onChange={onChange}
-                onBlur={() => onBlurField("name")}
-              />
-              {touched.name && errors.name && (
-                <p className="bb-err">{errors.name}</p>
-              )}
-            </fieldset>
+          <div className="bb-field">
+            <label htmlFor="name">
+              <span>How we may address you *</span>
+            </label>
+            <input
+              id="name"
+              name="name"
+              className="bb-input"
+              type="text"
+              autoComplete="name"
+              placeholder="Your name"
+              value={form.name}
+              onChange={onChange}
+              onBlur={() => onBlurField("name")}
+              aria-invalid={!!(touched.name && errors.name)}
+            />
+            {touched.name && errors.name && <em className="bb-field__err">{errors.name}</em>}
+          </div>
 
-            <fieldset className="bb-field">
-              <span className="bb-label" id="phone-label">
-                Where we can reach you{" "}
-                <span className="required-mark" aria-label="required">*</span>
-              </span>
-              <div
-                className={[
-                  "bb-phone-row",
-                  "bb-phone-row--grouped",
-                  touched.phone && errors.phone ? "bb-phone-row--error" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                role="group"
-                aria-labelledby="phone-label"
-              >
-                <div className="bb-input-wrap bb-input-wrap--code">
-                  <label htmlFor="countryCode" className="visually-hidden">
-                    Country code
-                  </label>
-                  <select
-                    id="countryCode"
-                    name="countryCode"
-                    value={form.countryCode}
-                    onChange={onChange}
-                    aria-label="Country code"
-                  >
-                    {COUNTRY_CODES.map((c) => (
-                      <option key={c.value} value={c.value}>
-                        {c.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="bb-input-wrap bb-input-wrap--num">
-                  <label htmlFor="phone" className="visually-hidden">
-                    Mobile number
-                  </label>
-                  <input
-                    id="phone"
-                    name="phone"
-                    className="bb-input"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    placeholder="Number"
-                    value={form.phone}
-                    onChange={onChange}
-                    onBlur={() => onBlurField("phone")}
-                  />
-                </div>
-              </div>
-              {touched.phone && errors.phone && (
-                <p className="bb-err">{errors.phone}</p>
-              )}
-            </fieldset>
-
-            <fieldset className="bb-field">
-              <span className="visually-hidden" id="bud-label">
-                Budget
-              </span>
-              <span className="budget-hint" id="budget-hint">
-                The range that feels right for you
-                <span className="required-mark" aria-label="required"> *</span>
-              </span>
-              <label className="visually-hidden" htmlFor="budget">
-                Preferred budget (required)
-              </label>
-              <select
-                id="budget"
-                name="budget"
-                className={[
-                  "bb-select",
-                  touched.budget && errors.budget ? "bb-input--error" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                value={form.budget}
-                onChange={onChange}
-                onBlur={() => onBlurField("budget")}
-                aria-describedby="budget-hint"
-              >
-                {BUDGET_OPTIONS.map((b, i) => {
-                  if (i === 0) {
-                    return (
-                      <option key={b.label} value={b.value} disabled>
-                        {b.label}
-                      </option>
-                    );
-                  }
-                  return (
-                    <option key={b.value} value={b.value}>
-                      {b.value}
-                    </option>
-                  );
-                })}
-              </select>
-              {touched.budget && errors.budget && (
-                <p className="bb-err">{errors.budget}</p>
-              )}
-            </fieldset>
-
-            <fieldset className="bb-field" aria-label="Optional diamond preference">
-              <div className="bb-field-legend">If it matters to you (optional)</div>
-              <p className="label-like">Earth-mined or lab-grown</p>
-              <div className="bb-diamond-group" role="radiogroup" aria-label="Earth-mined or lab-grown">
-                {[
-                  { v: "none", label: "No preference" },
-                  { v: "natural", label: "Natural" },
-                  { v: "lab", label: "Lab-grown" },
-                ].map((opt) => (
-                  <label key={opt.v} className="bb-diamond-row">
-                    <input
-                      type="radio"
-                      name="diamondPreference"
-                      value={opt.v}
-                      checked={form.diamondPreference === opt.v}
-                      onChange={onChange}
-                    />
-                    <span>{opt.label}</span>
-                  </label>
+          <div className="bb-field">
+            <span id="phone-label"><span>Where we can reach you *</span></span>
+            <div
+              className="bb-chat__phone"
+              data-error={!!(touched.phone && errors.phone)}
+              role="group"
+              aria-labelledby="phone-label"
+            >
+              <label htmlFor="countryCode" className="bb-visually-hidden">Country code</label>
+              <select id="countryCode" name="countryCode" value={form.countryCode} onChange={onChange}>
+                {COUNTRY_CODES.map((c) => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
                 ))}
-              </div>
-            </fieldset>
+              </select>
+              <label htmlFor="phone" className="bb-visually-hidden">Mobile number</label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="Number"
+                value={form.phone}
+                onChange={onChange}
+                onBlur={() => onBlurField("phone")}
+              />
+            </div>
+            {touched.phone && errors.phone && <em className="bb-field__err">{errors.phone}</em>}
+          </div>
 
-            <button className="btn-primary" type="submit" disabled={submitting}>
-              {submitting ? (
-                <span>
-                  Sending <span className="loading-dot" />
-                </span>
-              ) : (
-                "Request a private reply"
+          <div className="bb-field">
+            <label htmlFor="budget"><span>The range that feels right for you *</span></label>
+            <select
+              id="budget"
+              name="budget"
+              className="bb-input"
+              value={form.budget}
+              onChange={onChange}
+              onBlur={() => onBlurField("budget")}
+              aria-invalid={!!(touched.budget && errors.budget)}
+            >
+              {BUDGET_OPTIONS.map((b, i) =>
+                i === 0 ? (
+                  <option key={b.label} value={b.value} disabled>{b.label}</option>
+                ) : (
+                  <option key={b.value} value={b.value}>{b.value}</option>
+                )
               )}
-            </button>
-            <p className="bb-privacy">
-              We use this only to get back to you, personally—never for
-              reselling, never for bulk mail. You can ask us to remove your
-              details at any time.
-            </p>
-          </form>
-        </div>
+            </select>
+            {touched.budget && errors.budget && <em className="bb-field__err">{errors.budget}</em>}
+          </div>
+
+          <div className="bb-field">
+            <span><span>Earth-mined or lab-grown (optional)</span></span>
+            <div className="bb-chat__diamonds" role="radiogroup" aria-label="Diamond preference">
+              {[
+                { v: "none", label: "No preference" },
+                { v: "natural", label: "Natural" },
+                { v: "lab", label: "Lab-grown" },
+              ].map((opt) => (
+                <label key={opt.v} className="bb-chip" data-on={form.diamondPreference === opt.v}>
+                  <input
+                    type="radio"
+                    name="diamondPreference"
+                    value={opt.v}
+                    checked={form.diamondPreference === opt.v}
+                    onChange={onChange}
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <button className="bb-btn bb-btn--primary bb-btn--block" type="submit" disabled={submitting}>
+            {submitting ? "Sending…" : "Request a private reply"}
+          </button>
+          <p className="bb-chat__privacy">
+            We use this only to get back to you, personally — never for reselling,
+            never for bulk mail. You can ask us to remove your details at any time.
+          </p>
+        </form>
       </div>
     </div>
   );

@@ -1,0 +1,177 @@
+/* Homepage — dark. "One idea per screen", large negative space (spec §Apple-
+   Inspired Design Language). The helix is represented as a static rotating
+   diamond motif; no WebGL. */
+
+.bb-home-hero {
+  padding-block: clamp(3.5rem, 11vh, 6rem);
+  border-bottom: 1px solid var(--bb-line);
+  position: relative;
+  overflow: hidden;
+}
+.bb-home-hero::after {
+  content: "";
+  position: absolute;
+  width: min(46vw, 460px);
+  aspect-ratio: 1;
+  right: -8%;
+  top: 12%;
+  border: 1px solid rgba(213, 193, 162, 0.22);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+.bb-home-hero__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 52rem;
+}
+.bb-home-hero .bb-eyebrow {
+  margin-bottom: 1.5rem;
+}
+.bb-home-hero .bb-body-lg {
+  margin-top: 1.5rem;
+}
+.bb-home-hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.25rem;
+}
+.bb-home-hero__trust {
+  margin-top: 2.5rem;
+  font: 500 0.72rem/1.6 var(--bb-sans);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bb-text-muted);
+}
+.bb-home-hero__trust i {
+  color: var(--bb-accent);
+  font-style: normal;
+  margin-inline: 0.5rem;
+}
+
+/* ---- the house ---- */
+.bb-house__head {
+  text-align: center;
+  max-width: 40rem;
+  margin: 0 auto clamp(2.5rem, 6vw, 4rem);
+}
+.bb-house__head .bb-eyebrow {
+  margin: 1.25rem 0 0.75rem;
+}
+.bb-house__diamond {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--bb-accent);
+  transform: rotate(45deg);
+  margin: 0 auto;
+  display: block;
+  animation: bb-spin 26s linear infinite;
+}
+@keyframes bb-spin {
+  to {
+    transform: rotate(405deg);
+  }
+}
+.bb-house__grid {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(2, 1fr);
+  background: var(--bb-line);
+  border: 1px solid var(--bb-line);
+  border-radius: var(--bb-radius);
+  overflow: hidden;
+}
+.bb-house__card {
+  background: var(--bb-bg);
+  padding: clamp(1.75rem, 4vw, 3rem);
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: background 0.2s ease;
+}
+.bb-house__card:hover {
+  background: var(--bb-surface);
+}
+.bb-house__card p {
+  font: 400 0.95rem/1.6 var(--bb-sans);
+  color: var(--bb-text-muted);
+  flex: 1;
+}
+@media (max-width: 720px) {
+  .bb-house__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- belief / forever / final ---- */
+.bb-belief__inner,
+.bb-forever__inner,
+.bb-finalcta__inner {
+  max-width: 44rem;
+}
+.bb-belief .bb-eyebrow,
+.bb-how .bb-eyebrow,
+.bb-forever .bb-eyebrow {
+  margin-bottom: 1rem;
+}
+.bb-belief .bb-h2 {
+  margin-bottom: 1.5rem;
+}
+.bb-belief .bb-btn--secondary {
+  margin-top: 2rem;
+}
+.bb-forever {
+  border-block: 1px solid var(--bb-line);
+}
+
+/* ---- how we work ---- */
+.bb-how .bb-h2 {
+  margin: 1rem 0 2.5rem;
+  max-width: 34rem;
+}
+.bb-how__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+.bb-how__step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.bb-how__num {
+  font: 600 0.75rem/1 var(--bb-sans);
+  letter-spacing: 0.12em;
+  color: var(--bb-accent);
+}
+.bb-how__step p {
+  font: 400 0.9rem/1.6 var(--bb-sans);
+  color: var(--bb-text-muted);
+}
+.bb-how__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+@media (max-width: 900px) {
+  .bb-how__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bb-finalcta__inner {
+  text-align: center;
+  margin-inline: auto;
+}
+.bb-finalcta__inner .bb-body-lg {
+  margin: 1rem auto 2rem;
+}
+.bb-finalcta__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}

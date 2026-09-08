@@ -1,0 +1,224 @@
+/* Engagement Rings listing — light theme (product clarity). */
+
+.bb-catalog__head {
+  max-width: 44rem;
+}
+.bb-catalog__head .bb-eyebrow {
+  margin-bottom: 1rem;
+}
+.bb-catalog__head .bb-body-lg {
+  margin-top: 1rem;
+}
+
+.bb-catalog__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 2.25rem 0 1.5rem;
+}
+.bb-catalog__bar .bb-input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  max-width: 22rem;
+}
+.bb-catalog__sort {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.bb-catalog__sort select {
+  max-width: 100%;
+}
+.bb-catalog__sort select {
+  min-height: var(--bb-tap);
+  padding: 0.7rem 2rem 0.7rem 0.9rem;
+  font: 500 0.8rem/1 var(--bb-sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bb-text);
+  background: var(--bb-raised);
+  border: 1px solid var(--bb-line);
+  border-radius: var(--bb-radius);
+  cursor: pointer;
+}
+.bb-catalog__filtertoggle {
+  display: none;
+}
+
+.bb-catalog__layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+}
+.bb-catalog__filters {
+  display: grid;
+  gap: 1.75rem;
+  position: sticky;
+  top: 92px;
+}
+.bb-fgroup {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.bb-fgroup legend {
+  font: 600 0.7rem/1 var(--bb-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bb-text-muted);
+  margin-bottom: 0.85rem;
+}
+.bb-fgroup__note {
+  font: 400 0.75rem/1.5 var(--bb-sans);
+  color: var(--bb-text-muted);
+  margin: -0.4rem 0 0.75rem;
+}
+.bb-fgroup__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.bb-catalog__count {
+  font: 500 0.8rem/1 var(--bb-sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bb-text-muted);
+  margin-bottom: 1.25rem;
+}
+.bb-catalog__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem 1.25rem;
+}
+.bb-catalog__msg {
+  padding: 3rem 0;
+  color: var(--bb-text-muted);
+}
+.bb-catalog__empty {
+  padding: 3rem 0;
+  display: grid;
+  gap: 1.25rem;
+  justify-items: start;
+}
+
+/* product card */
+.bb-pcard {
+  display: flex;
+  flex-direction: column;
+}
+.bb-pcard__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  background: var(--bb-surface);
+  border: 1px solid var(--bb-line);
+  border-radius: var(--bb-radius);
+  overflow: hidden;
+}
+.bb-pcard__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.bb-pcard__heart {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bb-cream) 78%, transparent);
+  color: var(--bb-tx-d);
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+.bb-pcard__heart[data-saved="true"] {
+  color: var(--bb-gold-d);
+}
+.bb-pcard__body {
+  padding-top: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.bb-pcard__name {
+  font: 400 1.15rem/1.25 var(--bb-serif);
+}
+.bb-pcard__name a {
+  text-decoration: none;
+}
+.bb-pcard__descriptor {
+  font: 400 0.85rem/1.5 var(--bb-sans);
+  color: var(--bb-text-muted);
+}
+.bb-pcard__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.6rem;
+  font: 500 0.68rem/1.4 var(--bb-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bb-text-muted);
+  margin-top: 0.2rem;
+}
+.bb-pcard__price {
+  font: 500 0.95rem/1.4 var(--bb-sans);
+  color: var(--bb-text);
+  margin-top: 0.2rem;
+}
+.bb-pcard__body .bb-btn--tertiary {
+  align-self: start;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+}
+
+.bb-catalog__inlinecta {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.75rem;
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  background: var(--bb-surface);
+  border: 1px solid var(--bb-line);
+  border-radius: var(--bb-radius);
+}
+.bb-catalog__inlinecta p {
+  font: 400 0.95rem/1.6 var(--bb-sans);
+  color: var(--bb-text-muted);
+  max-width: 42rem;
+}
+
+@media (max-width: 1000px) {
+  .bb-catalog__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 860px) {
+  .bb-catalog__filtertoggle {
+    display: inline-flex;
+  }
+  .bb-catalog__layout {
+    grid-template-columns: 1fr;
+  }
+  .bb-catalog__filters {
+    position: static;
+    display: none;
+    padding: 1.25rem;
+    border: 1px solid var(--bb-line);
+    border-radius: var(--bb-radius);
+  }
+  .bb-catalog__filters[data-open="true"] {
+    display: grid;
+  }
+}
+@media (max-width: 460px) {
+  .bb-catalog__grid {
+    grid-template-columns: 1fr;
+  }
+}

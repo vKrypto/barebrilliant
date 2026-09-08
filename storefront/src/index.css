@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 html,
 body,
 #root {
@@ -12,7 +16,8 @@ body,
 
 body {
   margin: 0;
-  font-family: var(--ff-sans);
+  font-family: var(--bb-sans);
+  font-size: 16px;
   color: var(--bb-text);
   background: var(--bb-bg);
   -webkit-font-smoothing: antialiased;
@@ -24,17 +29,33 @@ input,
 select,
 textarea {
   font: inherit;
+  color: inherit;
 }
 
 a {
   color: inherit;
 }
 
-img {
+img,
+picture,
+svg {
   max-width: 100%;
+  display: block;
 }
 
-.visually-hidden {
+ul,
+ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--bb-accent);
+  outline-offset: 2px;
+}
+
+.bb-visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -42,5 +63,6 @@ img {
   margin: -1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
   border: 0;
 }

@@ -1,0 +1,28 @@
+bro in raw_plans we have following things
+
+two files for brand narrative version: html vs pdf but both are same thing.
+
+also we have bare brilliant website 
+
+using all 3 documents deduce all the pages and design 
+be very careful with font type, font-size, font-family + color  theme etc..
+
+
+
+plan all the page and then implement all the task. one by one also be care ful we are not working anything in dasboard also please think about it. please also be careful we d ont have any backend server yet, for now, you can have one schema for pdp and catalog and create a folder  storage/catalog/catalog.json
+storage/products/<product_id>.json
+storage/products_media/{order_index}_{6 digit hash}_{width}{height}*.{webp|avi}
+storage/produt_placeholder.webp
+storage/products_raw_media/*
+
+for now just create and put sample json and images we will repalce it later.
+and for catalog --> fetch that catalog.json --> then search and filter will get applied on frontend only.
+ 
+for pdp --> fetch product josn {product_id}.json --> render the frontend.
+
+for cart/wishlist --> use localstorage
+
+we don't have any login and we don't even want it to lower server cost
+on pdp we will have checkout page and push it to the checkout page we will ask basic info phone and email and submit we can say thanks for the order we will get back to you so no payment page also there.
+
+any other question you can ask me directly.
