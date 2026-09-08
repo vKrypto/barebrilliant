@@ -1,10 +1,13 @@
-// Deferred event path. Mirrors mini_server_docs/server.js: events are written
-// to IndexedDB here and the service worker (public/service-worker.js) batches
-// and delivers them on its own cadence. This module never calls fetch — when
+// Deferred event path. Mirrors server_docs/server.js: events are written to
+// IndexedDB here and the service worker (public/service-worker.js) batches and
+// delivers them on its own cadence (10s flush, 3 retries w/ exponential
+// backoff, 30-min circuit-breaker pause). This module never calls fetch — when
 // the caller needs the response or a right-now flush, use sendEventNow.js.
 
 const DB_NAME = "mini_server_events";
+const DB_VERSION = 2; // v2 adds the "meta" store the SW uses for circuit-breaker state
 const STORE_NAME = "queue";
+const META_STORE = "meta";
 const SESSION_ID_KEY = "mini_server_session_id";
 
 const BASE_URL = import.meta.env.BASE_URL || "/";
@@ -13,9 +16,17 @@ const SW_SCOPE = BASE_URL;
 
 function openDb() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1);
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
-      req.result.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+      const db = req.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+      }
+      // Written only by the service worker; created here too so whichever of
+      // the page / SW opens the DB first establishes the v2 schema.
+      if (!db.objectStoreNames.contains(META_STORE)) {
+        db.createObjectStore(META_STORE, { keyPath: "k" });
+      }
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);

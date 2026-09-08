@@ -61,11 +61,37 @@ repoints all of it at a CDN later without touching components.
 ## Events (`src/events/`)
 
 `../server_docs` contract. `trackEvent(...)` / named `track*` helpers →
-IndexedDB → service worker batches to `${VITE_LAMBDA_URL}/add-events`.
-`sendEventNow(...)` (alias `send_event_now`) PUTs immediately and returns the
-body — used for `lead_submitted` and `order_placed`. Phase-2 adds the spec's
-shopping taxonomy: `product_view`, `filter_change`, `sort_change`,
-`add_to_cart`, `shortlist_saved`, `checkout_started`, …
+IndexedDB → service worker delivers. Phase-2 adds the spec's shopping taxonomy:
+`product_view`, `filter_change`, `sort_change`, `add_to_cart`,
+`shortlist_saved`, `checkout_started`, `order_placed`.
+
+`sendEventNow(...)` (alias `send_event_now`) is the immediate path: one PUT,
+returns the body, **no retry** (it's the "give me the answer now" call). Used
+for `lead_submitted` and `order_placed`; on failure the caller falls back to
+`trackEvent`, and the durable queue below then handles delivery.
+
+### Service worker delivery policy (`scripts/service-worker.template.js`)
+
+- **Cadence** — every **10s** (`setInterval`), plus Background Sync when a tab
+  closes first, plus `flushNow()` on demand.
+- **Drains the whole queue** — each flush sends **every** queued event in FIFO
+  batches of 50 (`MAX_BATCH_SIZE`), up to `MAX_BATCHES_PER_FLUSH` (2000
+  events) per tick; anything beyond that waits for the next tick.
+- **Per-batch retry** — a failed PUT (network error or non-2xx) is retried
+  **3×** with exponential backoff: `1s → 2s → 4s` (`RETRY_DELAYS_MS`).
+- **Circuit breaker** — if all 4 attempts fail, the whole pipeline pauses for
+  **30 minutes** (`CIRCUIT_PAUSE_MS`). Every 10s tick during the pause is a
+  no-op; events keep queuing (nothing lost); the failed batch stays queued
+  (marked `status:"failed"`, `attempts` bumped). Pause state lives in the
+  IndexedDB `meta` store so it survives the worker being killed and respawned,
+  and is **reset on deploy** (`activate`) since a new build may have fixed the
+  endpoint.
+- **Idempotency** — the `Idempotency-Key` is derived from the batch's own
+  IndexedDB keys, so every retry (and a post-pause retry) carries the same key
+  and the backend can dedupe a lost-response resend.
+
+`yarn test:sw` exercises all of the above (`scripts/sw-flush.test.mjs`, uses
+`fake-indexeddb`).
 
 ## Build config & cache-bust
 
