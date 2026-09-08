@@ -3,11 +3,14 @@
 // artifact) — re-run after editing the PRODUCTS table below, or just drop real
 // files in and delete this script.
 //
-//   storage/catalog/catalog.json              facets + sorts + product cards
-//   storage/products/<id>.json                full PDP payload per product
-//   storage/products_media/<ix>_<hash6>_<w>x<h>.webp   gallery + thumb images
-//   storage/product_placeholder.webp          fallback image
-//   storage/products_raw_media/.gitkeep       drop untouched source uploads here
+//   storage/catalog/catalog.json                       facets + sorts + product cards
+//   storage/products/<id>.json                         full PDP payload per product
+//   storage/products_media/<slug>/<ix>_<hash6>_<w>x<h>.webp   responsive rungs
+//   storage/product_placeholder.webp                   fallback image
+//   storage/products_raw_media/.gitkeep                drop untouched source uploads here
+//
+// The media object shape (src + srcset + sizes) matches what the Django
+// dashboard's publisher emits — see dashboard/inventory/media_pipeline.py.
 //
 // Run:  node scripts/gen-sample-catalog.mjs
 
@@ -122,31 +125,52 @@ function tile({ w, h, name, descriptor, tint = 20 }) {
 </svg>`);
 }
 
-async function webp(svg, file) {
-  await sharp(svg).webp({ quality: 72 }).toFile(resolve(OUT, file));
+// Responsive rungs + `sizes` — kept in step with the dashboard's settings
+// (IMG_SRCSET / IMAGE_QUALITY / CARD_SIZES / PDP_SIZES).
+const IMG_SRCSET = [320, 480, 640, 960, 1080];
+const IMAGE_QUALITY = 80;
+const CARD_SIZES = "(max-width:460px) 100vw, (max-width:860px) 50vw, 352px";
+const PDP_SIZES = "(max-width:900px) 100vw, 560px";
+const withSizes = (m, sizes) => ({ ...m, sizes });
+
+async function webp(svg, file, width) {
+  await sharp(svg).resize(width, width).webp({ quality: IMAGE_QUALITY }).toFile(resolve(OUT, file));
+}
+
+// One image -> the full webp ladder under products_media/<slug>/, returned as a
+// media object ready for the storefront JSON.
+async function renderImage(slug, ix, svg, alt) {
+  const h = hash6(svg).slice(0, 6);
+  const rel = (w) => `products_media/${slug}/${ix}_${h}_${w}x${w}.webp`;
+  for (const w of IMG_SRCSET) await webp(svg, rel(w), w);
+  return {
+    type: "image",
+    alt,
+    src: rel(640),
+    srcset: IMG_SRCSET.map((w) => `${rel(w)} ${w}w`).join(", "),
+    sizes: "",
+    width: 1080,
+    height: 1080,
+  };
 }
 
 // Product photography is mostly square (1:1); object-fit: cover in the UI
 // absorbs the occasional off-square crop.
 await webp(
-  tile({ w: 1200, h: 1200, name: "Bare Brilliant", descriptor: "Natural diamond engagement rings", tint: 20 }),
-  "product_placeholder.webp"
+  tile({ w: 1080, h: 1080, name: "Bare Brilliant", descriptor: "Natural diamond engagement rings", tint: 20 }),
+  "product_placeholder.webp",
+  1080,
 );
 
 const cards = [];
 for (const [id, name, descriptor, shape, style, price_from, carat, resizable, about, why, bandFit, tint] of PRODUCTS) {
-  const h = hash6(id);
-  const thumb = `products_media/0_${h}_1200x1200.webp`;
-  const gallery = [0, 1, 2].map((ix) => ({
-    src: `products_media/${ix}_${h}_1600x1600.webp`,
-    type: "image",
-    alt: `${name} — ${shape.toLowerCase()} natural diamond engagement ring, view ${ix + 1}`,
-  }));
-
-  // media — square
-  await webp(tile({ w: 1200, h: 1200, name, descriptor, tint }), thumb);
+  mkdirSync(resolve(OUT, `products_media/${id}`), { recursive: true });
+  const views = ["front", "profile", "on hand"];
+  const gallery = [];
   for (let ix = 0; ix < 3; ix++) {
-    await webp(tile({ w: 1600, h: 1600, name, descriptor: `${descriptor} · ${["front", "profile", "on hand"][ix]}`, tint }), gallery[ix].src);
+    const svg = tile({ w: 1080, h: 1080, name, descriptor: `${descriptor} · ${views[ix]}`, tint });
+    const alt = `${name} — ${shape.toLowerCase()} natural diamond engagement ring, view ${ix + 1}`;
+    gallery.push(await renderImage(id, ix, svg, alt));
   }
 
   const breakup = {
@@ -161,7 +185,10 @@ for (const [id, name, descriptor, shape, style, price_from, carat, resizable, ab
   cards.push({
     id, slug: id, name, descriptor, shape, style, price_from,
     centre_carat_shown: carat, metal_default: METALS[0], badges: ["Natural Diamond"],
-    media: { thumb, alt: gallery[0].alt },
+    media: {
+      primary: withSizes(gallery[0], CARD_SIZES),
+      secondary: gallery[1] ? withSizes(gallery[1], CARD_SIZES) : null,
+    },
     created_at: new Date(2026, 7, 1 + cards.length).toISOString().slice(0, 10),
     sort_weight: 100 - cards.length * 7,
   });
@@ -171,7 +198,7 @@ for (const [id, name, descriptor, shape, style, price_from, carat, resizable, ab
     subtitle: `${shape} Natural Diamond Engagement Ring`,
     price_from, currency: "INR", made_to_order_note: MTO_NOTE, trust_line: TRUST,
     shape, style, metals: METALS, metal_default: METALS[0],
-    gallery, about, why_this_works: why, wedding_band_fit: bandFit,
+    gallery: gallery.map((m) => withSizes(m, PDP_SIZES)), about, why_this_works: why, wedding_band_fit: bandFit,
     price_breakup: Object.entries(breakup).map(([label, amount]) => ({ label, amount })),
     total,
     specifications: {
@@ -203,4 +230,6 @@ const catalog = {
 };
 writeFileSync(resolve(OUT, "catalog/catalog.json"), JSON.stringify(catalog, null, 2) + "\n");
 
-console.log(`[gen-sample-catalog] ${cards.length} products, ${cards.length * 4 + 1} webp files -> public/storage/`);
+console.log(
+  `[gen-sample-catalog] ${cards.length} products, ${cards.length * 3 * IMG_SRCSET.length + 1} webp files -> public/storage/`
+);

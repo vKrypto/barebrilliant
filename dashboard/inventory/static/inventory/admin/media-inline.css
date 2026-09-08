@@ -1,0 +1,68 @@
+/* Gallery editing polish for the ProductImage / ProductVideo stacked inlines:
+   an obvious drag handle, instant hide-on-delete, and a drag-and-drop zone
+   around the multi-file "Add images / Add videos" fields. */
+
+/* ---- drag handle (stacked inline <h3> header) ---- */
+fieldset.sortable .inline-related.has_original > h3 {
+  cursor: grab;
+  padding-left: 26px;
+  position: relative;
+  border: 1px solid transparent;
+}
+fieldset.sortable .inline-related.has_original > h3::before {
+  content: "\2807";            /* ⠇ grip dots */
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%) scaleX(1.7);
+  font-size: 15px;
+  opacity: 0.6;
+}
+fieldset.sortable .inline-related.has_original > h3:hover {
+  border-color: var(--link-fg, #79aec8);
+}
+fieldset.sortable .inline-related.has_original > h3:active {
+  cursor: grabbing;
+}
+fieldset.sortable .inline-related.bb-dragging {
+  opacity: 0.45;
+}
+/* bigger, easier-to-hit move-to-first / move-to-last arrows */
+fieldset.sortable .inline-related .sort i {
+  margin: 3px 4px !important;
+}
+
+/* ---- instant delete ---- */
+.inline-related.bb-row-deleted,
+tr.form-row.bb-row-deleted {
+  display: none !important;
+}
+.bb-deleted-tip {
+  margin: 4px 0 10px;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  color: var(--body-quiet-color, #888);
+  background: var(--darkened-bg, rgba(0, 0, 0, 0.04));
+  border-radius: 4px;
+}
+.bb-deleted-tip a {
+  margin-left: 6px;
+}
+
+/* ---- drag-and-drop upload zone ---- */
+.bb-dropzone {
+  display: block;
+  padding: 10px 12px;
+  border: 1px dashed var(--border-color, #ccc);
+  border-radius: 6px;
+  background: var(--darkened-bg, rgba(0, 0, 0, 0.02));
+}
+.bb-dropzone.bb-dragover {
+  border-color: var(--link-fg, #79aec8);
+  background: color-mix(in srgb, var(--link-fg, #79aec8) 12%, transparent);
+}
+.bb-dropzone .bb-dropzone-status {
+  margin-left: 8px;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}

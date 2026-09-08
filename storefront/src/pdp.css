@@ -24,10 +24,12 @@
   border-radius: var(--bb-radius);
   overflow: hidden;
 }
-.bb-pdp__stage img {
+.bb-pdp__stage img,
+.bb-pdp__stage video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 .bb-pdp__thumbs {
   display: flex;
@@ -36,6 +38,7 @@
   flex-wrap: wrap;
 }
 .bb-pdp__thumb {
+  position: relative;
   width: 68px;
   aspect-ratio: 1 / 1;
   padding: 0;

@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { mediaUrl, PLACEHOLDER_IMAGE } from "../lib/storage.js";
+import Media from "./Media.jsx";
 import { fromPrice } from "../lib/format.js";
 import { useShortlist } from "../lib/shortlist.js";
 import { trackProductClick, trackShortlistSaved, trackShortlistRemoved } from "../events/index.js";
@@ -8,9 +9,13 @@ import { trackProductClick, trackShortlistSaved, trackShortlistRemoved } from ".
 // From ₹X · Shown with X ct centre · Shortlist heart · View Design.
 export default function ProductCard({ product, source = "engagement-listing" }) {
   const shortlist = useShortlist();
+  const [hovered, setHovered] = useState(false);
   const to = `/the-proposal/engagement-rings/${product.slug}`;
   const saved = shortlist.has(product.id);
-  const thumb = product.media?.thumb ? mediaUrl(product.media.thumb) : PLACEHOLDER_IMAGE;
+
+  const primary = product.media?.primary || null;
+  const secondary = product.media?.secondary || null;
+  const shown = hovered && secondary ? secondary : primary;
 
   function onShortlist(e) {
     e.preventDefault();
@@ -19,7 +24,7 @@ export default function ProductCard({ product, source = "engagement-listing" }) 
       slug: product.slug,
       name: product.name,
       price_from: product.price_from,
-      thumb: product.media?.thumb || "",
+      thumb: primary?.src || "",
     });
     (nowSaved ? trackShortlistSaved : trackShortlistRemoved)({
       product_id: product.id,
@@ -32,17 +37,14 @@ export default function ProductCard({ product, source = "engagement-listing" }) 
       <Link
         to={to}
         className="bb-pcard__media"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         onClick={() => trackProductClick({ product_id: product.id, category: "engagement-rings", source })}
       >
-        <img
-          src={thumb}
-          alt={product.media?.alt || `${product.name} — ${product.shape} natural diamond engagement ring`}
-          loading="lazy"
-          width="1200"
-          height="1200"
-          onError={(e) => {
-            if (e.currentTarget.src !== PLACEHOLDER_IMAGE) e.currentTarget.src = PLACEHOLDER_IMAGE;
-          }}
+        <Media
+          media={shown}
+          sizes={shown?.sizes || "(max-width:460px) 100vw, (max-width:860px) 50vw, 352px"}
+          preview
         />
         <button
           type="button"

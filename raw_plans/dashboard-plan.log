@@ -1,0 +1,53 @@
+create a django admin based dashboard for manage inventory only
+
+purpose least code/infra possible:
+database:  sqlite file based database
+
+storage system:
+    - local storage
+    - aws s3
+    - it will get served by cdn
+
+objective: create a simple dashbaord to create storage folder so basically staff will open it and no-login it will redirect to list products page with basic fitltering, searching ordering pagination etc..
+--> on click it will open the product edit page where staff can edit the product details and save it. on save it will update in sqlite db only.
+--> on listing top we will have two button:
+    1) refresh complete inventory: it will generate all catalog.json and all product json files in storage/products/<product_id>.json from the database, and push to current storage system.
+    2) publish inventory changes: it will push all the changes which are not published yet to the storage system and update the catalog.json and product json files in storage/products/<product_id>.json and also update the catalog.json file in storage/catalog/catalog.json
+--> some of bulk actions like delete, re-publish etc.. 
+
+--> product edit page will have basic fields like product name, description, price, images, category, tags etc.. and also a checkbox to mark it as published or not. if not published then it will not be included in catalog.json and product json files.
+    --> about images: 
+            multiple images will be there (ordering does matter)
+    --> videos:
+            multiple videos can be there (ordering does matter)
+
+on catalog.json we will have image[0] and (video[0] or image[1]) as per availbility only, if no media placehodler will get shown.
+on pdp each media will get shown.
+
+
+ofr image/video we will use srcset and sizes attributes to serve the best media as per device width and also we will use webp for images and avi for videos. we will have a placeholder image in case of no media.
+for images we can have one settings in 
+IMG_SRCSET =[
+    (320, 320),
+    (480, 480),
+    (640, 640),
+    (960, 960),
+    (1080, 1080)
+]
+
+IMAGE_QUALITY = 80
+IMAGE_FORMAT = "webp"
+for videos we can have one settings in
+VIDEO_SRCSET =[
+    (320, 320),
+    (480, 480),
+    (640, 640),
+    (960, 960),
+    (1080, 1080)
+]
+VIDEO_FORMAT = "avi"
+
+
+
+for media management we will use versatileimagefield and django-storages for s3 storage. we will have a placeholder image in case of no media.
+

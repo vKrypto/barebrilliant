@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Accordion from "../components/Accordion.jsx";
-import { fetchProduct, mediaUrl, PLACEHOLDER_IMAGE } from "../lib/storage.js";
+import Media, { posterOrThumb } from "../components/Media.jsx";
+import { fetchProduct } from "../lib/storage.js";
 import { inr, fromPrice } from "../lib/format.js";
 import { useCart } from "../lib/cart.js";
 import { useShortlist } from "../lib/shortlist.js";
@@ -47,10 +48,13 @@ export default function ProductPage() {
     };
   }, [slug]);
 
-  const gallery = useMemo(() => {
-    const g = product?.gallery?.length ? product.gallery : [{ src: "", alt: product?.name }];
-    return g.map((m) => ({ ...m, url: m.src ? mediaUrl(m.src) : PLACEHOLDER_IMAGE }));
-  }, [product]);
+  const gallery = useMemo(
+    () =>
+      product?.gallery?.length
+        ? product.gallery
+        : [{ type: "image", placeholder: true, alt: product?.name }],
+    [product]
+  );
 
   if (status === "loading") {
     return <section className="bb-section bb-container"><p className="bb-body">Loading…</p></section>;
@@ -65,7 +69,7 @@ export default function ProductPage() {
   }
 
   const saved = shortlist.has(product.id);
-  const thumb = gallery[0]?.src || "";
+  const thumb = gallery[0]?.src || gallery[0]?.poster || "";
 
   function addToBag() {
     cart.add({
@@ -101,28 +105,28 @@ export default function ProductPage() {
         {/* ---------------- gallery ---------------- */}
         <div className="bb-pdp__gallery">
           <div className="bb-pdp__stage">
-            <img
-              src={gallery[imgIx]?.url || PLACEHOLDER_IMAGE}
-              alt={gallery[imgIx]?.alt || product.name}
-              width="1600"
-              height="1600"
-              onError={(e) => {
-                if (e.currentTarget.src !== PLACEHOLDER_IMAGE) e.currentTarget.src = PLACEHOLDER_IMAGE;
-              }}
+            <Media
+              key={imgIx}
+              media={gallery[imgIx]}
+              sizes={gallery[imgIx]?.sizes || "(max-width:900px) 100vw, 560px"}
+              eager
             />
           </div>
           {gallery.length > 1 && (
             <div className="bb-pdp__thumbs">
               {gallery.map((m, i) => (
                 <button
-                  key={m.src || i}
+                  key={i}
                   type="button"
                   className="bb-pdp__thumb"
                   data-on={i === imgIx}
-                  aria-label={`View image ${i + 1}`}
+                  aria-label={`View ${m.type === "video" ? "video" : "image"} ${i + 1}`}
                   onClick={() => setImgIx(i)}
                 >
-                  <img src={m.url} alt="" width="160" height="160" loading="lazy" />
+                  <img src={posterOrThumb(m)} alt="" width="160" height="160" loading="lazy" />
+                  {m.type === "video" && (
+                    <span aria-hidden="true" style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,.6)" }}>▶</span>
+                  )}
                 </button>
               ))}
             </div>

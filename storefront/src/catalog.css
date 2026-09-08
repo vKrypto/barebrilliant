@@ -117,10 +117,12 @@
   border-radius: var(--bb-radius);
   overflow: hidden;
 }
-.bb-pcard__media img {
+.bb-pcard__media img,
+.bb-pcard__media video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 .bb-pcard__heart {
   position: absolute;

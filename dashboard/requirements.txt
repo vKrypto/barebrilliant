@@ -1,0 +1,11 @@
+# Bare Brilliant inventory dashboard — Django admin CRUD + storage publisher.
+# Python 3.13, SQLite. `pip install -r requirements.txt` inside dashboard/.venv.
+
+Django>=5.2,<5.3
+django-taggit>=6.1                  # Product.tags
+django-admin-sortable2>=2.2         # drag-and-drop ordering of gallery image/video inlines
+Pillow>=10.4                        # webp/mp4 poster rendition ladder + ImageField validation
+django-storages>=1.14              # S3 export backend
+boto3>=1.34                        # S3 client for django-storages
+awscli>=1.33                       # `aws s3 ...` from the shell / CI
+python-dotenv>=1.0                 # load dashboard/.env

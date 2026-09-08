@@ -21,8 +21,21 @@ storefront/public/service-worker.js
 /.env
 /.env.local
 
+# ---- Django (dashboard) ----
+dashboard/.venv/
+dashboard/db.sqlite3
+dashboard/media/
+dashboard/staticfiles/
+dashboard/scratch_storage/
+dashboard/.env
+__pycache__/
+*.py[cod]
+
 # ---- OS / editor ----
 .DS_Store
 *.log
 !raw_plans/*.log
-storage
+
+# root-level scratch storage working copy (NOT storefront/public/storage/, which
+# is committed sample content, nor dashboard exports)
+/storage/
