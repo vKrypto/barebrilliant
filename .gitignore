@@ -17,7 +17,12 @@ package-lock.json
 storefront/src/generated/
 storefront/public/service-worker.js
 
+# ---- Docker ----
+/.env
+/.env.local
+
 # ---- OS / editor ----
 .DS_Store
 *.log
 !raw_plans/*.log
+storage

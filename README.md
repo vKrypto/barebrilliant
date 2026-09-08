@@ -57,6 +57,25 @@ yarn install
 yarn dev             # http://localhost:8080
 ```
 
+## Docker
+
+`docker-compose.yml` runs two nginx services:
+
+| service | port | what |
+| --- | --- | --- |
+| `storage` | `${STORAGE_PORT:-8000}` | serves `storefront/public/storage/` (catalog + product JSON + media) with permissive CORS |
+| `storefront` | `${STOREFRONT_PORT:-8080}` | multi-stage: `yarn build` the Vite app, then nginx serves `dist/` (SPA fallback, immutable `/assets/`, no-cache SW) |
+
+```bash
+cp .env.example .env          # ports + VITE_* build args
+docker compose up --build     # storefront -> :8080, storage -> :8000
+```
+
+`VITE_*` are **build args** (Vite inlines them) — change `.env` then
+`docker compose build storefront`. `VITE_CATALOG_BASE` / `VITE_MEDIA_BASE`
+point the browser at the host-published storage port, so if you change
+`STORAGE_PORT` update them to match. Config: [docker/](docker/).
+
 ## Deploy
 
 Push to `main`. `.github/workflows/deploy.yml` builds `storefront/` and

@@ -1,0 +1,13 @@
+# Keep the build context small. context = repo root; the Dockerfile copies
+# storefront/ and docker/nginx-storefront.conf, so keep those.
+**/node_modules
+**/dist
+**/.venv
+.git
+.github
+raw_plans
+*.md
+storefront/.env
+storefront/.env.*
+storefront/src/generated
+storefront/public/service-worker.js
