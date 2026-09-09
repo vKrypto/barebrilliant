@@ -13,22 +13,33 @@ name: barebrilliant
 # VITE_* are BUILD args: Vite inlines them into the bundle, so a change needs a
 # rebuild (`docker compose build storefront`).
 
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   storage:
     image: nginx:1.27-alpine
     container_name: bb-storage
+    init: true
     ports:
       - "${STORAGE_PORT:-8000}:80"
     volumes:
       - ./dashboard/media:/usr/share/nginx/html:ro
       - ./docker/nginx-storage.conf:/etc/nginx/conf.d/default.conf:ro
     restart: unless-stopped
+    logging: *default-logging
+    # Not "ready" until the dashboard has written a catalog. On a fresh checkout
+    # dashboard/media/ is empty (gitignored) — run `refresh_inventory` first;
+    # the generous start_period / retries keep it from flapping meanwhile.
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/catalog/catalog.json"]
-      interval: 15s
-      start_period: 10s
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://127.0.0.1/catalog/catalog.json"]
+      interval: 30s
+      start_period: 20s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   storefront:
     build:
@@ -42,17 +53,19 @@ services:
         # port, not the compose service name.
         VITE_CATALOG_BASE: ${VITE_CATALOG_BASE:-http://localhost:${STORAGE_PORT:-8000}}
         VITE_MEDIA_BASE: ${VITE_MEDIA_BASE:-http://localhost:${STORAGE_PORT:-8000}}
-        SW_VERSION: ${SW_VERSION:-docker-local}
+        SW_VERSION: ${SW_VERSION:-docker-local-2}
     image: bb-storefront:local
     container_name: bb-storefront
+    init: true
     ports:
       - "${STOREFRONT_PORT:-8080}:80"
     depends_on:
       - storage
     restart: unless-stopped
+    logging: *default-logging
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
-      interval: 15s
-      start_period: 10s
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://127.0.0.1/"]
+      interval: 30s
+      start_period: 15s
       timeout: 5s
       retries: 5

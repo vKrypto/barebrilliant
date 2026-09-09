@@ -1,0 +1,22 @@
+# LOCAL OFFLINE OVERRIDE — not committed intent, just a workaround.
+#
+# The Colima VM running the Docker daemon on this machine can't reach Docker Hub,
+# so the storefront's multi-stage image build fails at `# syntax=docker/dockerfile:1`
+# (BuildKit frontend) and would also fail at `yarn install`. Instead we serve a
+# HOST-built ./storefront/dist with plain nginx (image already cached locally).
+#
+# Refresh after changing storefront code:
+#   cd storefront && VITE_CATALOG_BASE=http://localhost:8000 \
+#     VITE_MEDIA_BASE=http://localhost:8000 SW_VERSION=docker-local-2 yarn build
+#   docker compose restart storefront
+#
+# Delete this file to go back to the real Dockerfile build once the daemon has
+# registry access (`docker compose build storefront`).
+
+services:
+  storefront:
+    build: !reset null
+    image: nginx:1.27-alpine
+    volumes:
+      - ./storefront/dist:/usr/share/nginx/html:ro
+      - ./docker/nginx-storefront.conf:/etc/nginx/conf.d/default.conf:ro

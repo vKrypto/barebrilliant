@@ -1,0 +1,290 @@
+/* House-navigation pages (The Proposal, The Vow, The Chapters, Private
+   Commission, Why Natural, Our House). All render dark. Follows the Final-spec
+   design language: one idea per section, generous negative space, thin
+   dividers, gold only as a hairline / eyebrow accent, no heavy shadows.
+
+   Layout: a single centred editorial spine (matching the homepage hero) runs
+   the whole page; only the card grid breaks out to full container width. */
+
+.bb-page {
+  --bb-spine: 48rem;
+  display: flex;
+  flex-direction: column;
+}
+.bb-page [id] {
+  scroll-margin-top: 96px;
+}
+
+/* shared centred column */
+.bb-page-hero__inner,
+.bb-block-head,
+.bb-features,
+.bb-tenets-sec__inner,
+.bb-prose-sec__inner,
+.bb-pull-sec .bb-container > *,
+.bb-founder,
+.bb-page-closer__inner {
+  max-width: var(--bb-spine);
+  margin-inline: auto;
+}
+
+/* ------------------------------------------------------------------ hero -- */
+.bb-page-hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--bb-line);
+}
+.bb-page-hero::after {
+  content: "";
+  position: absolute;
+  width: min(44vw, 420px);
+  aspect-ratio: 1;
+  right: -7%;
+  top: 14%;
+  border: 1px solid color-mix(in srgb, var(--bb-accent) 24%, transparent);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+.bb-page-hero__inner {
+  position: relative;
+  z-index: 1;
+}
+.bb-page-hero .bb-eyebrow {
+  margin-bottom: 1.5rem;
+}
+.bb-page-hero__support {
+  margin-top: 1.5rem;
+}
+.bb-page-hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.25rem;
+}
+
+/* --------------------------------------------------------- section heads -- */
+.bb-block-head {
+  text-align: center;
+  margin-bottom: clamp(2.25rem, 5vw, 3.5rem);
+}
+.bb-block-head .bb-eyebrow {
+  margin-bottom: 1rem;
+}
+
+/* every block section is separated by a single hairline */
+.bb-worlds-sec,
+.bb-features-sec,
+.bb-tenets-sec,
+.bb-prose-sec,
+.bb-founder-sec,
+.bb-page-closer {
+  border-top: 1px solid var(--bb-line);
+}
+.bb-page-hero + .bb-worlds-sec,
+.bb-page-hero + .bb-features-sec,
+.bb-page-hero + .bb-tenets-sec,
+.bb-page-hero + .bb-prose-sec {
+  border-top: 0;
+}
+.bb-tenets-sec,
+.bb-founder-sec {
+  background: var(--bb-surface);
+}
+
+/* ---------------------------------------------------------------- worlds -- */
+/* the one full-width element — a symmetric card grid */
+.bb-worlds {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(2, 1fr);
+  background: var(--bb-line);
+  border: 1px solid var(--bb-line);
+  border-radius: var(--bb-radius);
+  overflow: hidden;
+}
+.bb-worlds[data-cols="3"] {
+  grid-template-columns: repeat(3, 1fr);
+}
+.bb-worlds__card {
+  background: var(--bb-bg);
+  padding: clamp(1.75rem, 4vw, 3rem);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: background 0.2s ease;
+}
+a.bb-worlds__card:hover,
+.bb-worlds__card:focus-visible {
+  background: var(--bb-surface);
+}
+.bb-worlds__kicker {
+  font: 400 clamp(1.2rem, 1.9vw, 1.6rem) / 1.25 var(--bb-serif);
+  letter-spacing: -0.005em;
+  color: var(--bb-text);
+}
+.bb-worlds__body {
+  font: 400 0.95rem/1.65 var(--bb-sans);
+  color: var(--bb-text-muted);
+  flex: 1;
+}
+.bb-worlds__card .bb-btn--tertiary {
+  align-self: flex-start;
+  color: var(--bb-text);
+}
+.bb-worlds__card--static {
+  cursor: default;
+}
+
+@media (max-width: 900px) {
+  .bb-worlds[data-cols="3"] {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 720px) {
+  .bb-worlds {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* -------------------------------------------------------------- features -- */
+.bb-features {
+  display: grid;
+  gap: 1px;
+  background: var(--bb-line);
+  border-block: 1px solid var(--bb-line);
+}
+.bb-feature {
+  background: var(--bb-bg);
+  display: flex;
+  gap: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1.5rem, 3.5vw, 2.4rem) 0;
+}
+.bb-feature__num {
+  font: 500 0.8rem/1 var(--bb-sans);
+  letter-spacing: 0.14em;
+  color: var(--bb-accent);
+  flex: none;
+  padding-top: 0.5rem;
+  min-width: 2.25rem;
+}
+.bb-feature__body {
+  display: grid;
+  gap: 0.6rem;
+}
+.bb-feature__body p {
+  font: 400 1rem/1.7 var(--bb-sans);
+  color: var(--bb-text-muted);
+}
+.bb-feature__body .bb-btn--tertiary {
+  justify-self: start;
+  margin-top: 0.35rem;
+  color: var(--bb-text);
+}
+
+/* ---------------------------------------------------------------- tenets -- */
+.bb-tenets {
+  display: grid;
+  gap: 1rem;
+}
+.bb-tenets li {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  font: 400 clamp(1rem, 1.5vw, 1.15rem) / 1.6 var(--bb-sans);
+  color: var(--bb-text);
+}
+.bb-tenets .bb-diamond {
+  color: var(--bb-accent);
+  translate: 0 -1px;
+}
+
+/* ----------------------------------------------------------------- prose -- */
+.bb-prose-sec .bb-eyebrow {
+  margin-bottom: 1.25rem;
+}
+.bb-prose-sec .bb-h2 {
+  margin-bottom: 1.5rem;
+}
+.bb-prose-sec .bb-body-lg + .bb-body-lg {
+  margin-top: 1.1rem;
+}
+
+/* ------------------------------------------------------------------ pull -- */
+.bb-pull-sec {
+  border-block: 1px solid var(--bb-line);
+  background: var(--bb-bg);
+}
+.bb-pull-sec .bb-container {
+  padding-block: clamp(2.75rem, 7vw, 4.5rem);
+}
+.bb-pull {
+  font: italic 400 clamp(1.3rem, 2.8vw, 2rem) / 1.4 var(--bb-serif);
+  color: var(--bb-text);
+  text-wrap: balance;
+}
+
+/* --------------------------------------------------------------- founder -- */
+.bb-founder {
+  display: grid;
+  gap: 1.5rem;
+}
+.bb-founder__aside {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.bb-founder__portrait {
+  display: grid;
+  place-items: center;
+  width: 3.75rem;
+  height: 3.75rem;
+  flex: none;
+  border: 1px solid var(--bb-accent);
+  border-radius: 999px;
+  font: 400 1.1rem/1 var(--bb-serif);
+  letter-spacing: 0.06em;
+  color: var(--bb-accent);
+}
+.bb-founder__aside figcaption {
+  display: grid;
+  gap: 0.25rem;
+}
+.bb-founder__name {
+  font: 500 0.72rem/1.3 var(--bb-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bb-text);
+}
+.bb-founder__role {
+  font: 400 0.8rem/1.4 var(--bb-sans);
+  color: var(--bb-text-muted);
+}
+.bb-founder__note {
+  display: grid;
+  gap: 1.1rem;
+}
+.bb-founder__note p {
+  font: 400 1.0625rem/1.75 var(--bb-sans);
+  color: var(--bb-text-muted);
+}
+.bb-founder__note p:last-child {
+  font-style: italic;
+  color: var(--bb-text);
+}
+
+/* ---------------------------------------------------------------- closer -- */
+.bb-page-closer__inner {
+  text-align: center;
+}
+.bb-page-closer__inner .bb-body-lg {
+  margin: 1rem auto 0;
+}
+.bb-page-closer__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 2rem;
+}

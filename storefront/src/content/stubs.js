@@ -2,26 +2,14 @@
 // taken from raw_plans/BARE BRILLIANT WEBSITE.pdf so nav never dead-ends and
 // the tone is already right when each page is finished.
 //
+// The six house-navigation pages (The Proposal, The Vow, The Chapters, Private
+// Commission, Why Natural, Our House) are now fully built — see content/house.js.
+//
 // shape: { theme, eyebrow, title, support, points?: string[], cta, cta2? }
 
 const chat = (qs) => `/chat?${qs}`;
 
 export const STUBS = {
-  "/the-proposal": {
-    theme: "dark",
-    eyebrow: "The Proposal",
-    title: "One question. One person. A ring that should feel just as specific.",
-    support:
-      "Explore natural-diamond engagement rings, create one from the first sketch, or plan the proposal privately with us.",
-    points: [
-      "Engagement Rings — start with a Bare Brilliant design, then change the diamond, proportion, setting or details.",
-      "One of One — no catalogue starting point. We begin with the person and the story.",
-      "Proposal Rings — ask now, make the final design decision together after yes.",
-      "Secret Proposal Guidance — keep the surprise, lose the guesswork.",
-    ],
-    cta: { label: "Explore engagement rings", to: "/the-proposal/engagement-rings" },
-    cta2: { label: "Start your ring", to: chat("intent=proposal&source=proposal-hero") },
-  },
   "/the-proposal/custom-rings": {
     theme: "dark",
     eyebrow: "One of One — Custom Rings",
@@ -50,61 +38,6 @@ export const STUBS = {
     support:
       "Style clues you already have, ring size without asking, one trusted friend, discreet contact and working backwards from the date.",
     cta: { label: "Plan it privately", to: chat("intent=secret-proposal&source=secret-guidance") },
-  },
-  "/the-vow": {
-    theme: "dark",
-    eyebrow: "The Vow",
-    title: "The yes becomes every day.",
-    support:
-      "Wedding bands, diamond bands and couple rings — designed beside your engagement ring, Bare Brilliant or otherwise.",
-    cta: { label: "Design your bands", to: chat("intent=wedding-bands&source=the-vow") },
-  },
-  "/the-chapters": {
-    theme: "dark",
-    eyebrow: "The Chapters",
-    title: "Not every milestone needs a ceremony to matter.",
-    support:
-      "Anniversaries, the first home with both names on the door, shared wins and the chapters that don't fit a category.",
-    cta: { label: "Mark a chapter", to: chat("intent=milestone&source=the-chapters") },
-  },
-  "/private-commission": {
-    theme: "dark",
-    eyebrow: "Private Commission",
-    title: "When the piece does not belong in a category.",
-    support:
-      "Earrings, bracelets, necklaces and high jewellery, developed around a person, a stone or an occasion.",
-    cta: { label: "Begin a private commission", to: chat("intent=private-commission&source=private-commission") },
-  },
-  "/why-natural": {
-    theme: "dark",
-    eyebrow: "Why Natural",
-    title: "Because origin is part of the story.",
-    support:
-      "Laboratory-grown diamonds are diamonds. Bare Brilliant simply chooses another origin — one that means something for a ring chosen to mark a connection that could not be made to specification either.",
-    points: [
-      "Ancient by origin — many natural diamonds are more than a billion years old.",
-      "Selected, not produced to order — we choose from what nature formed.",
-      "Independently understood — a grading report describes the stone; it does not make the decision.",
-      "Meaning, not superiority — this is simply the origin that belongs to our house.",
-    ],
-    cta: { label: "Talk to Bare Brilliant", to: chat("intent=diamond-question&source=why-natural") },
-  },
-  "/our-house": {
-    theme: "dark",
-    eyebrow: "Our House",
-    title: "Meant, Not Made.",
-    support:
-      "Some things can be designed perfectly. The reason you are here is not one of them.",
-    points: [
-      "We work only with natural diamonds.",
-      "We make around the person, not around inventory.",
-      "We explain trade-offs instead of hiding behind grades.",
-      "We do not create urgency that is not real.",
-      "We show you what you are paying for.",
-      "We make only after the decision is clear.",
-    ],
-    cta: { label: "Start a conversation", to: chat("source=our-house") },
-    cta2: { label: "A note from Harsh", to: "/founder-note" },
   },
   "/founder-note": {
     theme: "dark",

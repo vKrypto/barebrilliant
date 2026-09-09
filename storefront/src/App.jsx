@@ -11,7 +11,9 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrderConfirmedPage from "./pages/OrderConfirmedPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 import ThankYouPage from "./pages/ThankYouPage.jsx";
+import HousePage from "./pages/HousePage.jsx";
 import StubPage from "./pages/StubPage.jsx";
+import { HOUSE_PAGES } from "./content/house.js";
 import { STUBS } from "./content/stubs.js";
 
 export default function App() {
@@ -34,6 +36,11 @@ export default function App() {
           {/* conversation gateway (phase 1) */}
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/thank-you" element={<ThankYouPage />} />
+
+          {/* full house-navigation pages (spec Pages 2, 8, 9, 10, 11, 12) */}
+          {Object.keys(HOUSE_PAGES).map((path) => (
+            <Route key={path} path={path} element={<HousePage />} />
+          ))}
 
           {/* every other spec route — themed stub, real copy + CTAs */}
           {Object.keys(STUBS).map((path) => (
