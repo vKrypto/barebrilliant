@@ -27,6 +27,7 @@ dashboard/media/
 dashboard/staticfiles/
 dashboard/scratch_storage/
 dashboard/.env
+dashboard/.push_storage_state.json
 __pycache__/
 *.py[cod]
 

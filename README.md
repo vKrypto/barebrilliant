@@ -90,6 +90,15 @@ after changing the `IMG_SRCSET` / `IMAGE_QUALITY` / `IMAGE_FORMAT` /
 `VIDEO_SRCSET` / `VIDEO_FORMATS` / `VIDEO_*_CRF` settings. Full details:
 [dashboard/README.md](dashboard/README.md).
 
+If `dashboard/media/` was regenerated with `EXPORT_BACKEND=local`, push just the
+files that changed since the last push:
+
+```bash
+python3 tools/push_storage.py             # incremental; s3 if dashboard/.env has AWS creds, else storefront/public/storage
+python3 tools/push_storage.py --dry-run   # see what would move
+python3 tools/push_storage.py --full      # ignore state, push everything
+```
+
 ## Docker
 
 `docker-compose.yml` runs two nginx services:
