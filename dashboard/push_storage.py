@@ -156,12 +156,26 @@ def push_to_local(changed: list[tuple[str, Path]], dest_root: Path, *, dry_run: 
     return pushed
 
 
+def resolve_dashboard_path(value: str) -> Path:
+    """Relative EXPORT_LOCAL_ROOT/MEDIA_ROOT values are, like Django resolves them,
+    relative to dashboard/ (manage.py always runs with that as cwd) — not to
+    whatever directory this script happens to be invoked from."""
+    p = Path(value)
+    return p if p.is_absolute() else (REPO_DIR / "dashboard" / p).resolve()
+
+
 def main() -> int:
+    load_env()  # must run before reading EXPORT_LOCAL_ROOT/MEDIA_ROOT below
+
+    default_source = resolve_dashboard_path(
+        os.environ.get("EXPORT_LOCAL_ROOT") or os.environ.get("MEDIA_ROOT") or "media"
+    )
+
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         "--source",
-        default=os.environ.get("EXPORT_LOCAL_ROOT") or os.environ.get("MEDIA_ROOT") or str(REPO_DIR / "dashboard" / "media"),
-        help="local storage tree to push from (default: dashboard/media/)",
+        default=str(default_source),
+        help=f"local storage tree to push from (default, from dashboard/.env: {default_source})",
     )
     parser.add_argument(
         "--local-dest",
@@ -176,8 +190,6 @@ def main() -> int:
     parser.add_argument("--full", action="store_true", help="push every file, ignoring previous state")
     parser.add_argument("--dry-run", action="store_true", help="show what would be pushed without pushing")
     args = parser.parse_args()
-
-    load_env()
 
     source = Path(args.source).resolve()
     if not source.is_dir():

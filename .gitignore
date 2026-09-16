@@ -20,6 +20,7 @@ storefront/public/service-worker.js
 # ---- Docker ----
 /.env
 /.env.local
+venv
 
 # ---- Django (dashboard) ----
 dashboard/.venv/
