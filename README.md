@@ -114,7 +114,7 @@ cd dashboard && .venv/bin/python manage.py refresh_inventory && cd ..   # fill d
 docker compose up --build     # storefront -> :8080, storage -> :8000
 ```
 
-To free the configured host ports first, run `./deploy.sh` (or `./deploy.sh -d`
+To free port `800` and the configured host ports first, run `./deploy.sh` (or `./deploy.sh -d`
 for detached mode). It stops containers using those ports and terminates other
 listeners, allowing 10 seconds before forcing them to stop, then runs
 `docker compose up --build`. Requires a local Docker context, Python 3, and `lsof`;
