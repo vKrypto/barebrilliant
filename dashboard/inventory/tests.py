@@ -107,8 +107,9 @@ class PublisherTests(TestCase):
             result = publisher.rebuild_media(log=lambda *_: None)
 
         after = {f.name: f.read_bytes() for f in d.iterdir()}
-        self.assertEqual(set(before), set(after))          # same rung file names
-        self.assertNotEqual(before, after)                 # but re-encoded (quality changed)
+        rungs = lambda names: sorted(name.rsplit("_", 1)[1] for name in names)  # "<w>x<h>.webp"
+        self.assertEqual(rungs(before), rungs(after))      # same configured ladder
+        self.assertTrue(set(before).isdisjoint(after))     # quality is in the file name: fresh URLs, old rungs wiped
         self.assertEqual(result["products"], 1)
         self.assertGreaterEqual(result["image_sets"], 1)
 
@@ -250,7 +251,7 @@ class PublisherTests(TestCase):
         gallery = self._read("products/clip.json")["gallery"]
         video = [m for m in gallery if m["type"] == "video"][0]
         media_root = Path(settings.EXPORT_LOCAL_ROOT)
-        for name in ("320p.mp4", "320p.webm", "640p.mp4", "640p.webm"):
+        for name in ("_320x320.mp4", "_320x320.webm", "_640x640.mp4", "_640x640.webm"):
             self.assertTrue(any(f.name.endswith(name) for f in (media_root / "products_media/clip").iterdir()))
         self.assertTrue(video["poster"].endswith(".webp"))
         # webm listed before its mp4 sibling
