@@ -114,6 +114,12 @@ cd dashboard && .venv/bin/python manage.py refresh_inventory && cd ..   # fill d
 docker compose up --build     # storefront -> :8080, storage -> :8000
 ```
 
+To free the configured host ports first, run `./deploy.sh` (or `./deploy.sh -d`
+for detached mode). It stops containers using those ports and terminates other
+listeners, allowing 10 seconds before forcing them to stop, then runs
+`docker compose up --build`. Requires a local Docker context, Python 3, and `lsof`;
+uses `sudo` only when needed to inspect or stop another user's host process.
+
 The `storage` service just bind-mounts `dashboard/media/`, so re-running
 `refresh_inventory` / `publish_changes` (or hitting the dashboard buttons)
 updates what it serves with no container restart.
