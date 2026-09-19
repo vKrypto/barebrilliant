@@ -4,8 +4,6 @@ Staff land on the Product changelist (see config/urls.py). Two buttons at the to
 regenerate storage; bulk actions cover force-republish / unpublish / delete.
 """
 
-import json
-
 from adminsortable2.admin import SortableAdminBase, SortableStackedInline
 from django import forms
 from django.contrib import admin, messages
@@ -15,7 +13,7 @@ from django.shortcuts import redirect
 from django.urls import path
 from django.utils.html import format_html
 
-from . import publisher
+from . import tasks
 from .models import Category, DeletedProduct, Product, ProductImage, ProductVideo, PublishRun
 
 
@@ -85,8 +83,10 @@ class ProductImageInline(SortableStackedInline):
 
     @admin.display(description="preview")
     def preview(self, obj):
+        if obj.pk and obj.thumbnail_url:
+            return format_html('<img src="{}" style="max-height:120px;border-radius:4px">', obj.thumbnail_url)
         if obj.pk and obj.image:
-            return format_html('<img src="{}" style="max-height:120px;border-radius:4px">', obj.image.url)
+            return "Thumbnail queued"
         return "—"
 
 
@@ -106,7 +106,7 @@ class ProductAdmin(SortableAdminBase, admin.ModelAdmin):
     form = ProductAdminForm
     save_on_top = True
 
-    list_display = ("name", "slug", "price_from", "shape", "style", "category", "is_published", "dirty", "last_published_at")
+    list_display = ("name", "slug", "price_from", "shape", "style", "category", "is_published", "media_status", "dirty", "last_published_at")
     list_display_links = ("name", "slug")
     list_editable = ("is_published",)
     list_filter = ("is_published", "category", "shape", "style", TagListFilter)
@@ -114,7 +114,7 @@ class ProductAdmin(SortableAdminBase, admin.ModelAdmin):
     ordering = ("-sort_weight", "name")
     prepopulated_fields = {"slug": ("name",)}
     inlines = [ProductImageInline, ProductVideoInline]
-    readonly_fields = ("created_at", "updated_at", "last_published_at", "dirty")
+    readonly_fields = ("created_at", "updated_at", "last_published_at", "dirty", "media_status", "media_ready_at", "media_error")
     list_select_related = ("category",)
     actions = ["publish_selected", "republish_selected", "unpublish_selected"]
 
@@ -136,6 +136,7 @@ class ProductAdmin(SortableAdminBase, admin.ModelAdmin):
             "fields": ("pdp_extra",),
         }),
         ("Publish state", {"fields": ("dirty", "last_published_at", "created_at", "updated_at")}),
+        ("Media processing", {"fields": ("media_status", "media_ready_at", "media_error")}),
     )
 
     def save_related(self, request, form, formsets, change):
@@ -189,16 +190,14 @@ class ProductAdmin(SortableAdminBase, admin.ModelAdmin):
             self.message_user(request, "A publish run is already in progress — try again shortly.", messages.WARNING)
             return redirect("admin:inventory_product_changelist")
         try:
-            run = publisher.run_job(kind, log=lambda *_a, **_k: None)
+            tasks.queue_publish(kind)
         except Exception as exc:  # noqa: BLE001
             self.message_user(request, f"{'Refresh' if kind == 'refresh' else 'Publish'} failed — {exc}", messages.ERROR)
             return redirect("admin:inventory_product_changelist")
-        summary = json.loads(run.summary)
-        verb = "Refreshed complete inventory" if kind == "refresh" else "Published inventory changes"
+        verb = "Inventory refresh" if kind == "refresh" else "Publishing"
         self.message_user(
             request,
-            f"{verb}: {summary.get('published', 0)} product(s) written, "
-            f"{summary.get('removed_files', 0)} file(s) removed → {summary.get('dest', '')}",
+            f"{verb} queued. Media generation and storage updates will run in the background.",
             messages.SUCCESS,
         )
         return redirect("admin:inventory_product_changelist")
@@ -212,11 +211,11 @@ class ProductAdmin(SortableAdminBase, admin.ModelAdmin):
         if force:
             queryset.update(last_published_at=None)
         try:
-            publisher.run_job("publish", log=lambda *_a, **_k: None)
+            tasks.queue_publish("publish")
         except Exception as exc:  # noqa: BLE001
             self.message_user(request, f"{label} — publish failed: {exc}", messages.ERROR)
             return
-        self.message_user(request, f"{label}: {n} product(s) processed and storage updated.", messages.SUCCESS)
+        self.message_user(request, f"{label}: {n} product(s) queued for a background storage update.", messages.SUCCESS)
 
     @admin.action(description="Publish selected (mark published & push)")
     def publish_selected(self, request, queryset):

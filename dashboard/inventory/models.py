@@ -14,6 +14,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.text import get_valid_filename
 from taggit.managers import TaggableManager
+from versatileimagefield.fields import VersatileImageField
 
 SHAPE_CHOICES = [(s, s) for s in settings.SHAPES]
 STYLE_CHOICES = [(s, s) for s in settings.STYLES]
@@ -92,6 +93,13 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     last_published_at = models.DateTimeField(null=True, blank=True, editable=False)
+    media_status = models.CharField(
+        max_length=12, default="idle", editable=False,
+        choices=[(value, value) for value in ("idle", "queued", "running", "ready", "error")],
+    )
+    media_requested_at = models.DateTimeField(null=True, blank=True, editable=False)
+    media_ready_at = models.DateTimeField(null=True, blank=True, editable=False)
+    media_error = models.TextField(blank=True, editable=False)
 
     class Meta:
         ordering = ["-sort_weight", "name"]
@@ -114,7 +122,9 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to=_raw_media_path)
+    image = VersatileImageField(upload_to=_raw_media_path)
+    thumbnail_signature = models.CharField(max_length=64, blank=True, editable=False)
+    thumbnail_url = models.TextField(blank=True, editable=False)
     alt = models.CharField(max_length=250, blank=True)
     order = models.PositiveIntegerField(default=0, db_index=True)
 
@@ -161,7 +171,7 @@ class PublishRun(models.Model):
         ("publish", "Publish inventory changes"),
         ("rebuild", "Rebuild media from originals"),
     ]
-    STATUS_CHOICES = [("running", "running"), ("ok", "ok"), ("error", "error")]
+    STATUS_CHOICES = [(value, value) for value in ("queued", "running", "ok", "error")]
 
     kind = models.CharField(max_length=12, choices=KIND_CHOICES)
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default="running")
@@ -178,4 +188,6 @@ class PublishRun(models.Model):
     @classmethod
     def is_running(cls) -> bool:
         cutoff = timezone.now() - timedelta(minutes=30)  # ignore stale/crashed runs
-        return cls.objects.filter(status="running", started_at__gte=cutoff).exists()
+        return cls.objects.filter(status="queued").exists() or cls.objects.filter(
+            status="running", started_at__gte=cutoff,
+        ).exists()

@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "adminsortable2",
     "taggit",
+    "versatileimagefield",
+    "huey.contrib.djhuey",
     "inventory",
 ]
 
@@ -155,7 +157,9 @@ CATALOG_SORTS = ["recommended", "newest", "price-asc", "price-desc"]
 
 # --------------------------------------------------------------- media rungs ---
 
-# (width, height) rungs. Source photography is square (1:1); ImageOps.fit covers.
+# Exact (width, height) renditions; images/videos cover-crop to each rectangle.
+# These defaults are square. Use e.g. (480, 640) for a portrait rendition.
+# The first pair's aspect ratio is the default storefront srcset/source group.
 IMG_SRCSET = [(320, 320), (480, 480), (640, 640), (960, 960), (1080, 1080)]
 IMAGE_QUALITY = 80
 IMAGE_FORMAT = "webp"
@@ -173,6 +177,35 @@ FFPROBE_BIN = os.environ.get("FFPROBE_BIN", "ffprobe")
 # card column ~352px, PDP stage ~560px).
 CARD_SIZES = os.environ.get("CARD_SIZES", "(max-width:460px) 100vw, (max-width:860px) 50vw, 352px")
 PDP_SIZES = os.environ.get("PDP_SIZES", "(max-width:900px) 100vw, 560px")
+
+# Derivative files and existence-cache entries are populated by the worker.
+# Keep the shared file cache outside MEDIA_ROOT so it is never exported.
+CACHES = {
+    "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "versatileimagefield_cache": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": os.environ.get("THUMBNAIL_CACHE_DIR", str(BASE_DIR / ".thumbnail-cache")),
+        "TIMEOUT": 2592000,
+        "OPTIONS": {"MAX_ENTRIES": 10000},
+    },
+}
+VERSATILEIMAGEFIELD_SETTINGS = {
+    "create_images_on_demand": False,
+    "cache_name": "versatileimagefield_cache",
+    "jpeg_resize_quality": IMAGE_QUALITY,
+    "webp_resize_quality": IMAGE_QUALITY,
+}
+
+# Always queue, including DEBUG mode. One worker serializes media/storage writes.
+# Run alongside the web server: python manage.py run_huey
+HUEY = {
+    "huey_class": "huey.SqliteHuey",
+    "name": "barebrilliant-media",
+    "filename": os.environ.get("MEDIA_QUEUE_PATH", str(BASE_DIR / "media-queue.sqlite3")),
+    "immediate": False,
+    "results": False,
+    "consumer": {"workers": 1, "worker_type": "thread"},
+}
 
 # --------------------------------------------------------------- export dest ---
 

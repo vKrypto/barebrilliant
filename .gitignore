@@ -29,6 +29,8 @@ dashboard/staticfiles/
 dashboard/scratch_storage/
 dashboard/.env
 dashboard/.push_storage_state.json
+dashboard/.thumbnail-cache/
+dashboard/media-queue.sqlite3*
 __pycache__/
 *.py[cod]
 

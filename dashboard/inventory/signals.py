@@ -9,10 +9,12 @@
 """
 
 import shutil
+from functools import partial
 from pathlib import Path
 
 from django.conf import settings
-from django.db.models.signals import post_delete, post_save, pre_delete
+from django.db import transaction
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 
@@ -21,14 +23,37 @@ from .models import DeletedProduct, Product, ProductImage, ProductVideo
 
 def _touch_product(product_id):
     if product_id:
-        Product.objects.filter(pk=product_id).update(updated_at=timezone.now())
+        from .tasks import queue_product_media
+
+        requested_at = timezone.now()
+        updated = Product.objects.filter(pk=product_id).update(
+            updated_at=requested_at, media_status="queued",
+            media_requested_at=requested_at, media_error="",
+        )
+        if updated:
+            queue_product_media(product_id, requested_at)
+
+
+@receiver(pre_save, sender=ProductImage)
+def _image_replaced(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+    previous = sender.objects.filter(pk=instance.pk).values_list("image", flat=True).first()
+    if previous and (previous != instance.image.name or not instance.image._committed):
+        from .tasks import remove_image_file
+
+        instance.thumbnail_signature = ""
+        instance.thumbnail_url = ""
+        transaction.on_commit(partial(remove_image_file, previous))
 
 
 @receiver([post_save, post_delete], sender=ProductImage)
 def _image_changed(sender, instance, signal, **kwargs):
     _touch_product(instance.product_id)
     if signal is post_delete:
-        _delete_file(instance.image)
+        from .tasks import remove_image_file
+
+        transaction.on_commit(partial(remove_image_file, instance.image.name))
 
 
 @receiver([post_save, post_delete], sender=ProductVideo)

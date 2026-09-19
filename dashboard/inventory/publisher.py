@@ -277,9 +277,15 @@ def publish_changes(*, log=print) -> dict:
 _JOBS = {"refresh": refresh_all, "publish": publish_changes, "rebuild": rebuild_media}
 
 
-def run_job(kind: str, *, log=print, **kwargs) -> PublishRun:
+def run_job(kind: str, *, log=print, run=None, **kwargs) -> PublishRun:
     """Wrap a publisher job in a PublishRun row."""
-    run = PublishRun.objects.create(kind=kind)
+    if run is None:
+        run = PublishRun.objects.create(kind=kind)
+    else:
+        run.status = "running"
+        run.finished_at = None
+        run.summary = ""
+        run.save(update_fields=["status", "finished_at", "summary"])
     try:
         result = _JOBS[kind](log=log, **kwargs)
         run.status = "ok"
