@@ -2,11 +2,14 @@
 
 Does synchronously, from the CLI, what the media worker does after an upload —
 reading the originals from default storage (MEDIA_ROOT/products_raw_media/…) and
-the ladders from settings.py:
+the ladders from settings.py. Everything is generated into ONE folder,
+products_media/<id>/ in export storage:
 
-- admin thumbnail + one cover-crop per IMG_SRCSET rung   (default storage)
-- an image rendition per IMG_SRCSET rung                  (export storage)
-- mp4/webm renditions per VIDEO_SRCSET rung + posters     (export storage)
+- an image rendition per IMG_SRCSET rung (the smallest one is the admin preview)
+- mp4/webm renditions per VIDEO_SRCSET rung + posters
+
+A leftover MEDIA_ROOT/__sized__ folder from the removed VersatileImageField
+thumbnails is deleted.
 
 By default it only creates what is missing or out of date for the current
 settings (file names carry the original's bytes + encoding config, so unchanged
@@ -20,8 +23,7 @@ leftovers from the product's media folder once every rendition has succeeded.
 Product JSON is not rewritten; run refresh_inventory afterwards if file names changed.
 """
 
-import contextlib
-import io
+import shutil
 from pathlib import Path
 
 from django.conf import settings
@@ -29,8 +31,20 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from inventory import publisher, storagebackends
-from inventory.image_cache import warm_image_cache
 from inventory.models import Product
+
+
+LEGACY_SIZED_DIR = "__sized__"  # made by the removed VersatileImageField thumbnails
+
+
+def _remove_legacy_sized_dir():
+    """Delete the old thumbnail folder (derived files only); returns how many files went."""
+    legacy = Path(settings.MEDIA_ROOT) / LEGACY_SIZED_DIR
+    if not legacy.is_dir():
+        return 0
+    count = sum(1 for path in legacy.rglob("*") if path.is_file())
+    shutil.rmtree(legacy)
+    return count
 
 
 def _files(slug):
@@ -51,7 +65,7 @@ def _prune_stale(slug, images, videos):
 
 
 class Command(BaseCommand):
-    help = "Create (or with --force, recreate) every thumbnail, image and video rendition from the originals."
+    help = "Create (or with --force, recreate) every image, video and admin-preview rendition from the originals."
 
     def add_arguments(self, parser):
         parser.add_argument("product_ids", nargs="*", help="Limit to these product ids (default: all published).")
@@ -63,6 +77,9 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         force = opts["force"]
         products = self._targets(opts["product_ids"], opts["include_unpublished"])
+        legacy = _remove_legacy_sized_dir()
+        if legacy:
+            self.stdout.write(f"  removed the old {LEGACY_SIZED_DIR}/ thumbnail folder ({legacy} file(s))")
         totals = dict(images=0, videos=0, created=0, removed=0)
         failed = []
 
@@ -71,12 +88,8 @@ class Command(BaseCommand):
             Product.objects.filter(pk=product.pk).update(media_status="running", media_error="")
             before = _files(slug)
             try:
-                for row in product.images.all():
-                    if force:
-                        row.thumbnail_signature = ""  # invalidates the VersatileImageField crops + admin preview
-                    with contextlib.redirect_stdout(io.StringIO()):  # VersatileImageField prints every file it deletes
-                        warm_image_cache(row)
                 images, videos = publisher._render_media(product, force=force)
+                publisher.save_previews(product, images)
                 if force:
                     _prune_stale(slug, images, videos)
             except Exception as exc:  # noqa: BLE001 — record it and keep going with the other products

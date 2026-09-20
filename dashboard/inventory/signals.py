@@ -42,7 +42,6 @@ def _image_replaced(sender, instance, **kwargs):
     if previous and (previous != instance.image.name or not instance.image._committed):
         from .tasks import remove_image_file
 
-        instance.thumbnail_signature = ""
         instance.thumbnail_url = ""
         transaction.on_commit(partial(remove_image_file, previous))
 

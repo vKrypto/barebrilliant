@@ -23,7 +23,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from . import media_pipeline, storagebackends
-from .models import DeletedProduct, Product, PublishRun
+from .models import DeletedProduct, Product, ProductImage, PublishRun
 
 CATALOG_PATH = settings.CATALOG_JSON_PATH
 PRODUCT_DIR = settings.PRODUCT_JSON_DIR
@@ -47,6 +47,19 @@ def _render_media(product, *, force: bool = False) -> tuple[list[dict], list[dic
         for i, row in enumerate(product.videos.all())
     ]
     return images, videos
+
+
+def save_previews(product, images: list[dict]) -> None:
+    """Point each image's admin preview at its smallest rendition in products_media.
+
+    There is no separate thumbnail folder: the preview is a file the storefront pipeline
+    already generated. Rows replaced while the job ran are left alone.
+    """
+    for row, media in zip(product.images.all(), images):
+        smallest = min(media["renditions"], key=lambda item: item["width"] * item["height"])
+        ProductImage.objects.filter(pk=row.pk, image=row.image.name).update(
+            thumbnail_url=storagebackends.url(smallest["src"]),
+        )
 
 
 def _auto_alt(product, i: int, kind: str = "image") -> str:

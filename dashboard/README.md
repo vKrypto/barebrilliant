@@ -77,16 +77,26 @@ media/product_placeholder.webp
 `products_raw_media/`. `EXPORT_LOCAL_ROOT` can instead point straight at
 `../storefront/public/storage` to feed `yarn dev` with no copy step.
 
+**`products_media/` is the only folder of generated images.** There is no separate
+thumbnail cache: each image's admin preview is simply its smallest rendition in
+`products_media/<id>/` (`ProductImage.thumbnail_url`, set by the media job). Previews
+load from `/media/…`, so keep `EXPORT_LOCAL_ROOT` at its default (`MEDIA_ROOT`); with
+`EXPORT_BACKEND=s3` set `AWS_S3_CUSTOM_DOMAIN` (host only) and `AWS_LOCATION` so the
+preview URL resolves to your CDN.
+
 ## Media pipeline (`inventory/media_pipeline.py`)
 
-- Images → Pillow → `products_media/<id>/<n>_<hash6>_<w>x<h>.webp` for every
+- Images → Pillow → `products_media/<id>/<n>_<key>_<w>x<h>.webp` for every
   `IMG_SRCSET` rung (`settings.py`), quality `IMAGE_QUALITY`. `<n>` is the gallery
-  position (drag order), always 0,1,2,…
-- Videos → ffmpeg → per `VIDEO_SRCSET` width: `<w>p.mp4` (H.264/AAC) +
-  `<w>p.webm` (AV1/Opus) + a `poster_<w>x<h>.webp` first frame.
-- `hash6` = `sha1(original bytes)[:6]` → re-exports are no-ops; replacing a photo
-  changes every URL (CDN cache-bust). Removing a product wipes its
-  `products_media/<id>/` directory (and its `products_raw_media/<id>/` originals).
+  position (drag order), always 0,1,2,… Rungs may have different aspect ratios;
+  each is a centred cover-crop.
+- Videos → ffmpeg → every `VIDEO_SRCSET` size × `VIDEO_FORMATS`:
+  `<n>_<key>_<w>x<h>.mp4` (H.264/AAC) / `.webm` (AV1/Opus), plus a first-frame
+  poster `<n>_<key>_poster_<w>x<h>.webp` per size.
+- `key` = hash of the original's bytes **and** the encoding settings → re-exports
+  are no-ops; replacing a photo or changing a ladder/quality gives fresh URLs (CDN
+  cache-bust). Removing a product wipes its `products_media/<id>/` directory (and
+  its `products_raw_media/<id>/` originals).
 
 The `AWS_*` keys (see `.env.example`) drive the S3 backend: `django-storages`
 writes the same keys to `AWS_STORAGE_BUCKET_NAME`; point `VITE_CATALOG_BASE` /
@@ -109,11 +119,12 @@ treat it as fixtures, not dashboard output.
 .venv/bin/python manage.py rebuild_media --all              # + unpublished ones
 .venv/bin/python manage.py rebuild_media the-aria the-lumen # just these ids
 
-# Populate the admin thumbnails + every image/video rendition from the originals,
+# Populate every image/video rendition and the admin previews from the originals,
 # in the foreground (what the media worker does after an upload). Creates whatever
 # is missing / out of date for the current settings; --force re-encodes everything
-# in place, then removes stale files. Product JSON is not rewritten: run
-# refresh_inventory afterwards if settings or originals changed.
+# in place, then removes stale files. Also deletes a leftover media/__sized__ folder
+# (the old thumbnail cache). Product JSON is not rewritten: run refresh_inventory
+# afterwards if settings or originals changed.
 .venv/bin/python manage.py populate_thumbnails              # all published products
 .venv/bin/python manage.py populate_thumbnails --force      # recreate everything
 .venv/bin/python manage.py populate_thumbnails the-aria --all   # these ids (+ unpublished)

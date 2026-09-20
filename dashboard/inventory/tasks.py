@@ -17,8 +17,6 @@ def queue_product_media(product_id, requested_at):
 @db_task(retries=2, retry_delay=30)
 def prepare_product_media(product_id, requested_at):
     """Coalesce rapid edits and never mark an older revision as ready."""
-    from .image_cache import warm_image_cache
-
     revision = Product.objects.filter(pk=product_id, media_requested_at=requested_at)
     if not revision.update(media_status="running", media_error=""):
         return  # Deleted product or superseded upload/reorder.
@@ -27,9 +25,8 @@ def prepare_product_media(product_id, requested_at):
     if product is None:
         return
     try:
-        for row in product.images.all():
-            warm_image_cache(row)
-        publisher._render_media(product)
+        images, _videos = publisher._render_media(product)
+        publisher.save_previews(product, images)
     except Exception as exc:
         revision.update(media_status="error", media_error=f"{type(exc).__name__}: {exc}")
         raise
@@ -62,11 +59,7 @@ def publish_inventory(run_id, options):
 
 @db_task(retries=2, retry_delay=30)
 def remove_image_file(name):
-    """Remove a replaced/deleted original and its cached thumbnails off-request."""
-    from .image_cache import delete_image_cache
-
+    """Remove a replaced/deleted original off-request."""
     if ProductImage.objects.filter(image=name).exists():
         return  # Another row still uses the file.
-    field_file = ProductImage(image=name).image
-    delete_image_cache(field_file)
-    field_file.storage.delete(name)
+    ProductImage(image=name).image.storage.delete(name)

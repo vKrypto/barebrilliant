@@ -14,7 +14,6 @@ from django.db import models
 from django.utils import timezone
 from django.utils.text import get_valid_filename
 from taggit.managers import TaggableManager
-from versatileimagefield.fields import VersatileImageField
 
 SHAPE_CHOICES = [(s, s) for s in settings.SHAPES]
 STYLE_CHOICES = [(s, s) for s in settings.STYLES]
@@ -122,9 +121,12 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
-    image = VersatileImageField(upload_to=_raw_media_path)
-    thumbnail_signature = models.CharField(max_length=64, blank=True, editable=False)
+    image = models.ImageField(upload_to=_raw_media_path)
+    # Admin preview: URL of the smallest rendition in products_media (set by the media job).
     thumbnail_url = models.TextField(blank=True, editable=False)
+    # Unused since the separate thumbnail folder was removed. Kept so live databases need no
+    # migration; drop it (RemoveField) whenever convenient.
+    thumbnail_signature = models.CharField(max_length=64, blank=True, editable=False)
     alt = models.CharField(max_length=250, blank=True)
     order = models.PositiveIntegerField(default=0, db_index=True)
 

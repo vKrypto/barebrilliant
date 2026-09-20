@@ -1,4 +1,4 @@
-"""`manage.py populate_thumbnails`: recreate thumbnails + renditions from the originals."""
+"""Thumbnails + renditions live in ONE folder (products_media); `manage.py populate_thumbnails`."""
 
 import io
 import re
@@ -9,19 +9,16 @@ from pathlib import Path
 from unittest.mock import patch
 
 from django.conf import settings
-from django.core.cache import caches
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 from PIL import Image
-from versatileimagefield.datastructures.sizedimage import SizedImage
 
-from . import media_pipeline, storagebackends
+from . import media_pipeline, storagebackends, tasks
 from .models import Product, ProductImage, ProductVideo
 
 LADDER = [(80, 80), (80, 120), (160, 90)]
-_create_resized_image = SizedImage.create_resized_image
 
 
 def _png(color="red"):
@@ -53,33 +50,17 @@ class PopulateThumbnailsTests(TestCase):
         temp = tempfile.TemporaryDirectory(prefix="bb_populate_")
         self.addCleanup(temp.cleanup)
         self.root = Path(temp.name)
+        self.media = self.root / "media"
         self.export = self.root / "export"
         override = override_settings(
-            MEDIA_ROOT=self.root / "media", MEDIA_URL="/media/",
+            MEDIA_ROOT=self.media, MEDIA_URL="/media/",
             EXPORT_BACKEND="local", EXPORT_LOCAL_ROOT=self.export,
             IMG_SRCSET=LADDER, VIDEO_SRCSET=[(64, 64), (64, 96)], VIDEO_FORMATS=["mp4"],
-            CACHES={
-                "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-                "versatileimagefield_cache": {
-                    "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-                    "LOCATION": self.root / "cache",
-                },
-            },
         )
         override.enable()
         self.addCleanup(override.disable)
         storagebackends.export_storage.cache_clear()
         self.addCleanup(storagebackends.export_storage.cache_clear)
-        # VIF binds its cache at import time; redirect every bound reference so
-        # these tests can never touch the dashboard's real thumbnail cache.
-        cache = caches["versatileimagefield_cache"]
-        for module in (
-            "versatileimagefield.settings", "versatileimagefield.mixins",
-            "versatileimagefield.datastructures.mixins", "versatileimagefield.datastructures.sizedimage",
-        ):
-            cache_patch = patch(f"{module}.cache", cache)
-            cache_patch.start()
-            self.addCleanup(cache_patch.stop)
 
     def _product(self, slug="ring", *, published=True, color="red"):
         product = Product.objects.create(slug=slug, name=slug.title(), is_published=published)
@@ -98,13 +79,15 @@ class PopulateThumbnailsTests(TestCase):
         folder = self._folder(slug)
         return sorted(p.name for p in folder.iterdir()) if folder.exists() else []
 
-    def _assert_size(self, rendition, size):
-        with rendition.storage.open(rendition.name, "rb") as data, Image.open(data) as image:
-            self.assertEqual(image.size, size)
+    def _assert_one_thumbnail_folder(self):
+        """Derived images exist only under products_media/ — never a second folder."""
+        self.assertEqual(list(self.root.rglob("__sized__")), [])
+        self.assertEqual({p.name for p in self.media.iterdir()}, {"products_raw_media"})
+        self.assertEqual({p.name for p in self.export.iterdir()}, {"products_media"})
 
     # ---------------------------------------------------------------------
 
-    def test_creates_admin_thumbnails_and_every_rendition_without_a_worker(self):
+    def test_renditions_and_admin_preview_all_land_in_products_media(self):
         product, row = self._product()
         product.refresh_from_db()
         self.assertEqual(product.media_status, "queued")
@@ -112,45 +95,59 @@ class PopulateThumbnailsTests(TestCase):
 
         output = self._run()
 
-        row.refresh_from_db()
-        self.assertTrue(row.thumbnail_url)
-        self.assertEqual(len(row.thumbnail_signature), 64)
-        for size in LADDER:
-            self._assert_size(row.image.crop[f"{size[0]}x{size[1]}"], size)
-        self._assert_size(row.image.thumbnail["300x300"], (300, 200))
         names = self._names()
         self.assertEqual(len(names), len(LADDER))
         for size in LADDER:
-            self.assertTrue(any(name.endswith(f"_{size[0]}x{size[1]}.webp") for name in names), size)
-            with Image.open(self._folder() / next(n for n in names if n.endswith(f"_{size[0]}x{size[1]}.webp"))) as image:
+            rung = next(n for n in names if n.endswith(f"_{size[0]}x{size[1]}.webp"))
+            with Image.open(self._folder() / rung) as image:
                 self.assertEqual((image.size, image.format), (size, "WEBP"))
+        row.refresh_from_db()
+        # the preview is the smallest rung, addressed inside products_media, and it exists
+        self.assertRegex(row.thumbnail_url, r"^/media/products_media/ring/0_[0-9a-f]{16}_80x80\.webp$")
+        self.assertTrue((self.export / row.thumbnail_url.removeprefix("/media/")).is_file())
+        self._assert_one_thumbnail_folder()
         product.refresh_from_db()
         self.assertEqual(product.media_status, "ready")
-        self.assertIsNotNone(product.media_ready_at)
         self.assertEqual(product.updated_at, updated_at)  # populating never dirties the product
         self.assertIn("populate ok: 1/1 product(s)", output)
-        self.assertIn("refresh_inventory", output)
+
+    def test_worker_task_uses_the_same_single_folder(self):
+        product, row = self._product()
+        product.refresh_from_db()
+        # huey's db_task wrapper closes connections; call the plain function inside the test transaction
+        tasks.prepare_product_media.func.__wrapped__(product.pk, product.media_requested_at.isoformat())
+
+        product.refresh_from_db()
+        row.refresh_from_db()
+        self.assertEqual(product.media_status, "ready")
+        self.assertRegex(row.thumbnail_url, r"^/media/products_media/ring/0_[0-9a-f]{16}_80x80\.webp$")
+        self.assertEqual(len(self._names()), len(LADDER))
+        self._assert_one_thumbnail_folder()
 
     def test_second_run_reuses_everything(self):
         self._product()
         self._run()
         before = self._names()
-        with patch.object(media_pipeline, "_cover_image", side_effect=AssertionError("re-encoded")), patch.object(
-            SizedImage, "create_resized_image", side_effect=AssertionError("re-cropped"),
-        ):
+        with patch.object(media_pipeline, "_cover_image", side_effect=AssertionError("re-encoded")):
             output = self._run()
         self.assertEqual(self._names(), before)
         self.assertIn("+0 new, -0 stale", output)
         self.assertNotIn("refresh_inventory", output)
 
-    def test_changed_settings_populate_the_new_ladder(self):
+    def test_changed_settings_populate_the_new_ladder_and_move_the_preview(self):
         _, row = self._product()
         self._run()
-        with override_settings(IMG_SRCSET=[(100, 180), (80, 80)]):
+        row.refresh_from_db()
+        old_preview = row.thumbnail_url
+        with override_settings(IMG_SRCSET=[(100, 180), (90, 90)]):
             output = self._run()
-            self._assert_size(row.image.crop["100x180"], (100, 180))
+        row.refresh_from_db()
         self.assertTrue(any(name.endswith("_100x180.webp") for name in self._names()))
+        self.assertRegex(row.thumbnail_url, r"_90x90\.webp$")
+        self.assertNotEqual(row.thumbnail_url, old_preview)
+        self.assertTrue((self.export / row.thumbnail_url.removeprefix("/media/")).is_file())
         self.assertIn("refresh_inventory", output)
+        self._assert_one_thumbnail_folder()
 
     def test_force_recreates_in_place_and_removes_only_stale_files(self):
         _, row = self._product()
@@ -158,16 +155,41 @@ class PopulateThumbnailsTests(TestCase):
         current = self._names()
         (self._folder() / "0_deadbeefdeadbeef_999x999.webp").write_bytes(b"stale")
 
-        with patch.object(media_pipeline, "_cover_image", wraps=media_pipeline._cover_image) as encode, patch.object(
-            SizedImage, "create_resized_image", autospec=True, side_effect=_create_resized_image,
-        ) as crop:
+        with patch.object(media_pipeline, "_cover_image", wraps=media_pipeline._cover_image) as encode:
             output = self._run("--force")
 
         self.assertEqual(encode.call_count, len(LADDER))          # existing rungs re-encoded anyway
-        self.assertEqual(crop.call_count, len(LADDER) + 1)        # every crop + the admin thumbnail
         self.assertEqual(self._names(), current)                  # stale file gone, real rungs intact
         self.assertIn("-1 stale", output)
-        self._assert_size(row.image.thumbnail["300x300"], (300, 200))
+        row.refresh_from_db()
+        self.assertTrue((self.export / row.thumbnail_url.removeprefix("/media/")).is_file())
+        self._assert_one_thumbnail_folder()
+
+    def test_leftover_sized_folder_from_the_old_thumbnails_is_removed(self):
+        _, row = self._product()
+        legacy = self.media / "__sized__" / "products_raw_media" / "ring"
+        legacy.mkdir(parents=True)
+        (legacy / "original-thumbnail-300x300.png").write_bytes(b"old derivative")
+        (legacy / "original-crop-c0-5__0-5-80x80.png").write_bytes(b"old derivative")
+
+        output = self._run()
+
+        self.assertIn("removed the old __sized__/ thumbnail folder (2 file(s))", output)
+        self.assertTrue(Path(settings.MEDIA_ROOT, row.image.name).is_file())  # the original is untouched
+        self._assert_one_thumbnail_folder()
+
+    def test_replacing_an_original_clears_its_preview_until_regenerated(self):
+        _, row = self._product()
+        self._run()
+        row.refresh_from_db()
+        self.assertTrue(row.thumbnail_url)
+        row.image = _png("blue")
+        row.save()
+        row.refresh_from_db()
+        self.assertEqual(row.thumbnail_url, "")
+        self._run()
+        row.refresh_from_db()
+        self.assertTrue(row.thumbnail_url)
 
     def test_default_scope_ids_and_unknown_ids(self):
         self._product("live")
@@ -224,6 +246,7 @@ class PopulateThumbnailsTests(TestCase):
         for path, size in zip(mp4s, [(64, 64), (64, 96)]):
             self.assertEqual(_video_stream(path), ("h264", *size))
         self.assertEqual(len([n for n in self._names() if "_poster_" in n]), len(set(LADDER) | {(64, 64), (64, 96)}))
+        self._assert_one_thumbnail_folder()
 
         with patch.object(media_pipeline, "_run", side_effect=AssertionError("cache hit ran ffmpeg")):
             self._run()
