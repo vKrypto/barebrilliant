@@ -5,7 +5,7 @@
 // interaction map.
 //
 // One generic renderer (pages/HousePage.jsx) walks this shape:
-//   { theme, eyebrow, title, support, cta, cta2, blocks[], closer }
+//   { eyebrow, title, support, cta, cta2, blocks[], closer }
 //
 // block types:
 //   worlds   — card grid (2 or 3 up); items link out or stay static
@@ -20,7 +20,6 @@ const chat = (qs) => `/chat?${qs}`;
 export const HOUSE_PAGES = {
   /* ─────────────────────────────── The Proposal ─────────────────────────── */
   "/the-proposal": {
-    theme: "dark",
     eyebrow: "The Proposal",
     title: "One question. One person. A ring that should feel just as specific.",
     support:
@@ -75,7 +74,6 @@ export const HOUSE_PAGES = {
 
   /* ─────────────────────────────────── The Vow ──────────────────────────── */
   "/the-vow": {
-    theme: "dark",
     eyebrow: "The Vow",
     title: "The yes becomes every day.",
     support:
@@ -124,7 +122,6 @@ export const HOUSE_PAGES = {
 
   /* ───────────────────────────────── The Chapters ───────────────────────── */
   "/the-chapters": {
-    theme: "dark",
     eyebrow: "The Chapters",
     title: "Not every milestone needs a ceremony to matter.",
     support:
@@ -166,7 +163,6 @@ export const HOUSE_PAGES = {
 
   /* ─────────────────────────────── Private Commission ───────────────────── */
   "/private-commission": {
-    theme: "dark",
     eyebrow: "Private Commission",
     title: "When the piece does not belong in a category.",
     support:
@@ -223,7 +219,6 @@ export const HOUSE_PAGES = {
 
   /* ─────────────────────────────────── Why Natural ──────────────────────── */
   "/why-natural": {
-    theme: "dark",
     eyebrow: "Why Natural",
     title: "Because origin is part of the story.",
     cta: { label: "Talk to Bare Brilliant", to: chat("intent=diamond-question&source=why-natural") },
@@ -276,7 +271,6 @@ export const HOUSE_PAGES = {
 
   /* ─────────────────────────────────── Our House ────────────────────────── */
   "/our-house": {
-    theme: "dark",
     eyebrow: "Our House",
     title: "Meant, Not Made.",
     support: "Some things can be designed perfectly. The reason you are here is not one of them.",

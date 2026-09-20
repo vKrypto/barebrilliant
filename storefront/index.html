@@ -11,6 +11,17 @@
     <meta name="theme-color" content="#0b0b0a" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f4f1eb" media="(prefers-color-scheme: light)" />
     <meta name="color-scheme" content="light dark" />
+    <!-- Theme before first paint: saved choice, else the system setting (mirrors src/lib/theme.js). -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("bb-theme");
+          var theme = saved === "light" || saved === "dark" ? saved
+            : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          document.documentElement.setAttribute("data-bb-theme", theme);
+        } catch (e) {}
+      })();
+    </script>
 
     <!-- Favicons / PWA -->
     <link rel="icon" href="%BASE_URL%favicon/favicon.ico" sizes="48x48" />

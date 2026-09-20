@@ -31,6 +31,7 @@ HUEY_PID="$RUN_DIR/huey.pid"
 WEB_PID="$RUN_DIR/dashboard.pid"
 DETACH=0
 STARTED_HUEY=0
+KEEP_RUNNING=0
 DJ_DEBUG="" DJ_HOSTS="" DJ_FFMPEG=""
 
 say()  { printf '==> %s\n' "$*"; }
@@ -53,7 +54,10 @@ EOF
 find_python() {
   local candidate
   for candidate in "${PYTHON:-}" .venv/bin/python ../venv/bin/python venv/bin/python; do
-    if [[ -n $candidate && -x $candidate ]]; then echo "$candidate"; return; fi
+    if [[ -n $candidate && -x $candidate ]]; then
+      # absolute path without '..' (python warns about a non-canonical venv path); don't follow the symlink itself
+      echo "$(cd "$(dirname "$candidate")" && pwd)/$(basename "$candidate")"; return
+    fi
   done
   command -v python3 || die "no Python found (python3 -m venv .venv && .venv/bin/pip install -r requirements.txt)"
 }
@@ -89,11 +93,18 @@ except Exception:
 PY
 }
 
-# The pid of a run_huey started from this directory by something other than this script.
+# The pid of a run_huey in this directory, not started by this script, that uses the same
+# database/queue settings (a second worker on one queue would break the write serialisation).
 other_worker() {
-  local pid
+  local pid var mine theirs
   for pid in $(pgrep -f "manage.py run_huey" || true); do
-    if [[ $(readlink "/proc/$pid/cwd" 2>/dev/null || true) == "$PWD" ]]; then echo "$pid"; return 0; fi
+    [[ $(readlink "/proc/$pid/cwd" 2>/dev/null || true) == "$PWD" ]] || continue
+    for var in DJANGO_SETTINGS_MODULE SQLITE_PATH MEDIA_QUEUE_PATH MEDIA_ROOT; do
+      mine="${!var-}"
+      theirs=$(tr '\0' '\n' <"/proc/$pid/environ" 2>/dev/null | sed -n "s/^$var=//p" || true)
+      [[ $mine == "$theirs" ]] || continue 2
+    done
+    echo "$pid"; return 0
   done
   return 1
 }
@@ -218,9 +229,13 @@ check_reachable() {
 
 # ----------------------------------------------------------------- stop -----
 
-stop_pid() {  # stop_pid <pidfile> <name>
-  local file=$1 name=$2 pid i
-  if ! alive "$file"; then rm -f "$file"; say "$name: not running"; return 0; fi
+stop_pid() {  # stop_pid <pidfile> <name> [quiet]
+  local file=$1 name=$2 quiet=${3:-} pid i
+  if ! alive "$file"; then
+    rm -f "$file"
+    [[ -n $quiet ]] || say "$name: not running"
+    return 0
+  fi
   pid=$(<"$file")
   say "stopping $name (pid $pid)"
   kill -INT "$pid" 2>/dev/null || true                 # graceful: a running job may finish
@@ -230,10 +245,13 @@ stop_pid() {  # stop_pid <pidfile> <name>
   rm -f "$file"
 }
 
-cleanup() {  # foreground mode: leave nothing behind
+# On Ctrl+C, on any failure after startup, and when the foreground dashboard exits: leave nothing
+# behind. A successful --detach sets KEEP_RUNNING=1 to skip this.
+cleanup() {
   trap - EXIT INT TERM
-  stop_pid "$WEB_PID" "dashboard"
-  if [[ $STARTED_HUEY == 1 ]]; then stop_pid "$HUEY_PID" "media worker"; fi
+  if [[ $KEEP_RUNNING == 1 ]]; then return 0; fi
+  stop_pid "$WEB_PID" "dashboard" quiet
+  if [[ $STARTED_HUEY == 1 ]]; then stop_pid "$HUEY_PID" "media worker" quiet; fi
 }
 
 show_status() {
@@ -284,6 +302,10 @@ if [[ ${SKIP_MIGRATE:-0} != 1 ]]; then
   "$PY" manage.py migrate --noinput >"$LOG_DIR/migrate.log" 2>&1 || { tail -n 20 "$LOG_DIR/migrate.log" >&2; die "migrate failed"; }
 fi
 
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap cleanup EXIT
+
 open_firewall
 start_huey
 start_dashboard
@@ -295,12 +317,10 @@ say "dashboard : http://127.0.0.1:$PORT/  ($([[ $DJ_DEBUG == True ]] && echo 'no
 say "logs      : $LOG_DIR/huey.log$([[ $DETACH == 1 ]] && echo ", $LOG_DIR/dashboard.log")"
 
 if [[ $DETACH == 1 ]]; then
+  KEEP_RUNNING=1
   say "running in the background; stop with: ./deploy.sh stop"
   exit 0
 fi
 
-trap 'exit 130' INT
-trap 'exit 143' TERM
-trap cleanup EXIT
 say "Ctrl+C stops the dashboard and the worker"
 wait "$(<"$WEB_PID")" || true

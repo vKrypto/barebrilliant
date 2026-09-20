@@ -1,6 +1,6 @@
 /* App shell — header (logo left · house nav centre · shortlist + Start Your Ring
-   right), routed page, footer. Theme (light/dark) is set on <html data-bb-theme>
-   per route by Layout, so every token below adapts automatically. */
+   right), routed page, footer. The theme (light/dark) is global — set on
+   <html data-bb-theme> by lib/theme.js — so every token below adapts automatically. */
 
 .bb-shell {
   display: flex;
@@ -166,16 +166,16 @@
 
 /* ---------------------------------------------------- footer ---- */
 .bb-footer {
-  background: var(--bb-ink);
-  color: var(--bb-tx-l);
-  border-top: 1px solid var(--bb-line-l);
+  background: var(--bb-surface);
+  color: var(--bb-text);
+  border-top: 1px solid var(--bb-line);
 }
 .bb-footer a {
-  color: var(--bb-tx-l);
+  color: var(--bb-text);
   text-decoration: none;
 }
 .bb-footer a:hover {
-  color: var(--bb-gold-l);
+  color: var(--bb-accent);
 }
 .bb-footer__top {
   display: grid;
@@ -184,25 +184,25 @@
   padding-block: clamp(3rem, 6vw, 4.5rem) 2.5rem;
 }
 .bb-footer__brand h3 {
-  color: var(--bb-cream);
+  color: var(--bb-text);
   font-size: 1.4rem;
   letter-spacing: 0.04em;
   margin-bottom: 0.75rem;
 }
 .bb-footer__brand p {
   font: italic 400 1.05rem/1.5 var(--bb-serif);
-  color: var(--bb-gold-l);
+  color: var(--bb-accent);
   margin: 0 0 1.25rem;
 }
 .bb-footer__brand .bb-body {
-  color: var(--bb-tx-lm);
+  color: var(--bb-text-muted);
   font-size: 0.85rem;
 }
 .bb-footer__col h4 {
   font: 600 0.66rem/1 var(--bb-sans);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--bb-tx-lm);
+  color: var(--bb-text-muted);
   margin-bottom: 1rem;
 }
 .bb-footer__col ul {
@@ -215,13 +215,76 @@
 .bb-footer__base {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem 1.5rem;
   justify-content: space-between;
-  padding-block: 1.5rem 2.25rem;
-  border-top: 1px solid var(--bb-line-l);
+  padding-block: 1rem 1.5rem;
+  border-top: 1px solid var(--bb-line);
   font-size: 0.72rem;
   letter-spacing: 0.04em;
-  color: var(--bb-tx-lm);
+  color: var(--bb-text-muted);
+}
+
+/* light/dark switch (footer) — the button keeps a 44px tap target, the track is the visible part */
+.bb-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--bb-tap);
+  min-height: var(--bb-tap);
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.bb-theme-toggle__track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 52px;
+  height: 28px;
+  padding: 0 7px;
+  border: 1px solid var(--bb-line);
+  border-radius: 999px;
+  background: var(--bb-raised);
+  transition: border-color 0.15s ease;
+}
+.bb-theme-toggle:hover .bb-theme-toggle__track {
+  border-color: var(--bb-text-muted);
+}
+.bb-theme-toggle:focus-visible {
+  outline: none;
+}
+.bb-theme-toggle:focus-visible .bb-theme-toggle__track {
+  outline: 2px solid var(--bb-accent);
+  outline-offset: 2px;
+}
+.bb-theme-toggle svg {
+  position: relative;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  color: var(--bb-text-muted);
+  transition: color 0.2s ease;
+}
+.bb-theme-toggle__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bb-text);
+  transition: transform 0.2s ease;
+}
+.bb-theme-toggle[aria-checked="true"] .bb-theme-toggle__knob {
+  transform: translateX(24px);
+}
+/* the icon under the knob takes the page colour so it stays legible */
+.bb-theme-toggle[aria-checked="false"] .bb-theme-toggle__sun,
+.bb-theme-toggle[aria-checked="true"] .bb-theme-toggle__moon {
+  color: var(--bb-bg);
 }
 @media (max-width: 900px) {
   .bb-footer__top {
@@ -239,14 +302,14 @@
 
 /* house notice strip (spec §Campaigns — CMS slot, hidden when inactive) */
 .bb-notice {
-  background: var(--bb-ink-3);
-  color: var(--bb-tx-l);
-  border-bottom: 1px solid var(--bb-line-l);
+  background: var(--bb-raised);
+  color: var(--bb-text);
+  border-bottom: 1px solid var(--bb-line);
   font: 500 0.75rem/1.4 var(--bb-sans);
   letter-spacing: 0.06em;
   text-align: center;
   padding: 0.6rem 1rem;
 }
 .bb-notice a {
-  color: var(--bb-gold-l);
+  color: var(--bb-accent);
 }

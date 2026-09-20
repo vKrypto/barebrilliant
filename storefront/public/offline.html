@@ -4,9 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Offline — Bare Brilliant</title>
-    <meta name="theme-color" content="#0b0b0a" />
+    <!-- Same theme as the site: saved choice (localStorage "bb-theme"), else the system setting. -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("bb-theme");
+          var theme = saved === "light" || saved === "dark" ? saved
+            : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+      })();
+    </script>
     <style>
-      :root { color-scheme: dark; }
+      :root {
+        color-scheme: light;
+        --bg: #f4f1eb; --fg: #2d2d2a; --muted: #73736e; --head: #2d2d2a; --gold: #7c674a;
+        --btn-bg: #1a1a18; --btn-fg: #f4f1eb;
+      }
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0b0b0a; --fg: #ded8ce; --muted: #999890; --head: #f4f1eb; --gold: #b79a72;
+        --btn-bg: #f4f1eb; --btn-fg: #0b0b0a;
+      }
       body {
         margin: 0;
         min-height: 100svh;
@@ -15,13 +34,13 @@
         gap: 1rem;
         padding: 2rem;
         text-align: center;
-        background: #0b0b0a;
-        color: #ded8ce;
+        background: var(--bg);
+        color: var(--fg);
         font: 400 16px/1.6 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       }
-      .d { width: 34px; height: 34px; margin: 0 auto; border: 1px solid #b79a72; transform: rotate(45deg); }
-      h1 { margin: 0.5rem 0 0; font: 400 1.9rem/1.15 Georgia, "Times New Roman", serif; color: #f4f1eb; letter-spacing: -0.01em; }
-      p { margin: 0; max-width: 24rem; color: #999890; }
+      .d { width: 34px; height: 34px; margin: 0 auto; border: 1px solid var(--gold); transform: rotate(45deg); }
+      h1 { margin: 0.5rem 0 0; font: 400 1.9rem/1.15 Georgia, "Times New Roman", serif; color: var(--head); letter-spacing: -0.01em; }
+      p { margin: 0; max-width: 24rem; color: var(--muted); }
       button {
         margin-top: 0.5rem;
         min-height: 44px;
@@ -29,8 +48,8 @@
         font: 600 0.8rem/1 inherit;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: #0b0b0a;
-        background: #f4f1eb;
+        color: var(--btn-fg);
+        background: var(--btn-bg);
         border: 0;
         border-radius: 5px;
         cursor: pointer;

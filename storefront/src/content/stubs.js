@@ -1,17 +1,16 @@
-// Themed placeholder pages for spec routes not fully built this phase. Copy is
+// Placeholder pages for spec routes not fully built this phase. Copy is
 // taken from raw_plans/BARE BRILLIANT WEBSITE.pdf so nav never dead-ends and
 // the tone is already right when each page is finished.
 //
 // The six house-navigation pages (The Proposal, The Vow, The Chapters, Private
 // Commission, Why Natural, Our House) are now fully built — see content/house.js.
 //
-// shape: { theme, eyebrow, title, support, points?: string[], cta, cta2? }
+// shape: { eyebrow, title, support, points?: string[], cta, cta2? }
 
 const chat = (qs) => `/chat?${qs}`;
 
 export const STUBS = {
   "/the-proposal/custom-rings": {
-    theme: "dark",
     eyebrow: "One of One — Custom Rings",
     title: "Start with the ring. Not the stone.",
     support:
@@ -23,7 +22,6 @@ export const STUBS = {
     cta: { label: "Design a ring with us", to: chat("intent=custom-ring&source=one-of-one") },
   },
   "/the-proposal/proposal-rings": {
-    theme: "dark",
     eyebrow: "Proposal Rings",
     title: "Ask now. Choose forever together.",
     support:
@@ -32,7 +30,6 @@ export const STUBS = {
     cta2: { label: "Plan it secretly", to: "/the-proposal/secret-guidance" },
   },
   "/the-proposal/secret-guidance": {
-    theme: "dark",
     eyebrow: "Secret Proposal Guidance",
     title: "Keep the secret. Keep the decision intelligent.",
     support:
@@ -40,7 +37,6 @@ export const STUBS = {
     cta: { label: "Plan it privately", to: chat("intent=secret-proposal&source=secret-guidance") },
   },
   "/founder-note": {
-    theme: "dark",
     eyebrow: "A Note From Harsh",
     title: "You do not need to know diamonds before speaking to us.",
     support:
@@ -49,7 +45,6 @@ export const STUBS = {
     cta2: { label: "Back to Our House", to: "/our-house" },
   },
   "/how-it-works": {
-    theme: "light",
     eyebrow: "How It Works",
     title: "Start with the person. The stone comes second.",
     support: "A consultation-led house, systematic and design-first.",
@@ -64,7 +59,6 @@ export const STUBS = {
     cta: { label: "Start a conversation", to: chat("source=how-it-works") },
   },
   "/craftsmanship": {
-    theme: "dark",
     eyebrow: "Craftsmanship",
     title: "No production begins while the ring is still an idea.",
     support: "The real creation process, not a generic craftsmanship claim.",
@@ -75,7 +69,6 @@ export const STUBS = {
     cta: { label: "Start a custom ring", to: chat("intent=custom-ring&source=craftsmanship") },
   },
   "/the-record": {
-    theme: "light",
     eyebrow: "The Record",
     title: "Every piece leaves with its paperwork in order.",
     support: "Trust proof organised as one coherent system.",
@@ -90,7 +83,6 @@ export const STUBS = {
     cta: { label: "Ask about certification", to: chat("intent=certification-question&source=the-record") },
   },
   "/diamond-guide": {
-    theme: "light",
     eyebrow: "Diamond Guide",
     title: "Learn only the decisions that change the ring.",
     support:
@@ -98,7 +90,6 @@ export const STUBS = {
     cta: { label: "Ask a diamond question", to: chat("intent=diamond-question&source=diamond-guide") },
   },
   "/faqs": {
-    theme: "light",
     eyebrow: "FAQs",
     title: "Organised by the decision you're making.",
     support:
@@ -106,7 +97,6 @@ export const STUBS = {
     cta: { label: "Ask us directly", to: chat("intent=question&source=faq") },
   },
   "/shipping-delivery": {
-    theme: "light",
     eyebrow: "Shipping & Delivery",
     title: "Creation time and transit time are not the same thing.",
     support:
@@ -114,7 +104,6 @@ export const STUBS = {
     cta: { label: "Talk about my timeline", to: chat("intent=timeline&source=shipping") },
   },
   "/talk-to-us": {
-    theme: "dark",
     eyebrow: "Talk to Bare Brilliant",
     title: "Tell us what you're planning.",
     support:
@@ -123,7 +112,6 @@ export const STUBS = {
     cta2: { label: "Book a consultation", to: "/book-consultation" },
   },
   "/book-consultation": {
-    theme: "light",
     eyebrow: "Private Consultation",
     title: "A useful conversation can save weeks of guessing.",
     support:
@@ -131,7 +119,6 @@ export const STUBS = {
     cta: { label: "Choose a time", to: chat("intent=consultation&source=book-consultation") },
   },
   "/aftercare": {
-    theme: "light",
     eyebrow: "Aftercare",
     title: "Made to be lived with.",
     support:
@@ -139,7 +126,6 @@ export const STUBS = {
     cta: { label: "Request aftercare", to: chat("intent=aftercare&source=aftercare") },
   },
   "/buyback-exchange": {
-    theme: "light",
     eyebrow: "Lifetime Buyback & Exchange",
     title: "A simple value framework you can calculate.",
     support:
@@ -147,7 +133,6 @@ export const STUBS = {
     cta: { label: "Check my exchange value", to: chat("intent=exchange&source=buyback-exchange") },
   },
   "/returns": {
-    theme: "light",
     eyebrow: "Returns",
     title: "A 7-day confidence window for eligible standard pieces.",
     support:
@@ -155,7 +140,6 @@ export const STUBS = {
     cta: { label: "Start a return", to: chat("intent=return&source=returns") },
   },
   "/warranty-resizing": {
-    theme: "light",
     eyebrow: "Lifetime Manufacturing Warranty & Resizing",
     title: "Long-term support, clearly defined.",
     support:
@@ -163,7 +147,6 @@ export const STUBS = {
     cta: { label: "Request warranty service", to: chat("intent=warranty&source=warranty-resizing") },
   },
   "/privacy": {
-    theme: "light",
     eyebrow: "Privacy",
     title: "Your story is not ours to misuse.",
     support:
@@ -171,7 +154,6 @@ export const STUBS = {
     cta: { label: "Talk to us", to: "/talk-to-us" },
   },
   "/terms": {
-    theme: "light",
     eyebrow: "Terms & Conditions",
     title: "The commercial basics, in plain language first.",
     support:

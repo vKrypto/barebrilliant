@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { FOOTER_COLUMNS, START_YOUR_RING } from "../content/nav.js";
+import ThemeToggle from "./ThemeToggle.jsx";
 
 const YEAR = new Date().getFullYear();
 
@@ -37,6 +38,7 @@ export default function Footer() {
       <div className="bb-container bb-footer__base">
         <span>&copy; {YEAR} Bare Brilliant. Natural diamonds only. Made to order. PAN India.</span>
         <span>We cannot manufacture the relationship. We never manufacture the sale.</span>
+        <ThemeToggle />
       </div>
     </footer>
   );

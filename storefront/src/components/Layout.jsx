@@ -1,21 +1,11 @@
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import Header from "./Header.jsx";
 import Footer from "./Footer.jsx";
-import { routeTheme } from "../lib/routeTheme.js";
 import "../layout.css";
 
+// The theme (light/dark) is global: lib/theme.js sets it on <html data-bb-theme>.
 export default function Layout({ children }) {
-  const { pathname } = useLocation();
-  const theme = routeTheme(pathname);
-
-  // Drive the token swap from <html> so the browser chrome / body ground match.
-  useEffect(() => {
-    document.documentElement.setAttribute("data-bb-theme", theme);
-  }, [theme]);
-
   return (
-    <div className="bb-shell" data-bb-theme={theme}>
+    <div className="bb-shell">
       <a href="#bb-main" className="bb-skip">
         Skip to content
       </a>

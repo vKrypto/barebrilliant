@@ -10,7 +10,8 @@
     "dev": "node scripts/gen-build-config.mjs && vite",
     "build": "node scripts/gen-build-config.mjs && vite build && node scripts/make-spa-fallback.mjs",
     "preview": "vite preview",
-    "test:sw": "node scripts/sw-flush.test.mjs"
+    "test:sw": "node scripts/sw-flush.test.mjs",
+    "test:theme": "node scripts/theme.test.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

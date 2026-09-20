@@ -148,7 +148,7 @@
   color: var(--bb-text);
 }
 .bb-pdp__save[data-saved="true"] {
-  color: var(--bb-gold-d);
+  color: var(--bb-accent);
 }
 
 /* detail */

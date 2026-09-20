@@ -12,7 +12,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap");
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
   --bb-serif: "Playfair Display", Georgia, "Times New Roman", serif;
   --bb-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -60,8 +60,10 @@
   --bb-tap: 44px; /* min touch target */
 }
 
-/* Dark theme — applied per route by <Layout data-bb-theme="dark"> */
+/* Dark theme — one theme for the whole site, set on <html data-bb-theme> by src/lib/theme.js
+   (system setting by default, or the footer toggle's saved choice). Light = the :root tokens above. */
 [data-bb-theme="dark"] {
+  color-scheme: dark; /* native controls + scrollbars follow the theme */
   --bb-bg: var(--bb-ink);
   --bb-surface: var(--bb-ink-2);
   --bb-raised: var(--bb-ink-3);

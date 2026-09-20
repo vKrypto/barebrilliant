@@ -15,7 +15,7 @@
   aspect-ratio: 1;
   right: -8%;
   top: 12%;
-  border: 1px solid rgba(213, 193, 162, 0.22);
+  border: 1px solid color-mix(in srgb, var(--bb-accent) 26%, transparent);
   transform: rotate(45deg);
   pointer-events: none;
 }

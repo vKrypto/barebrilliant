@@ -7,8 +7,10 @@ import "./index.css";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import { initTracker } from "./events/index.js";
+import { initTheme } from "./lib/theme.js";
 import "./events/swClient.js";
 
+initTheme();
 initTracker();
 
 createRoot(document.getElementById("root")).render(<App />);
