@@ -35,15 +35,15 @@ _JSON_KW = dict(indent=2, ensure_ascii=False, sort_keys=False)
 
 # ---------------------------------------------------------------- media/JSON ---
 
-def _render_media(product) -> tuple[list[dict], list[dict]]:
+def _render_media(product, *, force: bool = False) -> tuple[list[dict], list[dict]]:
     # `i` is the gallery position (rows come back in drag order), used as the
     # file-name prefix so it's always 0,1,2,… regardless of the stored `order`.
     images = [
-        media_pipeline.render_image(row.image, i, row.alt or _auto_alt(product, i), product.slug)
+        media_pipeline.render_image(row.image, i, row.alt or _auto_alt(product, i), product.slug, force=force)
         for i, row in enumerate(product.images.all())
     ]
     videos = [
-        media_pipeline.render_video(row.video, i, row.alt or _auto_alt(product, i, "video"), product.slug)
+        media_pipeline.render_video(row.video, i, row.alt or _auto_alt(product, i, "video"), product.slug, force=force)
         for i, row in enumerate(product.videos.all())
     ]
     return images, videos

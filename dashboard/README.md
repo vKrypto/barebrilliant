@@ -109,5 +109,14 @@ treat it as fixtures, not dashboard output.
 .venv/bin/python manage.py rebuild_media --all              # + unpublished ones
 .venv/bin/python manage.py rebuild_media the-aria the-lumen # just these ids
 
+# Populate the admin thumbnails + every image/video rendition from the originals,
+# in the foreground (what the media worker does after an upload). Creates whatever
+# is missing / out of date for the current settings; --force re-encodes everything
+# in place, then removes stale files. Product JSON is not rewritten: run
+# refresh_inventory afterwards if settings or originals changed.
+.venv/bin/python manage.py populate_thumbnails              # all published products
+.venv/bin/python manage.py populate_thumbnails --force      # recreate everything
+.venv/bin/python manage.py populate_thumbnails the-aria --all   # these ids (+ unpublished)
+
 .venv/bin/python manage.py test inventory
 ```

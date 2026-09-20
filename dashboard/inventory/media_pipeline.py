@@ -158,12 +158,13 @@ def _save_image_renditions(img: Image.Image, renditions: list[dict]) -> None:
         storagebackends.save_bytes(item["src"], _cover_image(img, (item["width"], item["height"])))
 
 
-def render_image(field_file, order: int, alt: str, slug: str) -> dict:
+def render_image(field_file, order: int, alt: str, slug: str, *, force: bool = False) -> dict:
+    """``force`` re-encodes every rung in place instead of reusing existing files."""
     dimensions = _dimensions("IMG_SRCSET")
     raw = _read_bytes(field_file)
     key = f"{order}_{_cache_key(raw, 'image')}"
     renditions = _image_renditions(f"{settings.MEDIA_DIR}/{slug}", key, dimensions)
-    missing = [item for item in renditions if not storagebackends.exists(item["src"])]
+    missing = renditions if force else [item for item in renditions if not storagebackends.exists(item["src"])]
     if missing:
         with Image.open(io.BytesIO(raw)) as img:
             img.load()
@@ -221,7 +222,8 @@ def _encode_video(source: Path, destination: Path, rendition: dict) -> None:
     storagebackends.save_bytes(rendition["src"], destination.read_bytes())
 
 
-def render_video(field_file, order: int, alt: str, slug: str) -> dict:
+def render_video(field_file, order: int, alt: str, slug: str, *, force: bool = False) -> dict:
+    """``force`` re-encodes every rendition and poster in place instead of reusing existing files."""
     dimensions = _dimensions("VIDEO_SRCSET", video=True)
     formats = _video_formats()
     raw = _read_bytes(field_file)
@@ -234,8 +236,8 @@ def render_video(field_file, order: int, alt: str, slug: str) -> dict:
     # Populate the image ladder and a matching poster for every video crop.
     poster_dimensions = list(dict.fromkeys([*_dimensions("IMG_SRCSET"), *dimensions]))
     posters = _image_renditions(base, f"{key}_poster", poster_dimensions)
-    missing_videos = [item for item in renditions if not storagebackends.exists(item["src"])]
-    missing_posters = [item for item in posters if not storagebackends.exists(item["src"])]
+    missing_videos = renditions if force else [item for item in renditions if not storagebackends.exists(item["src"])]
+    missing_posters = posters if force else [item for item in posters if not storagebackends.exists(item["src"])]
 
     if missing_videos or missing_posters:
         with tempfile.TemporaryDirectory(prefix="bb_vid_") as tmp:
