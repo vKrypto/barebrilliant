@@ -4,6 +4,8 @@ Staff land on the Product changelist (see config/urls.py). Two buttons at the to
 regenerate storage; bulk actions cover force-republish / unpublish / delete.
 """
 
+from datetime import timedelta
+
 from adminsortable2.admin import SortableAdminBase, SortableStackedInline
 from django import forms
 from django.contrib import admin, messages
@@ -11,6 +13,7 @@ from django.db.models import Max
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import redirect
 from django.urls import path
+from django.utils import timezone
 from django.utils.html import format_html
 
 from . import tasks
@@ -170,10 +173,12 @@ class ProductAdmin(SortableAdminBase, admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         last = PublishRun.objects.first()
+        waiting = bool(last and last.status == "queued" and timezone.now() - last.started_at > timedelta(minutes=1))
         extra_context = {
             **(extra_context or {}),
             "last_run": last,
             "publish_running": PublishRun.is_running(),
+            "worker_hint": waiting,  # queued for a while: the media worker is probably not running
         }
         return super().changelist_view(request, extra_context)
 
@@ -186,9 +191,6 @@ class ProductAdmin(SortableAdminBase, admin.ModelAdmin):
     def _run(self, request, kind):
         if request.method != "POST":
             return HttpResponseNotAllowed(["POST"])
-        if PublishRun.is_running():
-            self.message_user(request, "A publish run is already in progress — try again shortly.", messages.WARNING)
-            return redirect("admin:inventory_product_changelist")
         try:
             tasks.queue_publish(kind)
         except Exception as exc:  # noqa: BLE001

@@ -31,6 +31,8 @@ dashboard/.env
 dashboard/.push_storage_state.json
 dashboard/.thumbnail-cache/
 dashboard/media-queue.sqlite3*
+dashboard/run/
+dashboard/logs/
 __pycache__/
 *.py[cod]
 

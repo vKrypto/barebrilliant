@@ -6,7 +6,7 @@
     <form method="post" action="{% url 'admin:inventory_product_refresh' %}" style="display:inline"
           onsubmit="return confirm('Regenerate ALL catalog + product JSON and media from the database, and push to storage?');">
       {% csrf_token %}
-      <button type="submit" class="button" {% if publish_running %}disabled{% endif %}
+      <button type="submit" class="button"
               style="background:#417690;color:#fff;border:0">
         {% translate "Refresh complete inventory" %}
       </button>
@@ -15,7 +15,7 @@
   <li>
     <form method="post" action="{% url 'admin:inventory_product_publish' %}" style="display:inline">
       {% csrf_token %}
-      <button type="submit" class="button" {% if publish_running %}disabled{% endif %}
+      <button type="submit" class="button"
               style="background:#79aec8;color:#fff;border:0">
         {% translate "Publish inventory changes" %}
       </button>
@@ -31,6 +31,7 @@
       <strong>{{ last_run.status }}</strong>
       {{ last_run.started_at }}{% if last_run.summary %} — {{ last_run.summary }}{% endif %}
       {% if publish_running %}<span style="color:#b8860b"> · a run is in progress</span>{% endif %}
+      {% if worker_hint %}<span style="color:#b8860b"> · still queued — is the media worker running? Start it with <code>python manage.py run_huey</code></span>{% endif %}
     </p>
   {% endif %}
   {{ block.super }}

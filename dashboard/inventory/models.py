@@ -189,7 +189,6 @@ class PublishRun(models.Model):
 
     @classmethod
     def is_running(cls) -> bool:
-        cutoff = timezone.now() - timedelta(minutes=30)  # ignore stale/crashed runs
-        return cls.objects.filter(status="queued").exists() or cls.objects.filter(
-            status="running", started_at__gte=cutoff,
-        ).exists()
+        """Informational only: the changelist buttons are never disabled by this."""
+        cutoff = timezone.now() - timedelta(minutes=30)  # ignore stale/crashed/lost runs
+        return cls.objects.filter(status__in=("queued", "running"), started_at__gte=cutoff).exists()
