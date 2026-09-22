@@ -63,13 +63,13 @@ export default function ProductCard({ product, source = "engagement-listing" }) 
         <div className="bb-pcard__body">
           <h3 className="bb-pcard__name">{product.name}</h3>
           <p className="bb-pcard__descriptor">{product.descriptor}</p>
-          <p className="bb-pcard__meta">
-            <span>Natural Diamond</span>
-            {product.centre_carat_shown ? <span>Shown with {product.centre_carat_shown} ct centre</span> : null}
-          </p>
           <p className="bb-pcard__price">
             {fromPrice(product.price_from)}
             <span className="bb-pcard__arrow" aria-hidden="true">→</span>
+          </p>
+          <p className="bb-pcard__meta">
+            <span>Natural Diamond</span>
+            {product.centre_carat_shown ? <span>Shown with {product.centre_carat_shown} ct centre</span> : null}
           </p>
         </div>
       </Link>

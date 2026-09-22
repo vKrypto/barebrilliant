@@ -228,22 +228,24 @@
   place-items: center;
   border: none;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--bb-cream) 78%, transparent);
-  color: var(--bb-tx-d);
+  /* Sits on a light product photo regardless of page theme, so the badge
+     stays a dark scrim with a light glyph rather than following --bb-text. */
+  background: color-mix(in srgb, var(--bb-ink) 55%, transparent);
+  color: var(--bb-cream);
   cursor: pointer;
   backdrop-filter: blur(4px);
 }
 .bb-pcard__heart[data-saved="true"] {
-  color: var(--bb-gold-d);
+  color: var(--bb-gold-l);
 }
 .bb-pcard__body {
-  padding-top: 0.6rem;
+  padding-top: 0.7rem;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.3rem;
 }
 .bb-pcard__name {
-  font: 400 1rem/1.2 var(--bb-serif);
+  font: 400 1.05rem/1.25 var(--bb-serif);
   transition: color 0.15s ease;
 }
 .bb-pcard__link:hover .bb-pcard__name,
@@ -255,21 +257,25 @@
   font: 400 0.82rem/1.3 var(--bb-sans);
   color: var(--bb-text-muted);
 }
-.bb-pcard__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.15rem 0.6rem;
-  font: 500 0.66rem/1.3 var(--bb-sans);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--bb-text-muted);
-}
 .bb-pcard__price {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font: 500 0.92rem/1.3 var(--bb-sans);
+  font: 700 1.05rem/1.3 var(--bb-sans);
   color: var(--bb-text);
+  margin-top: 0.15rem;
+}
+.bb-pcard__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  font: 500 0.78rem/1.3 var(--bb-sans);
+  color: var(--bb-text-muted);
+}
+.bb-pcard__meta span + span::before {
+  content: "\00b7";
+  margin-right: 0.3rem;
 }
 .bb-pcard__arrow {
   opacity: 0;
