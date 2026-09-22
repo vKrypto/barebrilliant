@@ -9,6 +9,22 @@
   background: var(--bb-bg);
   color: var(--bb-text);
   overflow-x: hidden;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Ambient ember glow — dark theme only. A quiet warm-gold wash behind every
+   page (header down to footer), never a hard shape, so the product/content
+   stays the brightest thing on screen. */
+[data-bb-theme="dark"] .bb-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(640px 480px at 100% 0%, color-mix(in srgb, var(--bb-gold) 24%, transparent), transparent 70%),
+    radial-gradient(680px 520px at 0% 100%, color-mix(in srgb, var(--bb-gold) 20%, transparent), transparent 70%);
 }
 
 .bb-main {

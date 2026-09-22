@@ -181,7 +181,10 @@
   position: relative;
   display: block;
   aspect-ratio: 1 / 1;
-  background: var(--bb-surface);
+  /* Product photography is always shot on a light ground — keep the tile
+     light in both themes so it reads as the brightest object on the page,
+     instead of going dark-on-dark while an image loads or errors. */
+  background: var(--bb-cream-3);
   border: 1px solid var(--bb-line);
   border-radius: var(--bb-radius);
   overflow: hidden;
