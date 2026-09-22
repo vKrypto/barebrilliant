@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard.jsx";
 import { fetchCatalog } from "../lib/storage.js";
@@ -21,7 +21,24 @@ export default function CatalogPage() {
   const [params, setParams] = useSearchParams();
   const [catalog, setCatalog] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | ready | error
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [openGroup, setOpenGroup] = useState(null); // which filter dropdown is open
+  const filterBarRef = useRef(null);
+
+  useEffect(() => {
+    if (!openGroup) return;
+    function onDocClick(e) {
+      if (filterBarRef.current && !filterBarRef.current.contains(e.target)) setOpenGroup(null);
+    }
+    function onKey(e) {
+      if (e.key === "Escape") setOpenGroup(null);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [openGroup]);
 
   useEffect(() => {
     let alive = true;
@@ -124,14 +141,6 @@ export default function CatalogPage() {
               ))}
             </select>
           </label>
-          <button
-            type="button"
-            className="bb-btn bb-btn--secondary bb-catalog__filtertoggle"
-            aria-expanded={filtersOpen}
-            onClick={() => setFiltersOpen((v) => !v)}
-          >
-            Filters{activeCount ? ` (${activeCount})` : ""}
-          </button>
         </div>
 
         {status === "loading" && <p className="bb-catalog__msg">Loading designs…</p>}
@@ -143,63 +152,79 @@ export default function CatalogPage() {
 
         {status === "ready" && catalog && (
           <div className="bb-catalog__layout">
-            <aside className="bb-catalog__filters" data-open={filtersOpen}>
-              <FilterGroup
-                title="Centre Stone Shape"
-                options={catalog.facets.shape}
-                selected={shapes}
-                onToggle={(v) => toggleIn(shapes, v, "shape")}
-              />
-              <FilterGroup
-                title="Design Style"
-                options={catalog.facets.style}
-                selected={styles}
-                onToggle={(v) => toggleIn(styles, v, "style")}
-              />
-              <BandGroup
-                title="Budget"
-                bands={catalog.facets.budget}
-                activeIx={budgetIx}
-                onPick={(ix) => patch({ budget: ix }, { filter: "budget", value: ix })}
-              />
-              <BandGroup
-                title="Centre Stone Carat"
-                note="Applies only to the centre stone, never total ring carat weight."
-                bands={catalog.facets.centre_carat}
-                activeIx={caratIx}
-                onPick={(ix) => patch({ centreCarat: ix }, { filter: "centreCarat", value: ix })}
-              />
+            <div className="bb-catalog__filterbar" ref={filterBarRef}>
+              <FilterDropdown id="shape" label="Shape" count={shapes.length} openGroup={openGroup} setOpenGroup={setOpenGroup}>
+                <FilterGroup
+                  title="Centre Stone Shape"
+                  options={catalog.facets.shape}
+                  selected={shapes}
+                  onToggle={(v) => toggleIn(shapes, v, "shape")}
+                />
+              </FilterDropdown>
+              <FilterDropdown id="style" label="Style" count={styles.length} openGroup={openGroup} setOpenGroup={setOpenGroup}>
+                <FilterGroup
+                  title="Design Style"
+                  options={catalog.facets.style}
+                  selected={styles}
+                  onToggle={(v) => toggleIn(styles, v, "style")}
+                />
+              </FilterDropdown>
+              <FilterDropdown id="budget" label="Budget" count={budgetBand ? 1 : 0} openGroup={openGroup} setOpenGroup={setOpenGroup}>
+                <BandGroup
+                  title="Budget"
+                  bands={catalog.facets.budget}
+                  activeIx={budgetIx}
+                  onPick={(ix) => {
+                    patch({ budget: ix }, { filter: "budget", value: ix });
+                    setOpenGroup(null);
+                  }}
+                />
+              </FilterDropdown>
+              <FilterDropdown id="carat" label="Centre Carat" count={caratBand ? 1 : 0} openGroup={openGroup} setOpenGroup={setOpenGroup}>
+                <BandGroup
+                  title="Centre Stone Carat"
+                  note="Applies only to the centre stone, never total ring carat weight."
+                  bands={catalog.facets.centre_carat}
+                  activeIx={caratIx}
+                  onPick={(ix) => {
+                    patch({ centreCarat: ix }, { filter: "centreCarat", value: ix });
+                    setOpenGroup(null);
+                  }}
+                />
+              </FilterDropdown>
               {activeCount > 0 && (
                 <button
-                  className="bb-btn bb-btn--tertiary"
-                  onClick={() => setParams(new URLSearchParams(sort !== "recommended" ? { sort } : {}), { replace: true })}
+                  type="button"
+                  className="bb-filterbar__clear"
+                  onClick={() => {
+                    setParams(new URLSearchParams(sort !== "recommended" ? { sort } : {}), { replace: true });
+                    setOpenGroup(null);
+                  }}
                 >
                   Clear all filters
                 </button>
               )}
-            </aside>
-
-            <div className="bb-catalog__results">
-              <p className="bb-catalog__count">
-                {results.length} design{results.length === 1 ? "" : "s"}
-              </p>
-              {results.length === 0 ? (
-                <div className="bb-catalog__empty">
-                  <p className="bb-body">Nothing matches those filters yet.</p>
-                  <Link to="/chat?intent=ring-guidance&source=engagement-listing" className="bb-btn bb-btn--primary">
-                    Tell us what you're imagining
-                  </Link>
-                </div>
-              ) : (
-                <div className="bb-catalog__grid">
-                  {results.map((p, i) => (
-                    <FragmentWithCta key={p.id} index={i}>
-                      <ProductCard product={p} />
-                    </FragmentWithCta>
-                  ))}
-                </div>
-              )}
             </div>
+
+            <p className="bb-catalog__count">
+              {results.length} design{results.length === 1 ? "" : "s"}
+            </p>
+            {results.length === 0 ? (
+              <div className="bb-catalog__empty">
+                <p className="bb-body">Nothing matches those filters yet.</p>
+                <Link to="/chat?intent=ring-guidance&source=engagement-listing" className="bb-btn bb-btn--primary">
+                  Tell us what you're imagining
+                </Link>
+              </div>
+            ) : (
+              <div className="bb-catalog__grid">
+                {results.map((p, i) => (
+                  <FragmentWithCta key={p.id} index={i}>
+                    <ProductCard product={p} />
+                  </FragmentWithCta>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -225,10 +250,32 @@ export default function CatalogPage() {
   }
 }
 
+// A filter's label now lives on the pill button that opens it, so the panel
+// underneath only needs a legend for screen readers.
+function FilterDropdown({ id, label, count, openGroup, setOpenGroup, children }) {
+  const open = openGroup === id;
+  return (
+    <div className="bb-filterdd">
+      <button
+        type="button"
+        className="bb-filterbtn"
+        data-active={count > 0}
+        aria-expanded={open}
+        onClick={() => setOpenGroup(open ? null : id)}
+      >
+        {label}
+        {count ? ` (${count})` : ""}
+        <span className="bb-filterbtn__caret" aria-hidden="true">▾</span>
+      </button>
+      {open && <div className="bb-filterpanel">{children}</div>}
+    </div>
+  );
+}
+
 function FilterGroup({ title, options, selected, onToggle }) {
   return (
     <fieldset className="bb-fgroup">
-      <legend>{title}</legend>
+      <legend className="bb-visually-hidden">{title}</legend>
       <div className="bb-fgroup__chips">
         {options.map((opt) => (
           <label key={opt} className="bb-chip" data-on={selected.includes(opt)}>
@@ -248,7 +295,7 @@ function FilterGroup({ title, options, selected, onToggle }) {
 function BandGroup({ title, note, bands, activeIx, onPick }) {
   return (
     <fieldset className="bb-fgroup">
-      <legend>{title}</legend>
+      <legend className="bb-visually-hidden">{title}</legend>
       {note && <p className="bb-fgroup__note">{note}</p>}
       <div className="bb-fgroup__chips">
         {bands.map((b, ix) => (
