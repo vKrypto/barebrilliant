@@ -155,19 +155,19 @@
   color: var(--bb-gold-d);
 }
 .bb-pcard__body {
-  padding-top: 0.9rem;
+  padding-top: 0.65rem;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.15rem;
 }
 .bb-pcard__name {
-  font: 400 1.15rem/1.25 var(--bb-serif);
+  font: 400 1.05rem/1.25 var(--bb-serif);
 }
 .bb-pcard__name a {
   text-decoration: none;
 }
 .bb-pcard__descriptor {
-  font: 400 0.85rem/1.5 var(--bb-sans);
+  font: 400 0.85rem/1.4 var(--bb-sans);
   color: var(--bb-text-muted);
 }
 .bb-pcard__meta {
@@ -178,16 +178,16 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--bb-text-muted);
-  margin-top: 0.2rem;
+  margin-top: 0.15rem;
 }
 .bb-pcard__price {
   font: 500 0.95rem/1.4 var(--bb-sans);
   color: var(--bb-text);
-  margin-top: 0.2rem;
+  margin-top: 0.1rem;
 }
 .bb-pcard__body .bb-btn--tertiary {
   align-self: start;
-  margin-top: 0.25rem;
+  margin-top: 0.1rem;
   font-size: 0.72rem;
 }
 
