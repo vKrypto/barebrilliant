@@ -1,17 +1,22 @@
 name: barebrilliant
 
-# Two nginx services:
-#   storage    — serves the dashboard's published tree, dashboard/media/ (catalog +
-#                product JSON + generated media), with permissive CORS so the
-#                storefront can fetch it cross-origin. Populate / refresh it with
-#                `cd dashboard && .venv/bin/python manage.py refresh_inventory`
+# Services:
+#   storage    — nginx, serves the dashboard's published tree, dashboard/media/
+#                (catalog + product JSON + generated media), with permissive CORS
+#                so the storefront can fetch it cross-origin. Populate / refresh it
+#                with `cd dashboard && .venv/bin/python manage.py refresh_inventory`
 #                (EXPORT_BACKEND=local, the default). Uploaded originals under
 #                products_raw_media/ are blocked by docker/nginx-storage.conf.
-#   storefront — multi-stage: `yarn build` the Vite app, then nginx serves dist/
+#   storefront — development mode (target: dev in docker/storefront.Dockerfile):
+#                runs the real `yarn dev` Vite server with HMR against
+#                ./storefront bind-mounted live, so source edits show up without
+#                a rebuild. For a production-style static build instead, build
+#                the Dockerfile's `serve` stage directly
+#                (`docker build --target serve -f docker/storefront.Dockerfile .`).
 #
 # All config is env-driven — `docker compose` auto-loads ./.env (see .env.example).
-# VITE_* are BUILD args: Vite inlines them into the bundle, so a change needs a
-# rebuild (`docker compose build storefront`).
+# VITE_* are BUILD args: Vite inlines them at the time the dev server starts (or
+# a production build runs), so changing one needs `docker compose up --build`.
 
 x-logging: &default-logging
   driver: json-file
@@ -45,6 +50,7 @@ services:
     build:
       context: .
       dockerfile: docker/storefront.Dockerfile
+      target: dev
       args:
         VITE_BASE: ${VITE_BASE:-/}
         VITE_LAMBDA_URL: ${VITE_LAMBDA_URL:-}
@@ -57,14 +63,21 @@ services:
     image: bb-storefront:local
     container_name: bb-storefront
     init: true
+    # Live source from the host so the Vite dev server (target: dev, above)
+    # hot-reloads on edits — no rebuild needed. node_modules stays an
+    # anonymous volume so the container's own (alpine-built) install isn't
+    # clobbered by whatever's in ./storefront/node_modules on the host.
+    volumes:
+      - ./storefront:/app
+      - /app/node_modules
     ports:
-      - "${STOREFRONT_PORT:-8080}:80"
+      - "${STOREFRONT_PORT:-8080}:5173"
     # depends_on:
     #   - storage
     restart: unless-stopped
     logging: *default-logging
     healthcheck:
-      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://127.0.0.1/"]
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://127.0.0.1:5173/"]
       interval: 30s
       start_period: 15s
       timeout: 5s
