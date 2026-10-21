@@ -206,7 +206,8 @@
   inset: 0 0 auto 0;
   background: linear-gradient(to bottom, rgba(11, 11, 10, 0.45), transparent);
   backdrop-filter: none;
-  border-bottom-color: transparent;
+  /* no border: a transparent one lets the gradient tile into that 1px strip */
+  border-bottom: 0;
   --bb-text: var(--bb-tx-l);
   --bb-text-muted: rgba(222, 216, 206, 0.78);
   --bb-line: var(--bb-line-l);
@@ -218,7 +219,7 @@
 .bb-header[data-overlay][data-solid] {
   background: rgba(11, 11, 10, 0.94);
   backdrop-filter: blur(10px);
-  border-bottom-color: var(--bb-line-l);
+  box-shadow: 0 1px 0 var(--bb-line-l);
 }
 
 @media (max-width: 900px) {
@@ -232,13 +233,23 @@
     padding: 0.5rem var(--bb-gutter) 1.5rem;
     background: var(--bb-bg);
     border-bottom: 1px solid var(--bb-line);
-    transform: translateY(-130%);
-    transition: transform 0.25s ease;
+    /* fully above the viewport whatever the drawer's height, and hidden so it
+       can't peek over the header or take focus while closed */
+    transform: translateY(calc(-100% - 72px));
+    visibility: hidden;
+    transition: transform 0.25s ease, visibility 0s linear 0.25s;
     max-height: calc(100svh - 72px);
     overflow-y: auto;
+    z-index: -1;
   }
   .bb-nav[data-open="true"] {
     transform: none;
+    visibility: visible;
+    transition: transform 0.25s ease;
+  }
+  /* the nav leaves the row on mobile, so push the icons to the right edge */
+  .bb-header__actions {
+    margin-left: auto;
   }
   .bb-nav a,
   .bb-nav__trigger {
