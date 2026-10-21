@@ -10,6 +10,34 @@
 const chat = (qs) => `/chat?${qs}`;
 
 export const STUBS = {
+  // shop-by-moment sub-collections (home page, 7th fold)
+  "/gifting": {
+    eyebrow: "Gifting",
+    title: "For the people who already mean everything.",
+    support:
+      "Natural-diamond pieces chosen around the person receiving them, not the occasion on the calendar.",
+    cta: { label: "Find the right gift", to: chat("intent=gifting&source=gifting") },
+  },
+  "/wedding-collection": {
+    eyebrow: "Wedding Collection",
+    title: "The yes becomes every day.",
+    support: "Wedding bands and bridal pieces designed to sit beside the ring that asked the question.",
+    cta: { label: "Talk about the wedding", to: chat("intent=wedding&source=wedding-collection") },
+    cta2: { label: "Explore The Vow", to: "/the-vow" },
+  },
+  "/anniversary": {
+    eyebrow: "Anniversary",
+    title: "The story continues after yes.",
+    support: "Pieces that mark the years, the milestones and the chapters you have written together.",
+    cta: { label: "Mark the milestone", to: chat("intent=anniversary&source=anniversary") },
+    cta2: { label: "Explore The Chapters", to: "/the-chapters" },
+  },
+  "/birthday": {
+    eyebrow: "Birthday",
+    title: "Another year of them. Worth marking properly.",
+    support: "A natural-diamond piece chosen around who they have become this year.",
+    cta: { label: "Plan a birthday gift", to: chat("intent=birthday&source=birthday") },
+  },
   "/the-proposal/custom-rings": {
     eyebrow: "One of One — Custom Rings",
     title: "Start with the ring. Not the stone.",

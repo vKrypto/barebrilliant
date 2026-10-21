@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { HOUSE_NAV, START_YOUR_RING } from "../content/nav.js";
+import { ABOUT, BARE_BRIEF, PRODUCTS_MENU } from "../content/nav.js";
 import { useCart } from "../lib/cart.js";
 import { useShortlist } from "../lib/shortlist.js";
+
+const LOGO = `${import.meta.env.BASE_URL}brand/logo-diamond.png`;
 
 function HeartIcon() {
   return (
@@ -19,29 +21,90 @@ function BagIcon() {
     </svg>
   );
 }
+function Chevron() {
+  return (
+    <svg className="bb-nav__chev" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <path d="m3 4.5 3 3 3-3" />
+    </svg>
+  );
+}
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const productsRef = useRef(null);
   const { pathname } = useLocation();
   const shortlist = useShortlist();
   const cart = useCart();
 
-  // close the mobile drawer on navigation
-  useEffect(() => setOpen(false), [pathname]);
+  // On the home page the header floats transparent over the hero video until
+  // the visitor scrolls; every other page keeps the solid sticky bar.
+  const overlay = pathname === "/";
+
+  // close the mobile drawer + products menu on navigation
+  useEffect(() => {
+    setOpen(false);
+    setProductsOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!overlay) return undefined;
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [overlay]);
+
+  // click outside / Escape closes the products menu
+  useEffect(() => {
+    if (!productsOpen) return undefined;
+    const onDown = (e) => {
+      if (productsRef.current && !productsRef.current.contains(e.target)) setProductsOpen(false);
+    };
+    const onKey = (e) => e.key === "Escape" && setProductsOpen(false);
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [productsOpen]);
 
   return (
-    <header className="bb-header">
+    <header
+      className="bb-header"
+      data-overlay={overlay || undefined}
+      data-solid={overlay && (scrolled || open) ? true : undefined}
+    >
       <div className="bb-header__row">
         <Link to="/" className="bb-brand" aria-label="Bare Brilliant — home">
-          Bare <span>Brilliant</span>
+          <img src={LOGO} alt="" width="163" height="120" />
         </Link>
 
         <nav className="bb-nav" aria-label="Primary" data-open={open}>
-          {HOUSE_NAV.map((item) => (
-            <NavLink key={item.to} to={item.to}>
-              {item.label}
-            </NavLink>
-          ))}
+          <div className="bb-nav__group" ref={productsRef} data-open={productsOpen}>
+            <button
+              type="button"
+              className="bb-nav__trigger"
+              aria-expanded={productsOpen}
+              aria-controls="bb-products-menu"
+              onClick={() => setProductsOpen((v) => !v)}
+            >
+              Products <Chevron />
+            </button>
+            <ul id="bb-products-menu" className="bb-nav__menu">
+              {PRODUCTS_MENU.map((item) => (
+                <li key={item.to}>
+                  <NavLink to={item.to}>{item.label}</NavLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <NavLink to={ABOUT.to}>{ABOUT.label}</NavLink>
+          <Link to={BARE_BRIEF} className="bb-nav__brief">
+            Bare Brief
+          </Link>
         </nav>
 
         <div className="bb-header__actions">
@@ -53,8 +116,9 @@ export default function Header() {
             <BagIcon />
             {cart.count > 0 && <span className="bb-iconbtn__count">{cart.count}</span>}
           </Link>
-          <Link to={START_YOUR_RING} className="bb-btn bb-btn--primary bb-header__cta">
-            Start Your Ring
+          <Link to={BARE_BRIEF} className="bb-btn bb-btn--primary bb-header__cta">
+            <span>Bare Brief</span>
+            <small>Free Consultation</small>
           </Link>
           <button
             type="button"

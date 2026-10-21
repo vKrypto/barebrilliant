@@ -57,46 +57,95 @@
   background: color-mix(in srgb, var(--bb-bg) 88%, transparent);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--bb-line);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 .bb-header__row {
   display: flex;
   align-items: center;
   gap: clamp(0.75rem, 2vw, 1.5rem);
-  min-height: 68px;
-  padding: 0.75rem clamp(20px, 4vw, 48px);
+  min-height: 72px;
+  padding: 0.6rem clamp(20px, 4vw, 48px);
 }
 .bb-brand {
-  font: 500 1.05rem/1 var(--bb-serif);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--bb-text);
-  text-decoration: none;
-  white-space: nowrap;
+  display: block;
   flex: none;
 }
-.bb-brand span {
-  color: var(--bb-accent);
+.bb-brand img {
+  width: auto;
+  height: 40px;
+}
+/* the diamond mark is black/silver: invert it to silver-white on dark grounds */
+[data-bb-theme="dark"] .bb-brand img,
+.bb-header[data-overlay] .bb-brand img {
+  filter: invert(1) brightness(1.1);
 }
 
 .bb-nav {
   display: flex;
   align-items: center;
-  gap: clamp(0.75rem, 1.6vw, 1.5rem);
-  margin-inline: auto;
+  gap: clamp(1.25rem, 2.4vw, 2.25rem);
+  margin-left: auto;
 }
-.bb-nav a {
-  font: 500 0.7rem/1 var(--bb-sans);
-  letter-spacing: 0.11em;
+.bb-nav a,
+.bb-nav__trigger {
+  font: 500 0.75rem/1 var(--bb-sans);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--bb-text-muted);
   text-decoration: none;
   padding-block: 0.5rem;
   white-space: nowrap;
-  transition: color 0.15s ease;
+  transition: color 0.2s cubic-bezier(0.44, 0, 0.56, 1);
 }
 .bb-nav a:hover,
-.bb-nav a[aria-current="page"] {
+.bb-nav a[aria-current="page"],
+.bb-nav__trigger:hover,
+.bb-nav__group[data-open="true"] .bb-nav__trigger {
   color: var(--bb-text);
+}
+.bb-nav__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.bb-nav__chev {
+  transition: transform 0.2s ease;
+}
+.bb-nav__group[data-open="true"] .bb-nav__chev {
+  transform: rotate(180deg);
+}
+.bb-nav__group {
+  position: relative;
+}
+.bb-nav__menu {
+  position: absolute;
+  top: calc(100% + 0.9rem);
+  left: -1.25rem;
+  min-width: 15rem;
+  padding: 0.6rem 0;
+  background: var(--bb-surface);
+  border: 1px solid var(--bb-line);
+  border-radius: var(--bb-radius);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+.bb-nav__group[data-open="true"] .bb-nav__menu {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.bb-nav__menu a {
+  display: block;
+  padding: 0.8rem 1.25rem;
+}
+/* Bare Brief lives in the actions as the CTA on desktop; the nav copy is for the drawer */
+.bb-nav__brief {
+  display: none;
 }
 
 .bb-header__actions {
@@ -136,16 +185,46 @@
   border-radius: 999px;
 }
 .bb-header__cta {
-  display: inline-flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.6rem 1.3rem;
+  margin-left: 0.5rem;
+}
+.bb-header__cta small {
+  font: 500 0.56rem/1 var(--bb-sans);
+  letter-spacing: 0.14em;
+  opacity: 0.7;
 }
 .bb-burger {
   display: none;
 }
 
-@media (max-width: 1200px) {
+/* Home: float transparent over the hero video (always dark footage, so ivory
+   ink regardless of theme), then turn solid ink once the visitor scrolls. */
+.bb-header[data-overlay] {
+  position: fixed;
+  inset: 0 0 auto 0;
+  background: linear-gradient(to bottom, rgba(11, 11, 10, 0.45), transparent);
+  backdrop-filter: none;
+  border-bottom-color: transparent;
+  --bb-text: var(--bb-tx-l);
+  --bb-text-muted: rgba(222, 216, 206, 0.78);
+  --bb-line: var(--bb-line-l);
+  --bb-cta-bg: var(--bb-cream);
+  --bb-cta-fg: var(--bb-ink);
+  --bb-surface: var(--bb-ink-2);
+  --bb-bg: var(--bb-ink);
+}
+.bb-header[data-overlay][data-solid] {
+  background: rgba(11, 11, 10, 0.94);
+  backdrop-filter: blur(10px);
+  border-bottom-color: var(--bb-line-l);
+}
+
+@media (max-width: 900px) {
   .bb-nav {
     position: fixed;
-    inset: 68px 0 auto 0;
+    inset: 72px 0 auto 0;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
@@ -155,16 +234,43 @@
     border-bottom: 1px solid var(--bb-line);
     transform: translateY(-130%);
     transition: transform 0.25s ease;
-    max-height: calc(100svh - 68px);
+    max-height: calc(100svh - 72px);
     overflow-y: auto;
   }
   .bb-nav[data-open="true"] {
     transform: none;
   }
-  .bb-nav a {
-    padding-block: 0.9rem;
+  .bb-nav a,
+  .bb-nav__trigger {
+    width: 100%;
+    padding-block: 1rem;
     border-bottom: 1px solid var(--bb-line);
     font-size: 0.8rem;
+  }
+  .bb-nav__trigger {
+    justify-content: space-between;
+  }
+  /* products expand inline in the drawer */
+  .bb-nav__menu {
+    position: static;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    display: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+  .bb-nav__group[data-open="true"] .bb-nav__menu {
+    display: block;
+  }
+  .bb-nav__menu a {
+    padding: 0.9rem 0 0.9rem 1rem;
+  }
+  .bb-nav__brief {
+    display: block;
+    color: var(--bb-accent) !important;
   }
   .bb-header .bb-burger {
     display: inline-flex;
@@ -174,9 +280,8 @@
   }
 }
 @media (max-width: 560px) {
-  .bb-brand {
-    font-size: 0.95rem;
-    letter-spacing: 0.12em;
+  .bb-brand img {
+    height: 34px;
   }
 }
 
@@ -227,6 +332,30 @@
 }
 .bb-footer__col a {
   font-size: 0.85rem;
+}
+.bb-footer__connect {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  padding-block: 1.25rem;
+  border-top: 1px solid var(--bb-line);
+}
+.bb-footer__social,
+.bb-footer__contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.75rem;
+  font: 500 0.72rem/1 var(--bb-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-style: normal;
+}
+.bb-footer__contact {
+  text-transform: none;
+  letter-spacing: 0.06em;
+  font-size: 0.8rem;
 }
 .bb-footer__base {
   display: flex;

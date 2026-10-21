@@ -11,6 +11,34 @@ export const HOUSE_NAV = [
 // The global-nav conversation gateway (no engineered Bare Brief in this build).
 export const START_YOUR_RING = "/chat?intent=proposal&source=global-nav";
 
+// Header (home-page wireframe): PRODUCTS menu · ABOUT · BARE BRIEF.
+export const PRODUCTS_MENU = [
+  ...HOUSE_NAV.slice(0, 4),
+  { label: "Engagement Rings", to: "/the-proposal/engagement-rings" },
+];
+export const ABOUT = { label: "About", to: "/our-house" };
+export const BARE_BRIEF = "/chat?intent=consultation&source=global-nav";
+
+// Shop-by-moment sub-collections (home page, 7th fold).
+export const MOMENTS = [
+  { label: "Gifting", to: "/gifting" },
+  { label: "Wedding Collection", to: "/wedding-collection" },
+  { label: "Anniversary", to: "/anniversary" },
+  { label: "Birthday", to: "/birthday" },
+];
+
+// Footer contact + social. Placeholder values until the client confirms them.
+export const CONTACT = {
+  phone: "+91 98XXX XXXXX",
+  email: "hello@barebrilliant.com",
+};
+export const SOCIAL = [
+  { label: "Instagram", href: "https://www.instagram.com/" },
+  { label: "YouTube", href: "https://www.youtube.com/" },
+  { label: "Pinterest", href: "https://www.pinterest.com/" },
+  { label: "WhatsApp", href: "https://wa.me/" },
+];
+
 export const FOOTER_COLUMNS = [
   {
     heading: "The House",

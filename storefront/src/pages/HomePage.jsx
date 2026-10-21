@@ -1,145 +1,198 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { trackBannerClick } from "../events/index.js";
+import { MOMENTS } from "../content/nav.js";
 import "../home.css";
 
-const HOUSE = [
-  { key: "the-proposal", name: "The Proposal", line: "For the moment you ask. And the reason you ask it.", to: "/the-proposal" },
-  { key: "the-vow", name: "The Vow", line: "The yes becomes every day.", to: "/the-vow" },
-  { key: "the-chapters", name: "The Chapters", line: "The story continues after yes.", to: "/the-chapters" },
-  { key: "private-commission", name: "Private Commission", line: "When the piece does not belong in a category.", to: "/private-commission" },
+const MEDIA = `${import.meta.env.BASE_URL}home`;
+const CONSULTATION = "/chat?intent=consultation&source=home-consultation";
+
+// Folds 2–5 of the home-page wireframe: one full-bleed film per product world.
+const FOLDS = [
+  {
+    key: "the-proposal",
+    eyebrow: "Engagement",
+    name: "The Proposal",
+    line: "For the moment you ask. And the reason you ask it.",
+    to: "/the-proposal",
+  },
+  { key: "the-vow", eyebrow: "Wedding Bands", name: "The Vow", line: "The yes becomes every day.", to: "/the-vow" },
+  {
+    key: "the-chapters",
+    eyebrow: "Anniversary & Milestones",
+    name: "The Chapters",
+    line: "The story continues after yes.",
+    to: "/the-chapters",
+  },
+  {
+    key: "private-commission",
+    eyebrow: "One of One",
+    name: "Private Commission",
+    line: "When the piece does not belong in a category.",
+    to: "/private-commission",
+  },
 ];
 
-const HOW_WE_WORK = [
-  ["The Brief", "Who is it for? What does she wear? What should the ring never feel like? What matters most? What are you comfortable spending?"],
-  ["The Design", "We turn those clues into a direction: shape, proportion, setting, profile and the details that make the ring feel specific."],
-  ["The Natural Diamond", "Once the design tells us what the centre stone needs to do, we source natural diamonds that make sense for its proportions and your budget."],
-  ["The Reason", "We tell you what we would choose, what you are paying more for and which differences you are unlikely to see."],
-  ["The Creation", "Only after design and diamond approval does making begin."],
-  ["The Record", "Final specifications, independent certification, HUID, invoice and service information stay together."],
-];
+// Autoplay is a nicety, not a requirement: skip it for reduced-motion and
+// data-saver visitors (they keep the poster still).
+function canAutoplay() {
+  if (typeof window === "undefined") return false;
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
+  if (navigator.connection?.saveData) return false;
+  return true;
+}
+
+// Muted looping film that plays only while it is meaningfully on screen and
+// pauses once scrolled past, so at most one or two clips decode at a time.
+function FoldVideo({ name, eager = false }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video || !canAutoplay()) return undefined;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.4 }
+    );
+    io.observe(video);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <video
+      ref={ref}
+      className="bb-fold__media"
+      poster={`${MEDIA}/${name}.webp`}
+      muted
+      loop
+      playsInline
+      preload={eager ? "auto" : "none"}
+      aria-hidden="true"
+    >
+      <source src={`${MEDIA}/${name}.mp4`} type="video/mp4" />
+    </video>
+  );
+}
+
+// Fade-up on first sight for anything marked data-reveal.
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll(".bb-home [data-reveal]");
+    if (!("IntersectionObserver" in window)) {
+      els.forEach((el) => el.setAttribute("data-revealed", ""));
+      return undefined;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.setAttribute("data-revealed", "");
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.25 }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+}
 
 export default function HomePage() {
+  useReveal();
+
   return (
-    <>
-      {/* ---------- hero ---------- */}
-      <section className="bb-home-hero">
-        <div className="bb-container bb-home-hero__inner">
-          <p className="bb-eyebrow">Natural Diamond Engagement Rings</p>
-          <h1 className="bb-hero-type">Meant, Not Made.</h1>
-          <p className="bb-body-lg">
-            Natural diamond engagement rings, made around the person you're choosing.
-          </p>
-          <div className="bb-home-hero__cta">
-            <Link to="/chat?intent=proposal&source=home-hero" className="bb-btn bb-btn--primary">
-              Start Your Ring
-            </Link>
-            <Link to="/the-proposal" className="bb-btn bb-btn--secondary">
-              Explore The Proposal
-            </Link>
-          </div>
-          <p className="bb-home-hero__trust">
-            Natural Diamonds <i>·</i> GIA Solitaires <i>·</i> Made to Order <i>·</i> PAN India
-          </p>
+    <div className="bb-home">
+      {/* ---------- 1. hero banner ---------- */}
+      <section className="bb-fold bb-fold--hero" aria-label="Bare Brilliant">
+        <FoldVideo name="hero" eager />
+        <div className="bb-fold__scrim" aria-hidden="true" />
+        <h1 className="bb-hero-mark">Bare Brilliant</h1>
+        <div className="bb-slate" aria-hidden="true">
+          <span>Natural Diamonds · Made to Order · PAN India</span>
+          <span>Scroll ↓</span>
         </div>
       </section>
 
-      {/* ---------- the house ---------- */}
-      <section className="bb-section bb-house">
-        <div className="bb-container">
-          <div className="bb-house__head">
-            <span className="bb-house__diamond" aria-hidden="true" />
-            <p className="bb-eyebrow bb-eyebrow--plain">The House</p>
-            <h2 className="bb-h2">Four product worlds. One relationship journey.</h2>
-          </div>
-          <div className="bb-house__grid">
-            {HOUSE.map((h) => (
-              <Link
-                key={h.key}
-                to={h.to}
-                className="bb-house__card"
-                onClick={() => trackBannerClick({ banner_id: `house-${h.key}`, source: "home" })}
-              >
-                <h3 className="bb-h3">{h.name}</h3>
-                <p>{h.line}</p>
-                <span className="bb-btn bb-btn--tertiary" aria-hidden="true">
-                  Explore
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- belief ---------- */}
-      <section className="bb-section bb-belief">
-        <div className="bb-container bb-belief__inner">
-          <p className="bb-eyebrow">The Belief</p>
-          <h2 className="bb-h2">Some Things Can't Be Made.</h2>
-          <p className="bb-body-lg">
-            We can design the ring. We can refine every proportion. We can source
-            a remarkable natural diamond. What we can't manufacture is the reason
-            you're buying it — chemistry, timing, the moment one person became
-            different from everyone else. Bare Brilliant exists to make the ring
-            around that.
-          </p>
-          <Link to="/our-house" className="bb-btn bb-btn--secondary">
-            Why Bare Brilliant
+      {/* ---------- 2–5. product worlds ---------- */}
+      {FOLDS.map((f) => (
+        <div key={f.key}>
+          <div className="bb-cut" aria-hidden="true" />
+          <Link
+            to={f.to}
+            className="bb-fold bb-fold--world"
+            onClick={() => trackBannerClick({ banner_id: `home-fold-${f.key}`, source: "home" })}
+          >
+            <FoldVideo name={f.key} />
+            <div className="bb-fold__scrim" aria-hidden="true" />
+            <div className="bb-fold__copy" data-reveal>
+              <span className="bb-eyebrow">{f.eyebrow}</span>
+              <h2 className="bb-fold__title">
+                <span>{f.name}</span>
+                <i aria-hidden="true">→</i>
+              </h2>
+              <p>{f.line}</p>
+            </div>
           </Link>
         </div>
+      ))}
+
+      {/* ---------- 6. belief ---------- */}
+      <section className="bb-quote">
+        <span className="bb-quote__mark" aria-hidden="true">
+          <span className="bb-diamond" />
+        </span>
+        <blockquote data-reveal>
+          Some things in life cannot be manufactured. Some things feel significant before we ever decide
+          what to call them.
+        </blockquote>
       </section>
 
-      {/* ---------- how we work ---------- */}
-      <section className="bb-section bb-how">
+      {/* ---------- 7. shop by moment ---------- */}
+      <section className="bb-moments" aria-labelledby="bb-moments-title">
         <div className="bb-container">
-          <p className="bb-eyebrow">How We Work</p>
-          <h2 className="bb-h2">Start with the person. The stone comes second.</h2>
-          <ol className="bb-how__grid">
-            {HOW_WE_WORK.map(([h, p], i) => (
-              <li key={h} className="bb-card bb-how__step">
-                <span className="bb-how__num">{String(i + 1).padStart(2, "0")}</span>
-                <h3 className="bb-h3">{h}</h3>
-                <p>{p}</p>
+          <p id="bb-moments-title" className="bb-eyebrow">
+            Shop by Moment
+          </p>
+          <ul className="bb-moments__list">
+            {MOMENTS.map((m) => (
+              <li key={m.to} data-reveal>
+                <Link
+                  to={m.to}
+                  onClick={() => trackBannerClick({ banner_id: `home-moment${m.to.replace("/", "-")}`, source: "home" })}
+                >
+                  <span>{m.label}</span>
+                  <i aria-hidden="true">→</i>
+                </Link>
               </li>
             ))}
-          </ol>
-          <div className="bb-how__cta">
-            <Link to="/how-it-works" className="bb-btn bb-btn--secondary">
-              See how it works
-            </Link>
-            <Link to="/chat?source=home-how-we-work" className="bb-btn bb-btn--tertiary">
-              Talk to Bare Brilliant
-            </Link>
-          </div>
+          </ul>
         </div>
       </section>
 
-      {/* ---------- forever ---------- */}
-      <section className="bb-section bb-forever">
-        <div className="bb-container bb-forever__inner">
-          <p className="bb-eyebrow">Forever Is A Verb</p>
-          <p className="bb-lede">
-            A proposal happens once. A relationship happens every day after it.
-            Showing up. Listening. Changing. Repairing. Laughing. Choosing. Again
-            and again.
+      {/* ---------- 8. free consultation ---------- */}
+      <section className="bb-consult">
+        <div className="bb-ruler" aria-hidden="true" />
+        <div className="bb-container bb-consult__inner" data-reveal>
+          <Link
+            to={CONSULTATION}
+            className="bb-consult__link"
+            onClick={() => trackBannerClick({ banner_id: "home-consultation", source: "home" })}
+          >
+            Get your free consultation today <i aria-hidden="true">→</i>
+          </Link>
+          <p className="bb-body">
+            A conversation, not a sales pitch. Tell us what you know; we'll help with what you don't.
           </p>
         </div>
+        <div className="bb-ruler" aria-hidden="true" />
       </section>
-
-      {/* ---------- final CTA ---------- */}
-      <section className="bb-section bb-finalcta">
-        <div className="bb-container bb-finalcta__inner">
-          <h2 className="bb-h2">You've found the person. Let's get the ring right.</h2>
-          <p className="bb-body-lg">Tell us what you know. We'll help with what you don't.</p>
-          <div className="bb-finalcta__row">
-            <Link to="/chat?intent=proposal&source=home-final" className="bb-btn bb-btn--primary">
-              Start a conversation
-            </Link>
-            <Link to="/the-proposal/engagement-rings" className="bb-btn bb-btn--secondary">
-              Explore engagement rings
-            </Link>
-          </div>
-        </div>
-      </section>
-    </>
+    </div>
   );
 }

@@ -1,177 +1,281 @@
-/* Homepage — dark. "One idea per screen", large negative space (spec §Apple-
-   Inspired Design Language). The helix is represented as a static rotating
-   diamond motif; no WebGL. */
+/* Homepage — cinematic folds (raw_plans/home_page wireframe; composition after
+   amber.framer.media). Full-bleed square-cornered films separated by hard ink
+   cuts, one statement per screen, then three text-only folds. Films are always
+   dark footage, so their overlays use fixed ivory ink regardless of theme. */
 
-.bb-home-hero {
-  padding-block: clamp(3.5rem, 11vh, 6rem);
-  border-bottom: 1px solid var(--bb-line);
-  position: relative;
-  overflow: hidden;
+.bb-home {
+  --bb-fold-ink: var(--bb-cream);
+  --bb-fold-muted: rgba(244, 241, 235, 0.82);
 }
-.bb-home-hero::after {
-  content: "";
+
+/* ------------------------------------------------- film folds ---- */
+.bb-fold {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bb-ink);
+  color: var(--bb-fold-ink);
+  text-decoration: none;
+  isolation: isolate;
+}
+.bb-fold--hero {
+  min-height: 100svh;
+  justify-content: center;
+}
+.bb-fold--world {
+  min-height: 88svh;
+  padding: 0 var(--bb-gutter) clamp(3.5rem, 11vh, 7rem);
+}
+.bb-fold__media {
   position: absolute;
-  width: min(46vw, 460px);
-  aspect-ratio: 1;
-  right: -8%;
-  top: 12%;
-  border: 1px solid color-mix(in srgb, var(--bb-accent) 26%, transparent);
-  transform: rotate(45deg);
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-width: none;
+  transition: transform 1.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.bb-fold--world:hover .bb-fold__media {
+  transform: scale(1.03);
+}
+.bb-fold__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, rgba(11, 11, 10, 0.78) 0%, rgba(11, 11, 10, 0.32) 34%, rgba(11, 11, 10, 0) 62%);
   pointer-events: none;
 }
-.bb-home-hero__inner {
-  position: relative;
-  z-index: 1;
-  max-width: 52rem;
+.bb-fold--hero .bb-fold__scrim {
+  background:
+    linear-gradient(to top, rgba(11, 11, 10, 0.7) 0%, rgba(11, 11, 10, 0) 38%),
+    rgba(11, 11, 10, 0.28);
 }
-.bb-home-hero .bb-eyebrow {
-  margin-bottom: 1.5rem;
-}
-.bb-home-hero .bb-body-lg {
-  margin-top: 1.5rem;
-}
-.bb-home-hero__cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 2.25rem;
-}
-.bb-home-hero__trust {
-  margin-top: 2.5rem;
-  font: 500 0.72rem/1.6 var(--bb-sans);
-  letter-spacing: 0.16em;
+
+/* hero wordmark + film-slate metadata row */
+.bb-hero-mark {
+  font: 400 clamp(2.75rem, 9vw, 8rem) / 1 var(--bb-serif);
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--bb-text-muted);
-}
-.bb-home-hero__trust i {
-  color: var(--bb-accent);
-  font-style: normal;
-  margin-inline: 0.5rem;
-}
-
-/* ---- the house ---- */
-.bb-house__head {
   text-align: center;
-  max-width: 40rem;
-  margin: 0 auto clamp(2.5rem, 6vw, 4rem);
+  color: var(--bb-fold-ink);
+  padding-inline: var(--bb-gutter);
+  animation: bb-rise 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
-.bb-house__head .bb-eyebrow {
-  margin: 1.25rem 0 0.75rem;
-}
-.bb-house__diamond {
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--bb-accent);
-  transform: rotate(45deg);
-  margin: 0 auto;
-  display: block;
-  animation: bb-spin 26s linear infinite;
-}
-@keyframes bb-spin {
-  to {
-    transform: rotate(405deg);
-  }
-}
-.bb-house__grid {
-  display: grid;
-  gap: 1px;
-  grid-template-columns: repeat(2, 1fr);
-  background: var(--bb-line);
-  border: 1px solid var(--bb-line);
-  border-radius: var(--bb-radius);
-  overflow: hidden;
-}
-.bb-house__card {
-  background: var(--bb-bg);
-  padding: clamp(1.75rem, 4vw, 3rem);
-  text-decoration: none;
+.bb-slate {
+  position: absolute;
+  inset: auto 0 0 0;
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  transition: background 0.2s ease;
-}
-.bb-house__card:hover {
-  background: var(--bb-surface);
-}
-.bb-house__card p {
-  font: 400 0.95rem/1.6 var(--bb-sans);
-  color: var(--bb-text-muted);
-  flex: 1;
-}
-@media (max-width: 720px) {
-  .bb-house__grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ---- belief / forever / final ---- */
-.bb-belief__inner,
-.bb-forever__inner,
-.bb-finalcta__inner {
-  max-width: 44rem;
-}
-.bb-belief .bb-eyebrow,
-.bb-how .bb-eyebrow,
-.bb-forever .bb-eyebrow {
-  margin-bottom: 1rem;
-}
-.bb-belief .bb-h2 {
-  margin-bottom: 1.5rem;
-}
-.bb-belief .bb-btn--secondary {
-  margin-top: 2rem;
-}
-.bb-forever {
-  border-block: 1px solid var(--bb-line);
-}
-
-/* ---- how we work ---- */
-.bb-how .bb-h2 {
-  margin: 1rem 0 2.5rem;
-  max-width: 34rem;
-}
-.bb-how__grid {
-  display: grid;
+  justify-content: space-between;
   gap: 1rem;
-  grid-template-columns: repeat(3, 1fr);
+  padding: 1.25rem var(--bb-gutter);
+  font: 500 clamp(9.5px, 1.2vw, 11px) / 1 var(--bb-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bb-fold-muted);
+  border-top: 1px solid rgba(216, 209, 196, 0.16);
 }
-.bb-how__step {
+
+/* hard cut between films */
+.bb-cut {
+  height: clamp(3rem, 10vh, 6.5rem);
+  background: var(--bb-ink);
+}
+
+/* product-world caption, set low in the frame */
+.bb-fold__copy {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  align-items: center;
+  gap: 1.1rem;
+  text-align: center;
+  max-width: 48rem;
 }
-.bb-how__num {
-  font: 600 0.75rem/1 var(--bb-sans);
-  letter-spacing: 0.12em;
-  color: var(--bb-accent);
+.bb-fold .bb-eyebrow {
+  color: var(--bb-gold-l);
 }
-.bb-how__step p {
-  font: 400 0.9rem/1.6 var(--bb-sans);
-  color: var(--bb-text-muted);
+.bb-fold .bb-eyebrow::before {
+  background: var(--bb-gold-l);
 }
-.bb-how__cta {
+.bb-fold__title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35em;
+  font: 400 clamp(2.2rem, 6vw, 5.5rem) / 1.02 var(--bb-serif);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--bb-fold-ink);
+}
+.bb-fold__title span {
+  background: linear-gradient(var(--bb-gold-l), var(--bb-gold-l)) left bottom / 0 1px no-repeat;
+  padding-bottom: 0.08em;
+  transition: background-size 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.bb-fold__title i {
+  font: 300 0.5em/1 var(--bb-sans);
+  font-style: normal;
+  transition: transform 0.3s ease;
+}
+.bb-fold--world:hover .bb-fold__title span,
+.bb-fold--world:focus-visible .bb-fold__title span {
+  background-size: 100% 1px;
+}
+.bb-fold--world:hover .bb-fold__title i {
+  transform: translateX(6px);
+}
+.bb-fold__copy p {
+  margin: 0;
+  font: 400 clamp(0.95rem, 1.3vw, 1.125rem) / 1.5 var(--bb-sans);
+  color: var(--bb-fold-muted);
+}
+.bb-fold--world:focus-visible {
+  outline-offset: -6px;
+}
+
+/* ------------------------------------------------- belief quote ---- */
+.bb-quote {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  min-height: 70svh;
+  padding: clamp(4rem, 12vh, 8rem) var(--bb-gutter);
+  text-align: center;
+}
+.bb-quote__mark {
+  display: flex;
   align-items: center;
   gap: 1rem;
-  margin-top: 2rem;
+  color: var(--bb-accent);
+  font-size: 0.75rem;
 }
-@media (max-width: 900px) {
-  .bb-how__grid {
-    grid-template-columns: 1fr;
+.bb-quote__mark::before,
+.bb-quote__mark::after {
+  content: "";
+  width: clamp(2.5rem, 8vw, 5rem);
+  height: 1px;
+  background: var(--bb-accent);
+  opacity: 0.6;
+}
+.bb-quote blockquote {
+  margin: 0;
+  max-width: 24ch;
+  font: italic 400 clamp(1.8rem, 3.8vw, 3.25rem) / 1.28 var(--bb-serif);
+  color: var(--bb-text);
+  text-wrap: balance;
+}
+
+/* ------------------------------------------------- shop by moment ---- */
+.bb-moments {
+  padding-block: clamp(3rem, 8vw, 6rem);
+}
+.bb-moments__list {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--bb-line);
+}
+.bb-moments__list li {
+  border-bottom: 1px solid var(--bb-line);
+}
+.bb-moments__list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: clamp(1.25rem, 3vw, 2rem);
+  font: 400 clamp(1.75rem, 4.2vw, 3.25rem) / 1.1 var(--bb-serif);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--bb-text-muted);
+  text-decoration: none;
+  transition: color 0.2s cubic-bezier(0.44, 0, 0.56, 1);
+}
+.bb-moments__list i {
+  font: 300 0.6em/1 var(--bb-sans);
+  font-style: normal;
+  color: var(--bb-accent);
+  transition: transform 0.3s ease;
+}
+.bb-moments__list a:hover {
+  color: var(--bb-text);
+}
+.bb-moments__list a:hover i {
+  transform: translateX(8px);
+}
+
+/* ------------------------------------------------- consultation ---- */
+.bb-consult {
+  padding-block: clamp(3rem, 8vw, 6rem);
+}
+.bb-ruler {
+  height: 14px;
+  background: linear-gradient(90deg, var(--bb-line) 1px, transparent 1px) 0 0 / 10px 100% repeat-x;
+}
+.bb-consult__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding-block: clamp(3rem, 8vw, 5.5rem);
+  text-align: center;
+}
+.bb-consult__link {
+  font: 400 clamp(2rem, 5.4vw, 4.75rem) / 1.08 var(--bb-serif);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--bb-text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in srgb, var(--bb-text) 40%, transparent);
+  text-wrap: balance;
+  transition: text-decoration-color 0.3s ease;
+}
+.bb-consult__link:hover {
+  text-decoration-color: var(--bb-accent);
+}
+.bb-consult__link i {
+  font: 300 0.6em/1 var(--bb-sans);
+  font-style: normal;
+}
+.bb-consult .bb-body {
+  margin: 0;
+}
+
+/* ------------------------------------------------- motion ---- */
+@keyframes bb-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+    letter-spacing: 0.08em;
+  }
+}
+.bb-home [data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s ease-out, transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.bb-home [data-reveal][data-revealed] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bb-home [data-reveal] {
+    opacity: 1;
+    transform: none;
   }
 }
 
-.bb-finalcta__inner {
-  text-align: center;
-  margin-inline: auto;
-}
-.bb-finalcta__inner .bb-body-lg {
-  margin: 1rem auto 2rem;
-}
-.bb-finalcta__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
+@media (max-width: 640px) {
+  .bb-slate span:first-child {
+    max-width: 70%;
+    line-height: 1.5;
+  }
+  .bb-fold--world {
+    min-height: 78svh;
+  }
 }

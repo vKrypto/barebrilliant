@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FOOTER_COLUMNS, START_YOUR_RING } from "../content/nav.js";
+import { CONTACT, FOOTER_COLUMNS, SOCIAL, START_YOUR_RING } from "../content/nav.js";
 import ThemeToggle from "./ThemeToggle.jsx";
 
 const YEAR = new Date().getFullYear();
@@ -33,6 +33,22 @@ export default function Footer() {
             </ul>
           </div>
         ))}
+      </div>
+
+      <div className="bb-container bb-footer__connect">
+        <ul className="bb-footer__social" aria-label="Social">
+          {SOCIAL.map((s) => (
+            <li key={s.label}>
+              <a href={s.href} target="_blank" rel="noopener noreferrer">
+                {s.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <address className="bb-footer__contact">
+          <a href={`tel:${CONTACT.phone.replace(/[^+\d]/g, "")}`}>{CONTACT.phone}</a>
+          <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
+        </address>
       </div>
 
       <div className="bb-container bb-footer__base">
