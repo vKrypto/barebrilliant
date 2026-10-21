@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "/": {
+      "targetKind": "new-target",
+      "projectId": "c4a07eb4-59b1-43c0-a9fe-a24f0579f8ee",
+      "activeDraftId": "b19f5250-63ac-4d14-ae2e-6c21a19774a9",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": ["3f366408-9de2-4813-9d36-29921e915da2", "brand-logo-diamond", "db943a86-8765-4a90-a7ed-9dc74ea882f8", "85976f5c-cba2-495e-a1bc-a792b0d42935", "1d33f182-5bac-424d-ae3c-49917284a16b", "c1e6fdf8-9247-4182-b77e-063fa2ec94db", "e3732129-c389-451f-a469-50ba45504ba8"],
+      "brandAssets": {
+        "logo": {
+          "assetKey": "brand-logo-diamond",
+          "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/c4a07eb4-59b1-43c0-a9fe-a24f0579f8ee/brand-assets/brand-logo-diamond/logo-diamond.png",
+          "sourcePath": ".superdesign/assets/logo-diamond.png"
+        }
+      },
+      "contextFiles": [".superdesign/design-system.md", "storefront/src/theme.css", "storefront/src/content/nav.js"],
+      "fingerprints": {
+        ".superdesign/design-system.md": "aab63ac964fc363fa17c029829d9a992945eb7bc943620ac95b6a5d8a90d4814",
+        "storefront/src/theme.css": "351e245345efd5c84a5962a3e213833a7a5ad99b923539c5de8fb7a9ca8321ac",
+        "storefront/src/content/nav.js": "87a6354201cc1902aa03bc1173d98e4c0fd8df6332da8e9d705af551414796eb"
+      },
+      "components": [],
+      "drafts": {
+        "b19f5250-63ac-4d14-ae2e-6c21a19774a9": {
+          "title": "Home — Cinematic Folds",
+          "visualDirection": "cinematic full-bleed video folds (amber.framer.media composition) in Bare Brilliant ink/ivory/gold, Playfair + Inter",
+          "model": "gemini-3.1-pro",
+          "currentVersion": 1
+        }
+      }
+    }
+  }
+}

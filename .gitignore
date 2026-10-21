@@ -44,3 +44,4 @@ __pycache__/
 # root-level scratch storage working copy (NOT storefront/public/storage/, which
 # is committed sample content, nor dashboard exports)
 /storage/
+.superdesign/tmp/
